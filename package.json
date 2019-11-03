@@ -1,0 +1,14 @@
+{
+  "name": "swe681_secure_texasholdem",
+  "version": "1.0.0",
+  "description": "Secure, networked game of Texas Hold'Em. Developed by Harry Trebing and Pravin Gurung for SWE 681, Fall 2019.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Harry Trebing",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
