@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Texas Hold'em</title>
+    <script
+			  src="https://code.jquery.com/jquery-3.4.1.min.js"
+			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+			  crossorigin="anonymous">
+
+    </script>
+</head>
+<body>
+    <h1>Welcome to Secure Texas Hold'em!</h1>
+    <h2>Log On or Create a New Account</h2>
+    <button id="login">Login</button>
+    <button id="create-account">Create Account</button>
+
+</body>
+<script type="text/javascript">
+    $("#login").click(function() {
+        window.location.replace("/login");
+    });
+
+    $("#create-account").click(function() {
+        window.location.replace("/create-account");
+    });
+</script>
+</html>

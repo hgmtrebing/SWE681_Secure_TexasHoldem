@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New User: Secure Texas Hold'em</title>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+
+    </script>
+</head>
+<body>
+    <form id="new-user-form">
+        <h1>Secure Texas Hold'em: New Account Creation</h1>
+
+        <div id="first-name-holder">
+            <label for="first-name">First Name:</label>
+            <input id="first-name" type="text" placeholder="Please enter your first name:">
+            <output for="first-name" id="first-name-invalid" style="color:red; display:none">First Name cannot be empty!</output>
+        </div>
+
+        <div id="last-name-holder">
+            <label for="last-name">Last Name:</label>
+            <input id="last-name" type="text" placeholder="Please enter your last name:">
+            <output for="last-name" id="last-name-invalid" style="color:red; display:none">Last Name cannot be empty!</output>
+        </div>
+
+        <div id="email-address-holder">
+            <label for="email-address">Email Address:</label>
+            <input id="email-address" type="email" placeholder="Please enter your email address:">
+            <output id="email-address-empty" for="email-address" style="color:red; display:none">Email Address cannot be empty!</output>
+            <output id="email-address-invalid" for="email-address" style="color:red; display:none">Email Address is invalid!</output>
+        </div>
+
+        <div id="user-name-holder">
+            <label for="user-name">User Name:</label>
+            <input id="user-name" type="text" placeholder="Please enter your desired username:">
+            <output for="user-name" style="color:red; display:none">Username cannot be empty!</output>
+            <output for="user-name" style="color:red; display:none">Username is invalid!</output>
+            <output for="user-name" style="color:red; display:none">Username already exists!</output>
+        </div>
+
+        <div id="password-01-holder">
+            <label for="password-01">Password:</label>
+            <input id="password-01" type="password" placeholder="Please enter your password:">
+        </div>
+
+        <div id="password-02-holder">
+            <label for="password-02">Re-enter Password:</label>
+            <input id="password-02" type="password" placeholder="Please re-enter your password:">
+        </div>
+
+        <button id="submit-button" type="button">Submit!</button>
+    </form>
+</body>
+<script type="text/javascript">
+
+    $("#submit-button").click(function() {
+        console.log('begin');
+        errors = false;
+        var firstName = $("#first-name").val();
+        var lastName = $("#last-name").val();
+        var emailAddr = $("#email-address").val();
+        var userName = $("#user-name").val();
+        var password01 = $("#password-01").val();
+        var password02 = $("#password-02").val();
+
+        if (firstName === "" || firstName === null || firstName === undefined) {
+            errors = true;
+            $("#first-name-invalid").css("display", "inline");
+        } else {
+            $("#first-name-invalid").css("display", "none");
+        }
+
+        if (lastName === "" || lastName === null || lastName === undefined) {
+            errors = true;
+            $("#last-name-invalid").css("display", "inline");
+        } else {
+            $("#last-name-invalid").css("display", "none");
+        }
+
+        if (emailAddr === "" || emailAddr === null || emailAddr === undefined) {
+            errors = true;
+            $("#email-address-empty").css("display", "inline");
+        } else {
+            $("#email-address-empty").css("display", "none");
+        }
+
+        if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(emailAddr))) {
+            errors = true;
+            $("#email-address-invalid").css("display", "inline");
+        } else {
+            $("#email-address-invalid").css("display", "none");
+        }
+
+    });
+</script>
+</html>
