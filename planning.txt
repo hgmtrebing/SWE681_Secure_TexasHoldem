@@ -1,0 +1,80 @@
+Welcome Page
+Login Page
+New User Page
+
+Home Page
+    Table of Game Page / Enter Table Button
+    User History Page
+    On Top: User Name / Account Balance
+Play Game Page
+    2 - 4 Users (Start with 2 users)
+    User has hand, which they can see
+    If no one, have message "Waiting for players"
+    User needs to see pot, money bet so far
+    When all users join, automatically starts dealing
+    If user joins in the middle, greyed out in with dialog box "Waiting for other players"
+    One player is assigned big blind, other player small blind
+
+Username / Password Whitelist
+Username / Password Validation
+Session ID
+Salt/Hash Password
+Generate/Register Certifications
+Setup Database
+Prepared Statements / Secure Database Access
+Cross-site scripting concerns
+Content Security Policy (CSP) with Nonce
+
+User
+    id
+    username
+    password
+    total_number_of_rounds_played
+    number_of_wins
+    balance
+
+Player
+    user id
+    hand
+    status
+    move
+    bet amount
+
+Table
+    id
+    name
+    list of players at the table
+    round number
+    round id
+
+
+Round
+    Players
+    Pot
+    Cards on the Table
+        Cards that have been revealed
+        Cards that have been not revealed
+
+Player
+    Hand
+    Balance
+    Big Blind / Small Blind / none
+    Active / Folded
+
+Card
+Deck
+Player Actions: "Check", "Call", "Bet", "All-In", "Fold", "Leave", "Raise"
+Round/Dealer Actions: "Deal Cards" , "Set Big / Small Blinds", "Reveal first three cards", 'Reveal Card 4' , 'Reveal Card 5'
+
+Login Log
+Error Log
+Move Log
+
+User.js
+Deck.js
+    It builds the deck
+
+Authentication
+    JWT Token
+Business Logic for Game
+Database
