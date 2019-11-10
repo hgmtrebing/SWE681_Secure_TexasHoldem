@@ -2,8 +2,11 @@ const https = require("https");
 const http = require("http");
 const fs = require("fs");
 const express = require("express");
+var bodyParser = require("body-parser");
 
 var app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // TODO - this sends an error message to the browser if there is an error - we must suppress this behavior
 app.get('/', function(req, res) {
@@ -18,6 +21,14 @@ app.get("/login", function(req, res) {
 app.get("/create-account", function(req, res){
     console.log("request received");
     res.sendFile("web/new_user.html", {root: __dirname});
+});
+
+app.post("/new-user", function (req, res) {
+    console.log(JSON.stringify(req.body));
+});
+
+app.get("/newUserAjax.js", function (req, res) {
+    res.sendFile("web/src/newUserAjax.js", {root: __dirname});
 });
 
 var server = https.createServer({

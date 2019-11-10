@@ -9,6 +9,7 @@
             crossorigin="anonymous">
 
     </script>
+    <script src="/newUserAjax.js" type="text/javascript"></script>
 </head>
 <body>
     <form id="new-user-form">
@@ -17,8 +18,10 @@
         <div id="user-name-holder">
             <label for="user-name">User Name:</label>
             <input id="user-name" type="text" placeholder="Please enter your desired username:">
-            <output for="user-name" style="color:red; display:none">Username cannot be empty!</output>
-            <output for="user-name" style="color:red; display:none">Username is invalid!</output>
+            <output id="empty-username" for="user-name" style="color:red; display:none">Username cannot be empty!</output>
+            <output id="short-username" for="user-name" style="color:red; display:none">Username cannot be shorter than 5 characters</output>
+            <output id="long-username" for="user-name" style="color:red; display:none">Username cannot be longer than 20 characters</output>
+            <output id="invalid-username" for="user-name" style="color:red; display:none">Username can only contain letters and numbers</output>
             <output for="user-name" style="color:red; display:none">Username already exists!</output>
         </div>
 
@@ -30,51 +33,10 @@
         <div id="password-02-holder">
             <label for="password-02">Re-enter Password:</label>
             <input id="password-02" type="password" placeholder="Please re-enter your password:">
+            <output id="password-mismatch" for="password-02" style="color:red; display:none">Passwords do not match</output>
         </div>
 
         <button id="submit-button" type="button">Submit!</button>
     </form>
 </body>
-<script type="text/javascript">
-
-    $("#submit-button").click(function() {
-        console.log('begin');
-        errors = false;
-        var firstName = $("#first-name").val();
-        var lastName = $("#last-name").val();
-        var emailAddr = $("#email-address").val();
-        var userName = $("#user-name").val();
-        var password01 = $("#password-01").val();
-        var password02 = $("#password-02").val();
-
-        if (firstName === "" || firstName === null || firstName === undefined) {
-            errors = true;
-            $("#first-name-invalid").css("display", "inline");
-        } else {
-            $("#first-name-invalid").css("display", "none");
-        }
-
-        if (lastName === "" || lastName === null || lastName === undefined) {
-            errors = true;
-            $("#last-name-invalid").css("display", "inline");
-        } else {
-            $("#last-name-invalid").css("display", "none");
-        }
-
-        if (emailAddr === "" || emailAddr === null || emailAddr === undefined) {
-            errors = true;
-            $("#email-address-empty").css("display", "inline");
-        } else {
-            $("#email-address-empty").css("display", "none");
-        }
-
-        if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(emailAddr))) {
-            errors = true;
-            $("#email-address-invalid").css("display", "inline");
-        } else {
-            $("#email-address-invalid").css("display", "none");
-        }
-
-    });
-</script>
 </html>
