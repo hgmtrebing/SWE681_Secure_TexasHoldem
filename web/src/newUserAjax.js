@@ -32,6 +32,34 @@ $(document).ready(function(){
             $("#invalid-username").css("display", "none");
         }
 
+        if ($("#password-01").val() == "" || ($("#password-01").val() == null || $("#password-01").val() == undefined)) {
+            $("#empty-password").css("display", "block");
+            errors = true;
+        } else {
+            $("#empty-password").css("display", "none");
+        }
+
+        if ($("#password-01").val().length < 5) {
+            $("#short-password").css("display", "block");
+            errors = true;
+        } else {
+            $("#short-password").css("display", "none");
+        }
+
+        if ($("#password-01").val().length > 20) {
+            $("#long-password").css("display", "block");
+            errors = true;
+        } else {
+            $("#long-password").css("display", "none");
+        }
+
+        if (!validCharacters.test( $("#password-01").val() )) {
+            $("#invalid-password").css("display", "block");
+            errors = true;
+        } else {
+            $("#invalid-password").css("display", "none");
+        }
+
         if ($("#password-01").val() !== $("#password-02").val()) {
             $("#password-mismatch").css("display", "block");
             errors = true;
