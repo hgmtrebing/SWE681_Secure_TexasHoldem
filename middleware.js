@@ -5,10 +5,10 @@ Middleware to verify token for every request once the user have logged in and ha
 */
 let verifyToken = (req, res, next) => {
     let token = req.headers['x-access-token'] || req.headers['authorization'];
-    if(token.startsWith('Bearer ')){
-        token = token.slice(7, token.length); //remove bearer from token
-    }
     if(token){
+        if(token.startsWith('Bearer ')){
+            token = token.slice(7, token.length); //remove bearer from token
+        }
         jwt.verify(token, config.secretKey, (err, decoded) => {
             if(err){
                 return res.json({

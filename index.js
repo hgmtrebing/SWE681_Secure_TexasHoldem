@@ -14,6 +14,11 @@ app.get('/', function(req, res) {
     res.sendFile("web/welcome.html", {root: __dirname});
 });
 
+// example of passing middleware to verify token for each request.
+app.get('/all-users',middleware.verifyToken, function(req,res){
+    res.send("Hello");
+});
+
 app.get("/login", function(req, res) {
     console.log("request received");
     res.sendFile("web/login.html", {root: __dirname});
