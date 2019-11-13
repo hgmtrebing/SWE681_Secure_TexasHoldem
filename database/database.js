@@ -17,3 +17,10 @@ function initializeDatabase() {
 }
 
 initializeDatabase();
+
+
+/*
+
+ code to connect to db using mongoose maybe??.
+
+*/
