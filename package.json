@@ -15,7 +15,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.3.4",
     "mongoose": "^5.7.10",
-    "mysql": "^2.17.1"
+    "mysql": "^2.17.1",
+    "secure-random": "^1.1.2"
   },
   "repository": {
     "type": "git",
