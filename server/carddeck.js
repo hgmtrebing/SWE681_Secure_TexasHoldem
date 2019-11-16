@@ -76,7 +76,7 @@ function CardDeck() {
         var newDeck = [];
         while (this.deck.length > 0) {
             var index = random(1)[0] % this.deck.length;
-            newDeck.push(this.deck.splice(index, 1));
+            newDeck.push(this.deck.splice(index, 1)[0]);
         }
         this.deck = newDeck;
     }
@@ -87,6 +87,6 @@ module.exports = {
     Suite : Suite,
     Card : Card,
     CardDeck : CardDeck
-}
+};
 
 
