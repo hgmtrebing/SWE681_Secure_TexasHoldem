@@ -3,7 +3,7 @@ var Rank = require('./carddeck').Rank;
 var Suite = require('./carddeck').Suite;
 var Card = require('./carddeck').Card;
 var PlayerCollection = require('./player').PlayerCollection;
-var Status = require('./player').Status();
+var Status = require('./player').Status;
 var readline = require("readline");
 
 function Table(tableId) {
@@ -24,7 +24,7 @@ function Table(tableId) {
     this.players = new PlayerCollection();
 
     this.pot = 0;
-    this.currentBet = 0;
+    this.maxBet = 0;
     this.bigBlindAmount = 0;
     this.smallBlindAmount = 0;
     this.bigBlind = -1;
@@ -60,15 +60,6 @@ function Table(tableId) {
 
         this.players.setActive();
 
-        // Determine Blinds
-        this.bigBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true);
-        this.smallBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true);
-
-        // Charge Blinds
-        this.players.getPlayerAt(this.smallBlind).balance -= this.smallBlindAmount;
-        this.players.getPlayerAt(this.bigBlind).balance -= this.bigBlindAmount;
-        this.pot += this.smallBlindAmount;
-        this.pot += this.bigBlindAmount;
 
         // Deal Cards
         this.flop = this.deck.deck.splice(0, 3);
@@ -82,6 +73,23 @@ function Table(tableId) {
 
     this.playBetRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
+
+            // Determine Blinds
+            this.bigBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
+            this.smallBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
+
+            // Charge Blinds
+            this.players.getPlayerAt(this.smallBlind).user.balance -= this.smallBlindAmount;
+            this.players.getPlayerAt(this.bigBlind).user.balance -= this.bigBlindAmount;
+
+            // Add Blind amount to users' bets
+            this.players.getPlayerAt(this.smallBlind).bets += this.smallBlindAmount;
+            this.players.getPlayerAt(this.bigBlind).bets += this.bigBlindAmount;
+
+            // Add Blind amount to the pot
+            this.pot += this.smallBlindAmount;
+            this.pot += this.bigBlindAmount;
+
             this.notifyPlayers();
             this.conductBets();
         }
@@ -146,29 +154,93 @@ function Table(tableId) {
 
     this.conductBets = function () {
 
-        var currentPlayer = this.players.getNextPlayerIndex(0, Status.ACTIVE, true, true, true);
-        var lastPlayer = this.players.getNextPlayerIndex(0, Status.ACTIVE, true, false, false);
+        var currentPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, true, true);
+        var lastPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, false, false);
 
         while (currentPlayer !== lastPlayer) {
-            var input = this.getUserInput();
+            if (this.players.getPlayerAt(currentPlayer).status === Status.ACTIVE) {
+                var input = this.getUserInput();
+                var player = this.players.getPlayerAt(currentPlayer);
 
-            if (input.name === "CHECK") {
+                if (input.name === "CHECK") {
+                    if (player.bets < this.maxBet) {
+                        // TODO - Handle and notify user of an error condition
+                    } else {
+                        // TODO - do nothing?
+                    }
 
-            } else if (input.name === "FOLD") {
-                this.players.getPlayerAt(currentPlayer).status = Status.FOLDED;
-            } else if (input.name === "LEAVE") {
+                } else if (input.name === "FOLD") {
+                    player.status = Status.FOLDED;
 
-            } else if (input.name === "CALL") {
+                } else if (input.name === "LEAVE") {
+                    // TODO - Go through this.players to remove player
 
-            } else if (input.name === "RAISE") {
-                lastPlayer = currentPlayer;
+                } else if (input.name === "CALL") {
+                    if (player.bets + player.user.balance < this.maxBet) {
+                        // TODO - Log error condition and force player to fold
+                    } else {
+                        player.user.balance -= (this.maxBet - player.bets);
+                        player.bets += (this.maxBet - player.bets);
+                    }
 
-            } else if (input.name === "TIMEOUT") {
+                } else if (input.name === "RAISE") {
+                    if ((input.amount + this.maxBet) <= player.user.balance) {
+                        player.user.balance -= input.amount;
+                        player.bets += input.amount;
+                        this.pot += input.amount;
+                        this.maxBet += input.amount;
+                        lastPlayer = currentPlayer;
 
-            } else {
+                    } else {
+                        // TODO - Invalid command received - Handle and notify the user of an error condition
+                    }
+
+                } else if (input.name === "TIMEOUT") {
+
+                } else {
+
+                }
 
             }
         }
+
+    };
+
+    this.notifyPlayers = function() {
+        console.log("Flop Cards: " + this.flop);
+        console.log("Turn Card: " + this.turn);
+        console.log("River Card: " + this.river);
+        console.log("Pot: " + this.pot);
+    };
+
+    this.notifyPlayer = function(index) {
+
+    };
+
+    this.getUserInput = function() {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        var command;
+        var amount;
+
+        rl.question('User command: ', (answer) => {
+            command = answer;
+        });
+
+        if (command === 'RAISE') {
+            rl.question('User amount: ', (answer) => {
+                amount = answer;
+            });
+        }
+        rl.close();
+
+        return {
+            'name': command,
+            'amount': amount
+        };
     };
 }
 

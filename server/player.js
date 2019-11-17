@@ -2,17 +2,18 @@
 function Player (seat, status) {
     this.user = null;
     this.seat = seat;
-    this.status = "";
+    this.status = status;
     this.bets = 0;
     this.cardA = null;
     this.cardB = null;
 }
 
-function Status () {
-    this.EMPTY = "EMPTY";
-    this.ACTIVE = "ACTIVE";
-    this.FOLDED = "FOLDED";
-}
+var Status = {
+    ALL : "ALL",
+    EMPTY : "EMPTY",
+    ACTIVE : "ACTIVE",
+    FOLDED : "FOLDED"
+};
 
 function PlayerCollection () {
     // EMPTY
@@ -95,6 +96,8 @@ function PlayerCollection () {
             if (matchesStatus && this.players[currentIndex].status === status) {
                 return currentIndex;
             } else if (!matchesStatus && this.players[currentIndex].status !== status) {
+                return currentIndex;
+            } else if (status === Status.ALL) {
                 return currentIndex;
             }
 
