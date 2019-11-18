@@ -7,6 +7,8 @@ const mongoose = require('mongoose');
 const config = require('./config.js');
 const userRoute = require('./routes/api/user');
 
+const socket = require('socket.io');
+
 /************************************** DB CONNECT ******************************* */
 // other option added due to deprication warnings.
 mongoose.connect(config.DBURL, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
@@ -49,6 +51,10 @@ app.get('/', function (req, res) {
     res.sendFile("web/welcome.html", { root: __dirname });
 });
 
+app.get('/game', function (req, res) {
+    res.sendFile("web/game.html", { root: __dirname });
+});
+
 // example of passing middleware to verify token for each request.
 app.get('/all-users', middleware.verifyToken, function (req, res) {
     res.send("Hello");
@@ -78,6 +84,21 @@ var server = https.createServer({
     cert: fs.readFileSync('server.cert')
 }, app);
 
+
+
+
 server.listen(8080, function () {
     console.log("HTTPS Server is now listening on port 8080");
 });
+
+//socket setup:
+let io = socket(server);
+io.on('connection', function(socket){
+    console.log("Made socket Connection by a user! " + socket.id);
+    socket.on('check', function(value){
+        io.sockets.emit('check', value);
+    })
+})
+
+
+
