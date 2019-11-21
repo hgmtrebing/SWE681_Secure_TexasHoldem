@@ -1,5 +1,9 @@
-var validCharacters = /^[a-zA-Z0-9]{5,}$/;
+var validCharacters = /^[a-zA-Z0-9]{5,20}$/;
 $(document).ready(function(){
+
+    $("#back-button").click(function () {
+        window.location.replace("/");
+    });
 
     $("#submit-button").on("click", function () {
 
