@@ -39,7 +39,7 @@ $(document).ready(function(){
             $("#empty-password").css("display", "none");
         }
 
-        if ($("#password-01").val().length < 5) {
+        if ($("#password-01").val().length < 8) {
             $("#short-password").css("display", "block");
             errors = true;
         } else {
