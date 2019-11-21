@@ -1,3 +1,4 @@
+const Status = require("definition").Status;
 
 function Player (seat, status) {
     this.user = null;
@@ -26,17 +27,8 @@ function Player (seat, status) {
     };
 }
 
-var Status = {
-    ALL : "ALL",
-    EMPTY : "EMPTY",
-    ACTIVE : "ACTIVE",
-    FOLDED : "FOLDED"
-};
 
 function PlayerCollection () {
-    // EMPTY
-    // FOLDED
-    // ACTIVE
 
     this.waitingUsers = [];
     this.players = [
@@ -65,11 +57,11 @@ function PlayerCollection () {
      */
     this.addWaitingPlayers = function() {
         while ( this.waitingUsers.length > 0) {
-            if (this.getNumberOfPlayers("EMPTY", true) <= 0) {
+            if (this.getNumberOfPlayers(Status.EMPTY, true) <= 0) {
                 return;
             }
             var user = this.waitingUsers.pop();
-            var index = this.getNextPlayerIndex(0, "EMPTY", true, true, true);
+            var index = this.getNextPlayerIndex(0, Status.EMPTY, true, true, true);
             this.players[index].addUser(user);
         }
     };
@@ -82,7 +74,7 @@ function PlayerCollection () {
                 playerNum++;
             } else if (!matchesStatus && this.players[i].status !== status) {
                 playerNum++;
-            } else if (status === "ALL") {
+            } else if (status === Status.ALL) {
                 playerNum++;
             }
         }
@@ -161,6 +153,5 @@ function PlayerCollection () {
 
 module.exports = {
     Player: Player,
-    Status : Status,
     PlayerCollection : PlayerCollection
 };

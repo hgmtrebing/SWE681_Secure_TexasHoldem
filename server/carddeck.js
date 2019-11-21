@@ -72,6 +72,9 @@ function CardDeck() {
         }
     }
 
+    /**
+     * This method shuffles the deck, using a secure random function.
+     */
     this.shuffle = function() {
         var newDeck = [];
         while (this.deck.length > 0) {

@@ -1,16 +1,13 @@
-var CardDeck = require('./carddeck').CardDeck;
-var Rank = require('./carddeck').Rank;
-var Suite = require('./carddeck').Suite;
-var Card = require('./carddeck').Card;
-var PlayerCollection = require('./player').PlayerCollection;
-var Status = require('./player').Status;
-var readline = require("readline");
-var Log = require("./log").Log;
+const CardDeck = require('./carddeck').CardDeck;
+const PlayerCollection = require('./player').PlayerCollection;
+const Status = require('./definition').Status;
+const Rounds = require('./definition').Rounds;
+const Actions = require('./definition').Actions;
+const Log = require("./log").Log;
 
 function Table(tableId) {
     this.tableId = tableId;
     this.roundId = 0;
-    this.tableActive = true;
 
     this.log = new Log();
 
@@ -19,10 +16,7 @@ function Table(tableId) {
     this.turn = null;
     this.river = null;
 
-    this.revealFlop = false;
-    this.revealTurn = false;
-    this.revealRiver = false;
-    this.revealOtherPlayers = false;
+    this.round = null;
 
     this.players = new PlayerCollection();
 
@@ -33,13 +27,21 @@ function Table(tableId) {
     this.bigBlind = -1;
     this.smallBlind = -1;
 
+    /**
+     * The main loop for the table. As long as the Table is not inactive, this method will wait for a sufficient number
+     * of players and start a new game.
+     */
     this.main = function () {
-        while (this.tableActive) {
+        while (this.round !== Rounds.INACTIVE) {
             this.waitForPlayers();
             this.playGame();
         }
     };
 
+    /**
+     * As long as the number of players is less than two, this method will wait for more players, adding them as they
+     * appear.
+     */
     this.waitForPlayers = function () {
         this.log(this.tableId, this.roundId, "Waiting for players");
         this.players.addWaitingPlayers();
@@ -59,6 +61,7 @@ function Table(tableId) {
     };
 
     this.setupTable = function () {
+        this.round = Rounds.SETUP;
         this.log.logGame(this.tableId, this.roundId, "Shuffling Deck");
         this.roundId++;
         this.deck.shuffle();
@@ -81,7 +84,7 @@ function Table(tableId) {
 
     this.playBetRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
-
+            this.round = Rounds.BET;
             // Determine Blinds
             this.bigBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
             this.smallBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
@@ -98,39 +101,43 @@ function Table(tableId) {
             this.pot += this.smallBlindAmount;
             this.pot += this.bigBlindAmount;
 
-            this.notifyPlayers();
             this.conductBets();
+        } else {
+            this.round = Rounds.FINAL;
         }
     };
 
     this.playFlopRound = function () {
-        this.revealFlop = true;
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
-            this.notifyPlayers();
+            this.round = Rounds.FLOP;
             this.conductBets();
+        } else {
+            this.round = Rounds.FINAL;
         }
     };
 
     this.playTurnRound = function () {
-        this.revealTurn = true;
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
+            this.round = Rounds.TURN;
             this.notifyPlayers();
             this.conductBets();
+        } else {
+            this.round = Rounds.FINAL;
         }
     };
 
     this.playRiverRound = function () {
-        this.revealRiver = true;
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
-            this.notifyPlayers();
+            this.round = Rounds.RIVER;
             this.conductBets();
+        } else {
+            this.round = Rounds.FINAL;
         }
     };
 
     this.determineWinner = function () {
-        this.revealOtherPlayers = true;
+        this.round = Rounds.FINAL;
 
-        this.notifyPlayers();
     };
 
     this.cleanupTable = function () {
@@ -221,43 +228,6 @@ function Table(tableId) {
             }
         }
 
-    };
-
-    this.notifyPlayers = function() {
-        console.log("Flop Cards: " + this.flop);
-        console.log("Turn Card: " + this.turn);
-        console.log("River Card: " + this.river);
-        console.log("Pot: " + this.pot);
-    };
-
-    this.notifyPlayer = function(index) {
-
-    };
-
-    this.getUserInput = function() {
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
-
-        var command;
-        var amount;
-
-        rl.question('User command: ', (answer) => {
-            command = answer;
-        });
-
-        if (command === 'RAISE') {
-            rl.question('User amount: ', (answer) => {
-                amount = answer;
-            });
-        }
-        rl.close();
-
-        return {
-            'name': command,
-            'amount': amount
-        };
     };
 }
 
