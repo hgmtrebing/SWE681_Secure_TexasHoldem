@@ -1,6 +1,6 @@
 var table = require('./table');
 
-function setup(table) {
+function testCase01(table) {
     var array = table.players.players;
     for (var i = 0; i < array.length; i++) {
         array[i].user = {balance: 10000};
@@ -11,5 +11,5 @@ function setup(table) {
 }
 
 module.exports = {
-    setup : setup
-}
+    testCase01 : testCase01
+};

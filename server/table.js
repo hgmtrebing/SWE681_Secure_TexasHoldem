@@ -5,11 +5,14 @@ var Card = require('./carddeck').Card;
 var PlayerCollection = require('./player').PlayerCollection;
 var Status = require('./player').Status;
 var readline = require("readline");
+var Log = require("./log").Log;
 
 function Table(tableId) {
     this.tableId = tableId;
     this.roundId = 0;
     this.tableActive = true;
+
+    this.log = new Log();
 
     this.deck = new CardDeck();
     this.flop = [];
@@ -38,6 +41,7 @@ function Table(tableId) {
     };
 
     this.waitForPlayers = function () {
+        this.log(this.tableId, this.roundId, "Waiting for players");
         this.players.addWaitingPlayers();
         while (this.players.getNumberOfPlayers() < 2) {
             this.this.players.addWaitingPlayers();
@@ -55,13 +59,17 @@ function Table(tableId) {
     };
 
     this.setupTable = function () {
+        this.log.logGame(this.tableId, this.roundId, "Shuffling Deck");
         this.roundId++;
         this.deck.shuffle();
 
+
+        this.log.logGame(this.tableId, this.roundId, "Setting players to active");
         this.players.setActive();
 
 
         // Deal Cards
+        this.log.logGame(tableId, roundId, "Dealing cards");
         this.flop = this.deck.deck.splice(0, 3);
         this.turn = this.deck.deck.pop();
         this.river = this.deck.deck.pop();
@@ -164,15 +172,20 @@ function Table(tableId) {
 
                 if (input.name === "CHECK") {
                     if (player.bets < this.maxBet) {
+                        this.log.logGameError(this.tableId, this.roundId, player.user.name + " has CHECKED");
                         // TODO - Handle and notify user of an error condition
                     } else {
-                        // TODO - do nothing?
+                        this.log.logGame(this.tableId, this.roundId, player.user.name + " has CHECKED");
+                        // TODO - Log and proceed to next player
                     }
 
                 } else if (input.name === "FOLD") {
                     player.status = Status.FOLDED;
+                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has FOLDED");
+                    // TODO - Log and proceed to the next player
 
                 } else if (input.name === "LEAVE") {
+                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has LEFT the game");
                     // TODO - Go through this.players to remove player
 
                 } else if (input.name === "CALL") {
@@ -180,8 +193,11 @@ function Table(tableId) {
                         // TODO - Log error condition and force player to fold
                     } else {
                         player.user.balance -= (this.maxBet - player.bets);
-                        player.bets += (this.maxBet - player.bets);
+                        var callAmount = (this.maxBet - player.bets);
+                        player.bets += callAmount;
+                        this.log.logGame(this.tableId, this.roundId, player.user.name + " has CALLED for " + callAmount);
                     }
+                    // TODO - Log and move to next player
 
                 } else if (input.name === "RAISE") {
                     if ((input.amount + this.maxBet) <= player.user.balance) {
@@ -190,13 +206,14 @@ function Table(tableId) {
                         this.pot += input.amount;
                         this.maxBet += input.amount;
                         lastPlayer = currentPlayer;
-
+                        this.log.logGame(this.tableId, this.roundId, player.user.name + " has RAISED by " + input.amount);
+                        //
                     } else {
                         // TODO - Invalid command received - Handle and notify the user of an error condition
                     }
 
                 } else if (input.name === "TIMEOUT") {
-
+                    // TODO - Log, notify user, and exit
                 } else {
 
                 }

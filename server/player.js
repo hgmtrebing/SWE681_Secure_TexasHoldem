@@ -6,6 +6,24 @@ function Player (seat, status) {
     this.bets = 0;
     this.cardA = null;
     this.cardB = null;
+
+    this.addUser = function(user) {
+        this.user = user;
+        this.status = Status.ACTIVE;
+    };
+
+    this.removeUser = function(user) {
+        this.user = null;
+        this.status = Status.EMPTY;
+    };
+
+    this.sendToUser = function() {
+
+    };
+
+    this.receiveFromUser = function() {
+
+    };
 }
 
 var Status = {
@@ -30,12 +48,30 @@ function PlayerCollection () {
         new Player(5, Status.EMPTY)
     ];
 
+    /**
+     * Resets all non-empty players back to active, in anticipation of a new game.
+     */
     this.setActive = function () {
-
+        for (var i = 0; i < this.players.length; i++) {
+            var player = this.players[i];
+            if (player.status !== Status.EMPTY) {
+                player.status = Status.ACTIVE;
+            }
+        }
     };
 
+    /**
+     * Adds waiting users to empty players. If there are no waiting users, or no empty players, this method will return.
+     */
     this.addWaitingPlayers = function() {
-
+        while ( this.waitingUsers.length > 0) {
+            if (this.getNumberOfPlayers("EMPTY", true) <= 0) {
+                return;
+            }
+            var user = this.waitingUsers.pop();
+            var index = this.getNextPlayerIndex(0, "EMPTY", true, true, true);
+            this.players[index].addUser(user);
+        }
     };
 
     // Use ALL to get total number of players

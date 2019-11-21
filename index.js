@@ -6,8 +6,12 @@ let middleware = require('./middleware');
 const mongoose = require('mongoose');
 const config = require('./config.js');
 const userRoute = require('./routes/api/user');
+const Log = require('./server/log.js').Log;
 
 const socket = require('socket.io');
+
+/************************************** Initialize Log ******************************* */
+var log = new Log();
 
 /************************************** DB CONNECT ******************************* */
 // other option added due to deprication warnings.
@@ -16,23 +20,23 @@ mongoose.connect(config.DBURL, { useCreateIndex: true, useNewUrlParser: true, us
 // CONNECTION EVENTS
 // When mongodb successfully connected
 mongoose.connection.on('connected', function () {
-    console.log('Mongoose connection is now open to ' + config.DBURL);
+    log.logSystem('Mongoose connection is now open to ' + config.DBURL);
 });
 
 // If the mongodb connection throws an error
 mongoose.connection.on('error', function (err) {
-    console.log('Mongoose connection has error: ' + err);
+    log.logSystemError('Mongoose connection has error: ' + err);
 });
 
 // When the mongodb connection is disconnected
 mongoose.connection.on('disconnected', function () {
-    console.log('Mongoose connection is now disconnected');
+    log.logSystem('Mongoose connection is now disconnected');
 });
 
 // If the Node process ends, close the Mongoose connection 
 process.on('SIGINT', function () {
     mongoose.connection.close(function () {
-        console.log('Mongoose connection is now disconnected: app closed');
+        log.logSystem('Mongoose connection is now disconnected: app closed');
         process.exit(0);
     });
 });
@@ -61,12 +65,12 @@ app.get('/all-users', middleware.verifyToken, function (req, res) {
 });
 
 app.get("/login", function (req, res) {
-    console.log("request received");
+    log.logSystem("Login Request Received");
     res.sendFile("web/login.html", { root: __dirname });
 });
 
 app.get("/create-account", function (req, res) {
-    console.log("request received");
+    log.logSystem("request received");
     res.sendFile("web/new_user.html", { root: __dirname });
 });
 
@@ -88,17 +92,17 @@ var server = https.createServer({
 
 
 server.listen(8080, function () {
-    console.log("HTTPS Server is now listening on port 8080");
+    log.logSystem("HTTPS Server is now listening on port 8080");
 });
 
 //socket setup:
 let io = socket(server);
 io.on('connection', function(socket){
-    console.log("Made socket Connection by a user! " + socket.id);
+    log.logSystem("Made socket Connection by a user! " + socket.id);
     socket.on('check', function(value){
         io.sockets.emit('check', value);
     })
-})
+});
 
 
 
