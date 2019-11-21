@@ -1,5 +1,9 @@
-var validCharacters = /^[a-zA-Z0-9]{5,}$/;
+var validCharacters = /^[a-zA-Z0-9]{5,20}$/;
 $(document).ready(function(){
+
+    $("#back-button").click(function () {
+        window.location.replace("/");
+    });
 
     $("#submit-button").on("click", function () {
 
@@ -39,7 +43,7 @@ $(document).ready(function(){
             $("#empty-password").css("display", "none");
         }
 
-        if ($("#password-01").val().length < 5) {
+        if ($("#password-01").val().length < 8) {
             $("#short-password").css("display", "block");
             errors = true;
         } else {

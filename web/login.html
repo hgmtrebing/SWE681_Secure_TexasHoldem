@@ -1,34 +1,62 @@
 <!DOCTYPE HTML>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Welcome to Secure Texas Hold'Em!</title>
-    </head>
-    <script
-            src="https://code.jquery.com/jquery-3.4.1.min.js"
-            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-            crossorigin="anonymous">
 
+<head>
+    <meta charset="utf-8">
+    <title>Welcome to Secure Texas Hold'Em!</title>
+</head>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous">
     </script>
-    <script src="./src/loginAjax.js" type="text/javascript"></script>
-    <body>
-        <form id="login-form">
-            <h1>Secure Texas Hold'em: Log In</h1>
-    
-            <div id="user-name-holder">
-                <label for="user-name">User Name:</label>
-                <input id="user-name" type="text" placeholder="Please enter your username:" />
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+<script src="/login.js" type="text/javascript"></script>
+
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<body>
+    <div class="container">
+        <br /><br /><br /><br />
+
+        <div class="row">
+            <div class="col-lg-3 col-md-2 col-sm-1">
             </div>
-    
-            <div id="password-holder">
-                <label for="password">Password:</label>
-                <input id="password" type="password" placeholder="Please enter your password:" />
+
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <button id="back-button" class="btn btn-light" type="button">Back</button>
+                <h3 class="text-center">
+                    Secure Texas Hold'em: Log In
+                </h3>
+                <br /><br />
+                <form id="login-form">
+
+                    <div id="user-name-holder" class="form-group">
+                        <label for="user-name">User Name:</label>
+                        <input id="user-name" class="form-control" type="text"
+                            placeholder="Please enter your username:" />
+                    </div>
+
+                    <div id="password-holder" class="form-group">
+                        <label for="password">Password:</label>
+                        <input id="password" class="form-control" type="password"
+                            placeholder="Please enter your password:" />
+                    </div>
+                    <div>
+                        <p id="error-message"></p>
+                    </div>
+
+                    <button id="submit-button" class="btn btn-primary" type="button">Submit</button>
+                </form>
+
             </div>
-            <div>
-                <p id="error-message"></p>
+            <div class="col-lg-6 col-md-2 col-sm-1">
+
             </div>
-    
-            <button id="submit-button" type="button">Submit!</button>
-        </form>
-    </body>
+        </div>
+
+    </div>
+</body>
+
 </html>

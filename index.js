@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const config = require('./config.js');
 const userRoute = require('./routes/api/user');
 const Log = require('./server/log.js').Log;
-
+const helmet = require('helmet');
 const socket = require('socket.io');
 
 /************************************** Initialize Log ******************************* */
@@ -45,6 +45,7 @@ process.on('SIGINT', function () {
 
 
 var app = express();
+app.use(helmet);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -76,6 +77,10 @@ app.get("/create-account", function (req, res) {
 
 app.get("/newUserAjax.js", function (req, res) {
     res.sendFile("web/src/newUserAjax.js", { root: __dirname });
+});
+
+app.get("/login.js", function (req, res) {
+    res.sendFile("web/src/loginAjax.js", { root: __dirname });
 });
 
 // Route for user login and register
