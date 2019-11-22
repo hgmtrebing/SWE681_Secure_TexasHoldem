@@ -2,16 +2,32 @@ const Status = require('./definition').Status;
 const Actions = require('./definition').Actions;
 const Rounds = require('./definition').Rounds;
 
-function CurrentPlayerMessageComponent(name, balance, status, cardA, cardB) {
-
+function CurrentPlayerMessageComponent(name, balance, status, cardA, cardB, isBigBlind, isSmallBlind) {
+    this.name = name;
+    this.balance = balance;
+    this.status = status;
+    this.cardA = cardA;
+    this.cardB = cardB;
+    this.isBigBlind = isBigBlind;
+    this.isSmallBlind = isSmallBlind;
 }
 
-function OtherPlayerMessageComponent (name, balance, status) {
-
+function OtherPlayerMessageComponent (name, balance, bet, status, isBigBlind, isSmallBlind) {
+    this.name = name;
+    this.balance = balance;
+    this.bet = bet;
+    this.status = status;
+    this.isBigBlind = isBigBlind;
+    this.isSmallBlind = isSmallBlind;
 }
 
-function TableMessageComponent () {
-
+function TableMessageComponent (maxBet, pot, round, flop, turn, river) {
+    this.maxBet = maxBet;
+    this.pot = pot;
+    this.round = round;
+    this.flop = flop;
+    this.turn = turn;
+    this.river = river;
 }
 
 /**
@@ -41,19 +57,21 @@ function UserActionMessage (action, betAmount) {
  * @param river
  * @constructor
  */
-function GameStatusMessage (activePlayers, currentPlayer, maxBet, pot, flop, turn, river, winningHand) {
-
+function GameStatusMessage (activePlayers, tableStatus) {
     this.activePlayers = activePlayers;
-    this.currentPlayer = currentPlayer;
-    this.maxBet = maxBet;
-    this.pot = pot;
-    this.flop = flop;
-    this.turn = turn;
-    this.river = river;
-    this.winningHand = winningHand;
+    this.tableStatus = tableStatus;
 };
 
 function GetUserActionMessage (validActions, callAmount) {
     this.validActions = validActions;
     this.callAmount = callAmount;
+};
+
+module.exports = {
+    GameStatusMessage : GameStatusMessage,
+    GetUserActionMessage : GetUserActionMessage,
+    UserActionMessage : UserActionMessage,
+    TableMessageComponent : TableMessageComponent,
+    CurrentPlayerMessageComponent : CurrentPlayerMessageComponent,
+    OtherPlayerMessageComponent : OtherPlayerMessageComponent
 };

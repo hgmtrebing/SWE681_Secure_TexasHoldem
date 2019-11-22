@@ -3,7 +3,9 @@ var Actions = {
     FOLD : "FOLD",
     LEAVE : "LEAVE",
     RAISE : "RAISE",
-    CALL : "CALL"
+    CALL : "CALL",
+    ALLIN : "ALLIN",
+    TIMEOUT : "TIMEOUT"
 };
 
 
@@ -27,7 +29,8 @@ var Status = {
     ALL : "ALL",
     EMPTY : "EMPTY",
     ACTIVE : "ACTIVE",
-    FOLDED : "FOLDED"
+    FOLDED : "FOLDED",
+    ALLIN : "ALLIN"
 };
 
 module.exports = {

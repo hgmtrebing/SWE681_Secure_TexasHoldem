@@ -1,9 +1,10 @@
-const Status = require("definition").Status;
+const Status = require("./definition").Status;
 
-function Player (seat, status) {
+function Player (seat, status, receiveFunction) {
     this.user = null;
     this.seat = seat;
     this.status = status;
+    this.currentRoundBet = 0;
     this.bets = 0;
     this.cardA = null;
     this.cardB = null;
@@ -13,18 +14,17 @@ function Player (seat, status) {
         this.status = Status.ACTIVE;
     };
 
-    this.removeUser = function(user) {
+    this.removeUser = function() {
         this.user = null;
+        this.bets = 0;
         this.status = Status.EMPTY;
     };
 
-    this.sendToUser = function() {
-
+    this.send = function(message) {
+            console.log("GAME STATUS SENT TO PLAYER " + this.seat + ": Round-" + message.tableStatus.round);
     };
 
-    this.receiveFromUser = function() {
-
-    };
+    this.receive = receiveFunction;
 }
 
 
@@ -148,6 +148,10 @@ function PlayerCollection () {
         } else {
             return this.players[index];
         }
+    };
+
+    this.sendToAll = function() {
+
     };
 }
 
