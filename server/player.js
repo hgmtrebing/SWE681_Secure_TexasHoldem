@@ -25,6 +25,16 @@ function Player (seat, status, receiveFunction) {
     };
 
     this.receive = receiveFunction;
+
+    this.toString = function() {
+        return "Username: " + this.user.name + "\n" +
+               "Balance: " + this.user.balance + "\n" +
+               "Seat: " + this.seat + "\n" +
+               "Status: " + this.status + "\n" +
+               "Bets: " + this.bets + "\n" +
+               "Card A: " + this.cardA.toString() + "\n" +
+               "Card B: " + this.cardB.toString() + "\n";
+    }
 }
 
 
@@ -152,6 +162,14 @@ function PlayerCollection () {
 
     this.sendToAll = function() {
 
+    };
+
+    this.toString = function () {
+        var str = "";
+        for (let i = 0; i < this.players.length; i++) {
+            str += this.players[i] + "\n";
+        }
+        return str;
     };
 }
 

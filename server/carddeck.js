@@ -8,7 +8,7 @@ function Suite (name) {
         } else {
             return false;
         }
-    }
+    };
 
     this.toString = function() {
         return this.name;
@@ -40,11 +40,11 @@ function Card(suite, rank) {
         } else {
             return false;
         }
-    }
+    };
 
     this.toString = function() {
         return this.rank.toString() + " of " + this.suite.toString();
-    }
+    };
 }
 
 function CardDeck() {
@@ -82,7 +82,7 @@ function CardDeck() {
             newDeck.push(this.deck.splice(index, 1)[0]);
         }
         this.deck = newDeck;
-    }
+    };
 }
 
 module.exports = {

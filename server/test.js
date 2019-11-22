@@ -3,14 +3,18 @@ var Actions = require('./definition').Actions;
 
 var inputCounter = 0;
 var testInput = [
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
+    {action: Actions.RAISE, betAmount: 500},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.RAISE, betAmount: 600},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
 
-    {action: Actions.RAISE, betAmount: 300},
+    {action: Actions.CALL, betAmount: 0},
     {action: Actions.CALL, betAmount: 0},
     {action: Actions.CALL, betAmount: 0},
     {action: Actions.CALL, betAmount: 0},
@@ -42,7 +46,12 @@ function testCase01() {
     }
     table.bigBlindAmount = 200;
     table.smallBlindAmount = 100;
-    table.playGame();
+    table.setupTable();
+    console.log(table.toString());
+
+    table.playBetRound();
+    console.log(table.toString());
+
 }
 
 function getUserInput() {

@@ -33,6 +33,9 @@ function Table(tableId) {
     this.bigBlind = -1;
     this.smallBlind = -1;
 
+    this.lastPlayer = 0;
+    this.currentPlayer = 0;
+
     /**
      * The main loop for the table. As long as the Table is not inactive, this method will wait for a sufficient number
      * of players and start a new game.
@@ -101,6 +104,8 @@ function Table(tableId) {
             this.players.getPlayerAt(this.bigBlind).user.balance -= this.bigBlindAmount;
 
             // Add Blind amount to users' bets
+            this.players.getPlayerAt(this.smallBlind).currentRoundBet += this.smallBlindAmount;
+            this.players.getPlayerAt(this.bigBlind).currentRoundBet += this.bigBlindAmount;
             this.players.getPlayerAt(this.smallBlind).bets += this.smallBlindAmount;
             this.players.getPlayerAt(this.bigBlind).bets += this.bigBlindAmount;
 
@@ -108,7 +113,8 @@ function Table(tableId) {
             this.pot += this.smallBlindAmount;
             this.pot += this.bigBlindAmount;
 
-            this.conductBets();
+            this.maxCurrentRoundBet = this.bigBlindAmount;
+            this.conductBets(this.maxCurrentRoundBet);
         } else {
             this.round = Rounds.FINAL;
         }
@@ -167,16 +173,16 @@ function Table(tableId) {
         }
     };
 
-    this.conductBets = function () {
+    this.conductBets = function (startingBet) {
 
-        var currentPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, true, true);
-        var lastPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, false, false);
-        this.maxCurrentRoundBet = 0;
+        this.currentPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, true, true);
+        this.lastPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, false, false);
+        this.maxCurrentRoundBet = startingBet;
 
-        while (currentPlayer !== lastPlayer) {
+        while (this.currentPlayer !== this.lastPlayer) {
             this.sendGameStateToPlayers();
-            this.conductIndividualBet(currentPlayer);
-            currentPlayer = this.players.getNextPlayerIndex(currentPlayer, Status.ACTIVE, true, false, true);
+            this.conductIndividualBet(this.currentPlayer);
+            this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ACTIVE, true, false, true);
             this.sendGameStateToPlayers();
         }
         this.maxCurrentRoundBet = 0;
@@ -186,7 +192,7 @@ function Table(tableId) {
         if (this.players.getPlayerAt(currentPlayer).status === Status.ACTIVE) {
             var player = this.players.getPlayerAt(currentPlayer);
             var checkable =  player.currentRoundBet >= this.maxCurrentRoundBet;
-            var callable = player.currentRoundBet + player.balance >= this.maxCurrentRoundBet;
+            var callable = player.currentRoundBet + player.user.balance >= this.maxCurrentRoundBet;
             var hasRemainingBalance = player.balance > 0;
             var input = player.receive();
 
@@ -211,14 +217,15 @@ function Table(tableId) {
                 player.removeUser();
 
             } else if (input.action === Actions.CALL) {
+                var callAmount = this.maxCurrentRoundBet - player.currentRoundBet;
                 if(callable) {
                     player.user.balance -= (this.maxCurrentRoundBet - player.currentRoundBet);
-                    var callAmount = (this.maxCurrentRoundBet - player.currentRoundBet);
                     player.bets += callAmount;
                     player.currentRoundBet += callAmount;
+                    this.pot += callAmount;
                     this.log.logGame(this.tableId, this.roundId, player.user.name + " has CALLED for " + callAmount);
                 } else {
-                    this.log.logGameError(this.tableId, this.roundId, "INVALID MOVE: " + player.user.name + " attempted to call when they did not have enough money");
+                    this.log.logGameError(this.tableId, this.roundId, "INVALID MOVE: " + player.user.name + " attempted to call for " +callAmount);
                     player.status = Status.FOLDED;
                 }
 
@@ -233,15 +240,18 @@ function Table(tableId) {
                     }
                 }
             } else if (input.action === Actions.RAISE) {
-                if ((input.betAmount + this.maxBet) <= player.user.balance) {
+                if ((input.betAmount + this.maxCurrentRoundBet) <= player.user.balance &&
+                        input.betAmount + player.bets >= this.maxCurrentRoundBet) {
                     player.user.balance -= input.betAmount;
                     player.bets += input.betAmount;
+                    player.currentRoundBet += input.betAmount;
                     this.pot += input.betAmount;
-                    this.maxBet += input.amount;
-                    lastPlayer = currentPlayer;
-                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has RAISED by " + input.amount);
+                    this.maxCurrentRoundBet = input.betAmount;
+                    this.lastPlayer = this.currentPlayer;
+                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has RAISED by " + input.betAmount);
                 } else {
-                    player.status = Status.FOLDED
+                    player.status = Status.FOLDED;
+                    this.log.logGameError(this.tableId, this.roundId, player.user.name + " attempted to RAISE, but lacked sufficient funds and was forcibly folded")
                 }
 
             } else if (input.action === Actions.TIMEOUT) {
@@ -283,7 +293,22 @@ function Table(tableId) {
         for (let i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             this.players.getPlayerAt(i).send(message);
         }
-    }
+    };
+
+    this.toString = function() {
+        var str = "";
+        str += "Table ID: " + this.tableId +"\n";
+        str += "Round ID: " + this.roundId + "\n";
+        str += "Round: " + this.round + "\n\n";
+        str += "Pot: " + this.pot + "\n";
+        str += "Big Blind: " + this.bigBlind + "\n";
+        str += "Small Blind: " + this.smallBlind + "\n\n";
+        str += "Flop: " + this.flop + "\n";
+        str += "Turn: " + this.turn.toString() + "\n";
+        str += "River: " + this.river.toString() + "\n\n";
+        str += this.players.toString() +"\n";
+        return str;
+    };
 }
 
 module.exports = {
