@@ -175,79 +175,82 @@ function Table(tableId) {
 
         while (currentPlayer !== lastPlayer) {
             this.sendGameStateToPlayers();
-            if (this.players.getPlayerAt(currentPlayer).status === Status.ACTIVE) {
-                var player = this.players.getPlayerAt(currentPlayer);
-                var checkable =  player.currentRoundBet >= this.maxCurrentRoundBet;
-                var callable = player.currentRoundBet + player.balance >= this.maxCurrentRoundBet;
-                var hasRemainingBalance = player.balance > 0;
-                var input = player.receive();
-
-                if (input.action === Actions.CHECK) {
-                    if (checkable) {
-                        this.log.logGame(this.tableId, this.roundId, player.user.name + " has CHECKED");
-                    } else {
-                        this.log.logGameError(this.tableId, this.roundId, player.user.name + " has CHECKED, despite not meeting the bet amount");
-                        player.status = Status.FOLDED;
-                    }
-
-                } else if (input.action === Actions.FOLD) {
-                    player.status = Status.FOLDED;
-                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has FOLDED");
-
-                } else if (input.action === Actions.LEAVE) {
-                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has LEFT the game");
-                    this.deck.deck.push (player.cardA);
-                    this.deck.deck.push (player.cardB);
-                    player.cardA = null;
-                    player.cardB = null;
-                    player.removeUser();
-
-                } else if (input.action === Actions.CALL) {
-                    if(callable) {
-                        player.user.balance -= (this.maxCurrentRoundBet - player.currentRoundBet);
-                        var callAmount = (this.maxCurrentRoundBet - player.currentRoundBet);
-                        player.bets += callAmount;
-                        player.currentRoundBet += callAmount;
-                        this.log.logGame(this.tableId, this.roundId, player.user.name + " has CALLED for " + callAmount);
-                    } else {
-                        this.log.logGameError(this.tableId, this.roundId, "INVALID MOVE: " + player.user.name + " attempted to call when they did not have enough money");
-                        player.status = Status.FOLDED;
-                    }
-
-                } else if (input.action === Actions.ALLIN) {
-                    if (hasRemainingBalance) {
-                        player.bets += player.user.balance;
-                        player.currentRoundBet += player.user.balance;
-                        player.user.balance = 0;
-                        player.status = Status.ALLIN;
-                        if (player.currentRoundBet > this.maxCurrentRoundBet) {
-                            this.maxCurrentRoundBet = player.currentRoundBet;
-                        }
-                    }
-                } else if (input.action === Actions.RAISE) {
-                    if ((input.betAmount + this.maxBet) <= player.user.balance) {
-                        player.user.balance -= input.betAmount;
-                        player.bets += input.betAmount;
-                        this.pot += input.betAmount;
-                        this.maxBet += input.amount;
-                        lastPlayer = currentPlayer;
-                        this.log.logGame(this.tableId, this.roundId, player.user.name + " has RAISED by " + input.amount);
-                    } else {
-                        player.status = Status.FOLDED
-                    }
-
-                } else if (input.action === Actions.TIMEOUT) {
-                    player.status = Status.FOLDED;
-                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has TIMED OUT");
-                } else {
-                   this.log.logGameError(this.tableId, this.roundId, player.user.name + " has provided an unrecognized action: " + input.action);
-                }
-                currentPlayer = this.players.getNextPlayerIndex(currentPlayer, Status.ACTIVE, true, false, true);
-                this.sendGameStateToPlayers();
-            }
+            this.conductIndividualBet(currentPlayer);
+            currentPlayer = this.players.getNextPlayerIndex(currentPlayer, Status.ACTIVE, true, false, true);
             this.sendGameStateToPlayers();
         }
         this.maxCurrentRoundBet = 0;
+    };
+
+    this.conductIndividualBet = function(currentPlayer) {
+        if (this.players.getPlayerAt(currentPlayer).status === Status.ACTIVE) {
+            var player = this.players.getPlayerAt(currentPlayer);
+            var checkable =  player.currentRoundBet >= this.maxCurrentRoundBet;
+            var callable = player.currentRoundBet + player.balance >= this.maxCurrentRoundBet;
+            var hasRemainingBalance = player.balance > 0;
+            var input = player.receive();
+
+            if (input.action === Actions.CHECK) {
+                if (checkable) {
+                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has CHECKED");
+                } else {
+                    this.log.logGameError(this.tableId, this.roundId, player.user.name + " has CHECKED, despite not meeting the bet amount");
+                    player.status = Status.FOLDED;
+                }
+
+            } else if (input.action === Actions.FOLD) {
+                player.status = Status.FOLDED;
+                this.log.logGame(this.tableId, this.roundId, player.user.name + " has FOLDED");
+
+            } else if (input.action === Actions.LEAVE) {
+                this.log.logGame(this.tableId, this.roundId, player.user.name + " has LEFT the game");
+                this.deck.deck.push (player.cardA);
+                this.deck.deck.push (player.cardB);
+                player.cardA = null;
+                player.cardB = null;
+                player.removeUser();
+
+            } else if (input.action === Actions.CALL) {
+                if(callable) {
+                    player.user.balance -= (this.maxCurrentRoundBet - player.currentRoundBet);
+                    var callAmount = (this.maxCurrentRoundBet - player.currentRoundBet);
+                    player.bets += callAmount;
+                    player.currentRoundBet += callAmount;
+                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has CALLED for " + callAmount);
+                } else {
+                    this.log.logGameError(this.tableId, this.roundId, "INVALID MOVE: " + player.user.name + " attempted to call when they did not have enough money");
+                    player.status = Status.FOLDED;
+                }
+
+            } else if (input.action === Actions.ALLIN) {
+                if (hasRemainingBalance) {
+                    player.bets += player.user.balance;
+                    player.currentRoundBet += player.user.balance;
+                    player.user.balance = 0;
+                    player.status = Status.ALLIN;
+                    if (player.currentRoundBet > this.maxCurrentRoundBet) {
+                        this.maxCurrentRoundBet = player.currentRoundBet;
+                    }
+                }
+            } else if (input.action === Actions.RAISE) {
+                if ((input.betAmount + this.maxBet) <= player.user.balance) {
+                    player.user.balance -= input.betAmount;
+                    player.bets += input.betAmount;
+                    this.pot += input.betAmount;
+                    this.maxBet += input.amount;
+                    lastPlayer = currentPlayer;
+                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has RAISED by " + input.amount);
+                } else {
+                    player.status = Status.FOLDED
+                }
+
+            } else if (input.action === Actions.TIMEOUT) {
+                player.status = Status.FOLDED;
+                this.log.logGame(this.tableId, this.roundId, player.user.name + " has TIMED OUT");
+            } else {
+                this.log.logGameError(this.tableId, this.roundId, player.user.name + " has provided an unrecognized action: " + input.action);
+            }
+        }
     };
 
     this.sendGameStateToPlayers = function() {
