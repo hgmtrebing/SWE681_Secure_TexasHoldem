@@ -311,6 +311,28 @@ function rankHandTest09() {
     return new TestResult(passed, "rankHandTest09. " + result[0]);
 }
 
+function rankHandTest10() {
+    var cards = [
+        new Card(Suites.SPADES, Ranks.SIX),
+        new Card(Suites.CLUBS, Ranks.FOUR),
+        new Card(Suites.CLUBS, Ranks.SEVEN),
+        new Card(Suites.SPADES, Ranks.FIVE),
+        new Card(Suites.HEARTS, Ranks.EIGHT),
+        new Card(Suites.HEARTS, Ranks.SEVEN),
+        new Card(Suites.DIAMONDS, Ranks.SEVEN),
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.STRAIGHT || result[0].highCardRank !== Ranks.EIGHT ||
+        result[0].minorHighCardRank !== Ranks.SEVEN || result[0].minorHighCardRank2 !== Ranks.SIX ||
+        result[0].minorHighCardRank3 !== Ranks.FIVE || result[0].minorHighCardRank4 !== Ranks.FOUR) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "rankHandTest09. " + result[0]);
+}
+
 
 function runAllTests() {
     var testResults = [];
@@ -327,6 +349,7 @@ function runAllTests() {
     testResults.push(rankHandTest07());
     testResults.push(rankHandTest08());
     testResults.push(rankHandTest09());
+    testResults.push(rankHandTest10());
 
 
     return testResults;

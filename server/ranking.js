@@ -215,17 +215,20 @@ function rankHand(cards) {
     // this hack basically eliminates duplicates - aka, if an Eight of Diamonds and an Eight of Hearts are both in cards
     // The presence of duplicates fucks up naive methods of counting straights
     rankCount = countCardsByRank(cards);
-    var ranks = Object.keys(rankCount);
+    var ranks = [];
+    for (var rank in rankCount) {
+        ranks.push(rankCount[rank].rank);
+    }
     ranks.sort(function (a, b) {
         return a.value - b.value;
     });
     for (var i = 0; i+4 < ranks.length; i++) {
-        if (ranks[i].value === ranks[i+1].value+1 &&
-            ranks[i].value === ranks[i+2].value+2 &&
-            ranks[i].value === ranks[i+3].value+3 &&
-            ranks[i].value === ranks[i+4].value+4) {
+        if (ranks[i].value === ranks[i+1].value-1 &&
+            ranks[i].value === ranks[i+2].value-2 &&
+            ranks[i].value === ranks[i+3].value-3 &&
+            ranks[i].value === ranks[i+4].value-4) {
 
-            rankings.push(new HandRanking(Rankings.STRAIGHT, rankings[i+4]));
+            rankings.push(new HandRanking(Rankings.STRAIGHT, ranks[i+4], ranks[i+3], ranks[i+2], ranks[i+1], ranks[i]));
         }
     }
 
