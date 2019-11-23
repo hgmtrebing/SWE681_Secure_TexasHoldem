@@ -74,23 +74,259 @@ function countCardsByRankTest01() {
 
     var results = ranking.countCardsByRank(cards);
     var passed = true;
-    if (results[Ranks.TWO] !== 2 ||
-        results[Ranks.FIVE] !== 4 ||
-        results[Ranks.JACK] !== 1 ||
-        results[Ranks.ACE] !== 3 ) {
+    if (results[Ranks.TWO].count !== 2 ||
+        results[Ranks.FIVE].count !== 4 ||
+        results[Ranks.JACK].count !== 1 ||
+        results[Ranks.ACE].count !== 3 ) {
         passed = false;
     }
-    return new TestResult(passed, "countCardsByRankTest01. Card Counts: " + Ranks.TWO.toString() + ": " + results[Ranks.TWO] + ", " +
-    Ranks.FIVE.toString() + ": " + results[Ranks.FIVE] + ", " + Ranks.JACK.toString() + ": " + results[Ranks.JACK] + ", " +
-    Ranks.ACE.toString() + ": " + results[Ranks.ACE] );
+    return new TestResult(passed, "countCardsByRankTest01. Card Counts: " + Ranks.TWO.toString() + ": " + results[Ranks.TWO].count + ", " +
+    Ranks.FIVE.toString() + ": " + results[Ranks.FIVE].count + ", " + Ranks.JACK.toString() + ": " + results[Ranks.JACK].count + ", " +
+    Ranks.ACE.toString() + ": " + results[Ranks.ACE].count );
+}
+
+function countCardsBySuiteTest01() {
+    var cards = [
+        new Card(Suites.CLUBS, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.KING),
+        new Card(Suites.CLUBS, Ranks.ACE),
+        new Card(Suites.HEARTS, Ranks.ACE),
+        new Card(Suites.CLUBS, Ranks.JACK),
+        new Card(Suites.DIAMONDS, Ranks.KING),
+        new Card(Suites.CLUBS, Ranks.QUEEN),
+        new Card(Suites.DIAMONDS, Ranks.QUEEN),
+        new Card(Suites.SPADES, Ranks.ACE),
+        new Card(Suites.DIAMONDS, Ranks.ACE),
+    ];
+
+    var suiteCount = ranking.countCardsBySuite(cards);
+
+    var passed = true;
+    if (suiteCount[Suites.HEARTS].count !== 1 ||
+        suiteCount[Suites.SPADES].count !== 2 ||
+        suiteCount[Suites.DIAMONDS].count !== 3 ||
+        suiteCount[Suites.CLUBS].count !== 4 ) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "countCardsBySuiteTest01. Card Counts = " + Suites.HEARTS.toString() + ": " +
+    suiteCount[Suites.HEARTS].suite + ", " + Suites.SPADES.toString() + ": " + suiteCount[Suites.SPADES].suite + ", " +
+    Suites.DIAMONDS.toString() + ": " + suiteCount[Suites.DIAMONDS].suite + ", " + Suites.CLUBS.toString() + ": " +
+    suiteCount[Suites.CLUBS].suite);
+}
+
+function rankHandTest01() {
+    var cards = [
+        new Card(Suites.CLUBS, Ranks.KING),
+        new Card(Suites.DIAMONDS, Ranks.KING),
+        new Card(Suites.HEARTS, Ranks.TWO),
+        new Card(Suites.HEARTS, Ranks.FIVE),
+        new Card(Suites.SPADES, Ranks.EIGHT),
+        new Card(Suites.SPADES, Ranks.SEVEN),
+        new Card(Suites.CLUBS, Ranks.JACK)
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.PAIR || result[0].highCardRank !== Ranks.KING) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "rankHandTest01. " + result[0]);
 
 }
+
+function rankHandTest02() {
+    var cards = [
+        new Card(Suites.CLUBS, Ranks.KING),
+        new Card(Suites.DIAMONDS, Ranks.ACE),
+        new Card(Suites.HEARTS, Ranks.TWO),
+        new Card(Suites.HEARTS, Ranks.FIVE),
+        new Card(Suites.SPADES, Ranks.FIVE),
+        new Card(Suites.SPADES, Ranks.SEVEN),
+        new Card(Suites.CLUBS, Ranks.FIVE)
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.THREE_OF_A_KIND || result[0].highCardRank !== Ranks.FIVE) {
+        passed = false;
+    }
+    return new TestResult(passed, "rankHandTest02. " + result[0]);
+}
+
+function rankHandTest03() {
+    var cards = [
+        new Card(Suites.CLUBS, Ranks.KING),
+        new Card(Suites.DIAMONDS, Ranks.KING),
+        new Card(Suites.HEARTS, Ranks.KING),
+        new Card(Suites.HEARTS, Ranks.FIVE),
+        new Card(Suites.SPADES, Ranks.FIVE),
+        new Card(Suites.SPADES, Ranks.KING),
+        new Card(Suites.CLUBS, Ranks.FIVE)
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.FOUR_OF_A_KIND || result[0].highCardRank !== Ranks.KING) {
+        passed = false;
+    }
+    return new TestResult(passed, "rankHandTest03. " + result[0]);
+}
+
+/**
+ * Tests whether rankHand() returns the correct result with two three-of-a-kind (the higher triplet should be returned)
+ * @returns {module.exports.TestResult|TestResult}
+ */
+function rankHandTest04() {
+    var cards = [
+        new Card(Suites.HEARTS, Ranks.FIVE),
+        new Card(Suites.CLUBS, Ranks.KING),
+        new Card(Suites.DIAMONDS, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.FIVE),
+        new Card(Suites.HEARTS, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.ACE),
+        new Card(Suites.CLUBS, Ranks.FIVE)
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.THREE_OF_A_KIND || result[0].highCardRank !== Ranks.KING) {
+        passed = false;
+    }
+    return new TestResult(passed, "rankHandTest04. " + result[0]);
+}
+
+/**
+ * Tests whether rankHand can adequately rank a Full House. This test includes two possible full house combos -
+ * 3 Kings - 2 Fives and 3 Kings - 2 Twos. 3 Kings - 2 Fives is the correct result.
+ * @returns {module.exports.TestResult|TestResult}
+ */
+function rankHandTest05() {
+    var cards = [
+        new Card(Suites.HEARTS, Ranks.TWO),
+        new Card(Suites.CLUBS, Ranks.KING),
+        new Card(Suites.DIAMONDS, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.FIVE),
+        new Card(Suites.HEARTS, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.TWO),
+        new Card(Suites.CLUBS, Ranks.FIVE)
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.FULL_HOUSE || result[0].highCardRank !== Ranks.KING ||
+        result[0].minorHighCardRank !== Ranks.FIVE) {
+        passed = false;
+    }
+    return new TestResult(passed, "rankHandTest05. " + result[0]);
+}
+
+/**
+ * Tests that rankHand() can adequately detect two pairs
+ * @returns {module.exports.TestResult|TestResult}
+ */
+function rankHandTest06() {
+    var cards = [
+        new Card(Suites.HEARTS, Ranks.TWO),
+        new Card(Suites.CLUBS, Ranks.KING),
+        new Card(Suites.DIAMONDS, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.TWO),
+        new Card(Suites.HEARTS, Ranks.ACE),
+        new Card(Suites.SPADES, Ranks.JACK),
+        new Card(Suites.CLUBS, Ranks.EIGHT)
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.TWO_PAIR || result[0].highCardRank !== Ranks.KING ||
+        result[0].minorHighCardRank !== Ranks.TWO) {
+        passed = false;
+    }
+    return new TestResult(passed, "rankHandTest06. " + result[0]);
+}
+
+function rankHandTest07() {
+    var cards = [
+        new Card(Suites.HEARTS, Ranks.TWO),
+        new Card(Suites.HEARTS, Ranks.KING),
+        new Card(Suites.HEARTS, Ranks.KING),
+        new Card(Suites.HEARTS, Ranks.TWO),
+        new Card(Suites.HEARTS, Ranks.ACE),
+        new Card(Suites.SPADES, Ranks.EIGHT),
+        new Card(Suites.CLUBS, Ranks.EIGHT)
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.FLUSH || result[0].highCardRank !== Ranks.ACE ||
+        result[0].minorHighCardRank !== Ranks.KING || result[0].minorHighCardRank2 !== Ranks.KING ||
+        result[0].minorHighCardRank3 !== Ranks.TWO || result[0].minorHighCardRank4 !== Ranks.TWO) {
+        passed = false;
+    }
+    return new TestResult(passed, "rankHandTest07. " + result[0]);
+}
+
+function rankHandTest08() {
+    var cards = [
+        new Card(Suites.SPADES, Ranks.ACE),
+        new Card(Suites.HEARTS, Ranks.JACK),
+        new Card(Suites.HEARTS, Ranks.TEN),
+        new Card(Suites.HEARTS, Ranks.KING),
+        new Card(Suites.HEARTS, Ranks.ACE),
+        new Card(Suites.CLUBS, Ranks.ACE),
+        new Card(Suites.HEARTS, Ranks.QUEEN)
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.ROYAL_FLUSH || result[0].highCardRank !== Ranks.ACE ||
+        result[0].minorHighCardRank !== Ranks.KING || result[0].minorHighCardRank2 !== Ranks.QUEEN ||
+        result[0].minorHighCardRank3 !== Ranks.JACK || result[0].minorHighCardRank4 !== Ranks.TEN) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "rankHandTest08. " + result[0]);
+}
+
+function rankHandTest09() {
+    var cards = [
+        new Card(Suites.SPADES, Ranks.SIX),
+        new Card(Suites.SPADES, Ranks.FOUR),
+        new Card(Suites.CLUBS, Ranks.SEVEN),
+        new Card(Suites.SPADES, Ranks.FIVE),
+        new Card(Suites.SPADES, Ranks.EIGHT),
+        new Card(Suites.HEARTS, Ranks.SEVEN),
+        new Card(Suites.SPADES, Ranks.SEVEN),
+    ];
+
+    var result = ranking.rankHand(cards);
+    var passed = true;
+    if (result[0].ranking !== ranking.Rankings.STRAIGHT_FLUSH || result[0].highCardRank !== Ranks.EIGHT ||
+        result[0].minorHighCardRank !== Ranks.SEVEN || result[0].minorHighCardRank2 !== Ranks.SIX ||
+        result[0].minorHighCardRank3 !== Ranks.FIVE || result[0].minorHighCardRank4 !== Ranks.FOUR) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "rankHandTest09. " + result[0]);
+}
+
 
 function runAllTests() {
     var testResults = [];
     testResults.push(sortCardsByRankTest01());
     testResults.push(sortCardsByRankTest02());
     testResults.push(countCardsByRankTest01());
+    testResults.push(countCardsBySuiteTest01());
+    testResults.push(rankHandTest01());
+    testResults.push(rankHandTest02());
+    testResults.push(rankHandTest03());
+    testResults.push(rankHandTest04());
+    testResults.push(rankHandTest05());
+    testResults.push(rankHandTest06());
+    testResults.push(rankHandTest07());
+    testResults.push(rankHandTest08());
+    testResults.push(rankHandTest09());
 
 
     return testResults;

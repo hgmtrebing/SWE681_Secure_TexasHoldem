@@ -3,6 +3,12 @@ var Suite = require('./carddeck').Suite;
 var Card = require('./carddeck').Card;
 
 function Ranking (name, rankBaseValue) {
+    if (typeof name !== "string") {
+        throw 'name must be an instance of string'
+    } else if (typeof  rankBaseValue !== 'number') {
+        throw 'rankBaseValue must be an instance of number';
+    }
+
     this.name = name;
     this.rankBaseValue = rankBaseValue;
 }
@@ -33,12 +39,44 @@ var Rankings = {
 };
 
 function HandRanking (ranking, highCardRank, minorHighCardRank, minorHighCardRank2, minorHighCardRank3, minorHighCardRank4) {
+    if (!ranking instanceof Ranking) {
+        throw "ranking must be of type Ranking";
+    } else if (!highCardRank instanceof Rank) {
+        throw "highCardRank must be of type Rank";
+    } else if (!minorHighCardRank instanceof Rank) {
+        throw "minorhighCardRank must be of type Rank";
+    } else if (!minorHighCardRank2 instanceof Rank) {
+        throw "minorhighCardRank2 must be of type Rank";
+    } else if (!minorHighCardRank3 instanceof Rank) {
+        throw "minorhighCardRank3 must be of type Rank";
+    } else if (!minorHighCardRank4 instanceof Rank) {
+        throw "minorhighCardRank4 must be of type Rank";
+
+    }
+
     this.ranking = ranking;
     this.highCardRank = highCardRank;
     this.minorHighCardRank = minorHighCardRank; // used for flushes, two pair, full house
     this.minorHighCardRank2 = minorHighCardRank2; // used for flushes
     this.minorHighCardRank3 = minorHighCardRank3; // used for flushes
     this.minorHighCardRank4 = minorHighCardRank4; // used for flushes
+
+    this.toString = function () {
+        var str = this.ranking.name + " : " + this.highCardRank;
+        if (this.minorHighCardRank !== null && this.minorHighCardRank !== undefined) {
+            str +=  ", " + minorHighCardRank;
+        }
+        if (this.minorHighCardRank2 !== null && this.minorHighCardRank2 !== undefined) {
+            str +=  ", " + minorHighCardRank2;
+        }
+        if (this.minorHighCardRank3 !== null && this.minorHighCardRank3 !== undefined) {
+            str +=  ", " + minorHighCardRank3;
+        }
+        if (this.minorHighCardRank4 !== null && this.minorHighCardRank4 !== undefined) {
+            str +=  ", " + minorHighCardRank4;
+        }
+        return str;
+    };
 }
 
 function sortCardsByRank (cards) {
@@ -67,9 +105,9 @@ function countCardsByRank (cards) {
     var rankCount = {};
     for (var i = 0; i < cards.length; i++) {
         if (cards[i].rank in rankCount) {
-            rankCount[cards[i].rank]++;
+            rankCount[cards[i].rank].count++;
         } else {
-            rankCount[cards[i].rank]=1;
+            rankCount[cards[i].rank]= {"rank": cards[i].rank, "count": 1};
         }
     }
     return rankCount;
@@ -79,9 +117,9 @@ function countCardsBySuite(cards) {
     var suiteCount = {};
     for (var i = 0; i < cards.length; i++) {
         if (cards[i].suite in suiteCount) {
-            suiteCount[cards[i].suite]++;
+            suiteCount[cards[i].suite].count++;
         } else {
-            suiteCount[cards[i].suite] = 1;
+            suiteCount[cards[i].suite] = {"suite": cards[i].suite, "count":1};
         }
     }
     return suiteCount;
@@ -103,36 +141,38 @@ function rankHand(cards) {
     // Determine Pairs, Three of a Kinds, and Four of A Kind
     var rankCount = countCardsByRank(cards);
     for (var key in rankCount) {
-        if (rankCount[key] === 2) {
-           rankings.push(new HandRanking(Rankings.PAIR, key, null));
-        } else if (rankCount[key] === 3) {
-            rankings.push(new HandRanking(Rankings.THREE_OF_A_KIND, key, null));
-        } else if (rankCount[key] === 4) {
-            rankings.push(new HandRanking(Rankings.FOUR_OF_A_KIND, key, null));
+        if (rankCount[key].count === 2) {
+           rankings.push(new HandRanking(Rankings.PAIR, rankCount[key].rank, null));
+        } else if (rankCount[key].count === 3) {
+            rankings.push(new HandRanking(Rankings.THREE_OF_A_KIND, rankCount[key].rank, null));
+        } else if (rankCount[key].count === 4) {
+            rankings.push(new HandRanking(Rankings.FOUR_OF_A_KIND, rankCount[key].rank, null));
         }
     }
 
     // Determine Full Houses and Two Pairs
     for (var i = 0; i < rankings.length; i++) {
         var rank1 = rankings[i].ranking;
-        if (rank1 === Rankings.THREE_OF_A_KIND || Rankings.PAIR) {
-            for (var j = i+i; i< rankings.length; i++) {
+        if (rank1 === Rankings.THREE_OF_A_KIND || rank1 === Rankings.PAIR) {
+            for (var j = i+1; j< rankings.length; j++) {
                 var rank2 = rankings[j].ranking;
                 if (rank1 === Rankings.THREE_OF_A_KIND && rank2 === Rankings.PAIR) {
-                    rankings.push(new HandRanking(Rankings.FULL_HOUSE, rank1, rank2));
+                    rankings.push(new HandRanking(Rankings.FULL_HOUSE, rankings[i].highCardRank, rankings[j].highCardRank));
                 } else if (rank1 === Rankings.PAIR && rank2 === Rankings.THREE_OF_A_KIND) {
-                    rankings.push(new HandRanking(Rankings.FULL_HOUSE, rank2, rank1));
+                    rankings.push(new HandRanking(Rankings.FULL_HOUSE, rankings[i].highCardRank, rankings[j].highCardRank));
                 } else if (rank1 === Rankings.PAIR && rank2 === Rankings.PAIR) {
+                    var highCard1 = rankings[i].highCardRank;
+                    var highCard2 = rankings[j].highCardRank;
                     var tempRank = null;
 
                     // If the high card of the first pair is less than the second pair, switch them
                     // This way, the major high card field reflects the highest value two pairs
-                    if (rank1.value < rank2.value) {
-                        tempRank = rank1;
-                        rank1 = rank2;
-                        rank2 = tempRank;
+                    if (highCard1.value < highCard2.value) {
+                        tempRank = highCard1;
+                        highCard1 = highCard2;
+                        highCard2 = tempRank;
                     }
-                    rankings.push(new HandRanking(Rankings.TWO_PAIR), rank1, rank2);
+                    rankings.push(new HandRanking(Rankings.TWO_PAIR, highCard1, highCard2));
                 }
             }
         }
@@ -141,8 +181,8 @@ function rankHand(cards) {
     // Determine Flushes
     var suiteCount = countCardsBySuite(cards);
     for (var key in suiteCount) {
-        if (suiteCount[key] >= 5) {
-            newCards = getSubarrayBySuite(cards, key);
+        if (suiteCount[key].count >= 5) {
+            newCards = getSubarrayBySuite(cards, suiteCount[key].suite);
             sortCardsByRank(newCards);
             var length = newCards.length;
             rankings.push(new HandRanking(Rankings.FLUSH, newCards[length-1].rank, newCards[length-2].rank,
@@ -151,17 +191,19 @@ function rankHand(cards) {
             // Checks the flush for straights
             var counter = length-1;
             while (counter-4 >= 0) {
-                if (newCards[counter].rank.value === newCards[counter-1].rank.value-1 &&
-                    newCards[counter].rank.value === newCards[counter-2].rank.value-2 &&
-                    newCards[counter].rank.value === newCards[counter-3].rank.value-3 &&
-                    newCards[counter].rank.value === newCards[counter-4].rank.value-4 ) {
+                if (newCards[counter].rank.value === newCards[counter-1].rank.value+1 &&
+                    newCards[counter].rank.value === newCards[counter-2].rank.value+2 &&
+                    newCards[counter].rank.value === newCards[counter-3].rank.value+3 &&
+                    newCards[counter].rank.value === newCards[counter-4].rank.value+4 ) {
 
                     // If the highest card is an ace, this is a royal flush
                     // If not, it is a straight flush
                     if (newCards[counter].rank.value === 14) {
-                        rankings.push (new HandRanking(Rankings.ROYAL_FLUSH, newCards[counter].rank.value));
+                        rankings.push (new HandRanking(Rankings.ROYAL_FLUSH, newCards[counter].rank, newCards[counter-1].rank,
+                            newCards[counter-2].rank, newCards[counter-3].rank, newCards[counter-4].rank));
                     } else {
-                        rankings.push(new HandRanking(Rankings.STRAIGHT_FLUSH, newCards[counter].rank.value));
+                        rankings.push(new HandRanking(Rankings.STRAIGHT_FLUSH, newCards[counter].rank, newCards[counter-1].rank,
+                            newCards[counter-2].rank, newCards[counter-3].rank, newCards[counter-4].rank));
                     }
                 }
                 counter--;
@@ -173,7 +215,7 @@ function rankHand(cards) {
     // this hack basically eliminates duplicates - aka, if an Eight of Diamonds and an Eight of Hearts are both in cards
     // The presence of duplicates fucks up naive methods of counting straights
     rankCount = countCardsByRank(cards);
-    var ranks = rankCount.keys();
+    var ranks = Object.keys(rankCount);
     ranks.sort(function (a, b) {
         return a.value - b.value;
     });
@@ -187,6 +229,14 @@ function rankHand(cards) {
         }
     }
 
+    rankings.sort(function(a, b){
+        if (a.ranking.rankBaseValue === b.ranking.rankBaseValue) {
+            return b.highCardRank.value - a.highCardRank.value;
+        } else {
+            return b.ranking.rankBaseValue - a.ranking.rankBaseValue;
+        }
+    });
+
     return rankings;
 }
 
@@ -195,5 +245,6 @@ module.exports = {
     sortCardsBySuite: sortCardsBySuite,
     countCardsByRank: countCardsByRank,
     countCardsBySuite: countCardsBySuite,
-    rankHand : rankHand
+    rankHand : rankHand,
+    Rankings : Rankings
 };

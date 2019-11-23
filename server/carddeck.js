@@ -16,6 +16,13 @@ function Suite (name, value) {
     }
 }
 
+var Suites = {
+    HEARTS: new Suite("hearts", 0),
+    SPADES: new Suite("spades", 1),
+    DIAMONDS: new Suite("diamonds", 2),
+    CLUBS: new Suite("clubs")
+};
+
 function Rank (name, value) {
     this.name = name;
     this.value = value;
@@ -40,6 +47,22 @@ function Rank (name, value) {
     }
 }
 
+var Ranks = {
+        TWO: new Rank("two", 2),
+        THREE: new Rank("three", 3),
+        FOUR: new Rank("four", 4),
+        FIVE: new Rank("five", 5),
+        SIX: new Rank("six", 6),
+        SEVEN: new Rank("seven", 7),
+        EIGHT: new Rank("eight", 8),
+        NINE: new Rank("nine", 9),
+        TEN: new Rank("ten", 10),
+        JACK: new Rank("jack", 11),
+        QUEEN: new Rank("queen", 12),
+        KING: new Rank("king", 13),
+        ACE: new Rank("ace", 14),
+};
+
 function Card(suite, rank) {
     this.suite = suite;
     this.rank = rank;
@@ -57,27 +80,10 @@ function Card(suite, rank) {
 }
 
 function CardDeck() {
-    this.suites = [new Suite("hearts", 0), new Suite("spades", 1), new Suite("diamonds", 2), new Suite("clubs", 3)];
-    this.ranks = [
-        new Rank("two", 2),
-        new Rank("three", 3),
-        new Rank("four", 4),
-        new Rank("five", 5),
-        new Rank("six", 6),
-        new Rank("seven", 7),
-        new Rank("eight", 8),
-        new Rank("nine", 9),
-        new Rank("ten", 10),
-        new Rank("jack", 11),
-        new Rank("queen", 12),
-        new Rank("king", 13),
-        new Rank("ace", 14),
-    ];
-
     this.deck = [];
-    for (var suite = 0; suite < this.suites.length; suite++ ) {
-        for (var rank = 0; rank < this.ranks.length; rank++) {
-            this.deck.push(new Card(this.suites[suite], this.ranks[rank]));
+    for (var suite in Suites ) {
+        for (var rank in Ranks ) {
+            this.deck.push(new Card(Suites[suite], Ranks[rank]));
         }
     }
 
@@ -105,6 +111,8 @@ function CardDeck() {
 module.exports = {
     Rank : Rank,
     Suite : Suite,
+    Ranks: Ranks,
+    Suites: Suites,
     Card : Card,
     CardDeck : CardDeck
 };
