@@ -123,7 +123,7 @@ function Table(tableId) {
     this.playFlopRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
             this.round = Rounds.FLOP;
-            this.conductBets();
+            this.conductBets(0);
         } else {
             this.round = Rounds.FINAL;
         }
@@ -132,7 +132,7 @@ function Table(tableId) {
     this.playTurnRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
             this.round = Rounds.TURN;
-            this.conductBets();
+            this.conductBets(0);
         } else {
             this.round = Rounds.FINAL;
         }
@@ -141,7 +141,7 @@ function Table(tableId) {
     this.playRiverRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
             this.round = Rounds.RIVER;
-            this.conductBets();
+            this.conductBets(0);
         } else {
             this.round = Rounds.FINAL;
         }
@@ -175,25 +175,34 @@ function Table(tableId) {
 
     this.conductBets = function (startingBet) {
 
-        this.currentPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, true, true);
-        this.lastPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, false, false);
+        // Get the inital bet and setup
         this.maxCurrentRoundBet = startingBet;
+        this.currentPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, true, true);
+        this.conductIndividualBet(this.currentPlayer);
+        this.lastPlayer = this.currentPlayer;
+        this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
 
+        // Get bets for remaining players
         while (this.currentPlayer !== this.lastPlayer) {
-            this.sendGameStateToPlayers();
             this.conductIndividualBet(this.currentPlayer);
-            this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ACTIVE, true, false, true);
-            this.sendGameStateToPlayers();
+            this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
         }
         this.maxCurrentRoundBet = 0;
+
+        // Reset current round bets for player
+        for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
+            var player = this.players.getPlayerAt(i);
+            player.currentRoundBet = 0;
+        }
     };
 
     this.conductIndividualBet = function(currentPlayer) {
+        this.sendGameStateToPlayers();
         if (this.players.getPlayerAt(currentPlayer).status === Status.ACTIVE) {
             var player = this.players.getPlayerAt(currentPlayer);
             var checkable =  player.currentRoundBet >= this.maxCurrentRoundBet;
             var callable = player.currentRoundBet + player.user.balance >= this.maxCurrentRoundBet;
-            var hasRemainingBalance = player.balance > 0;
+            var hasRemainingBalance = player.user.balance > 0;
             var input = player.receive();
 
             if (input.action === Actions.CHECK) {
@@ -238,6 +247,9 @@ function Table(tableId) {
                     if (player.currentRoundBet > this.maxCurrentRoundBet) {
                         this.maxCurrentRoundBet = player.currentRoundBet;
                     }
+                    this.log.logGame(this.tableId, this.roundId, player.user.name + " went ALL IN");
+                } else {
+                    this.log.logGameError(this.tableId, this.roundId, player.user.name + " attempted to go ALL IN, but lacked a remaining balance");
                 }
             } else if (input.action === Actions.RAISE) {
                 if ((input.betAmount + this.maxCurrentRoundBet) <= player.user.balance &&
@@ -261,6 +273,7 @@ function Table(tableId) {
                 this.log.logGameError(this.tableId, this.roundId, player.user.name + " has provided an unrecognized action: " + input.action);
             }
         }
+        this.sendGameStateToPlayers();
     };
 
     this.sendGameStateToPlayers = function() {

@@ -12,21 +12,6 @@ var testInput = [
     {action: Actions.CALL, betAmount: 0},
     {action: Actions.CALL, betAmount: 0},
     {action: Actions.CALL, betAmount: 0},
-    {action: Actions.CALL, betAmount: 0},
-
-    {action: Actions.CALL, betAmount: 0},
-    {action: Actions.CALL, betAmount: 0},
-    {action: Actions.CALL, betAmount: 0},
-    {action: Actions.CALL, betAmount: 0},
-    {action: Actions.CALL, betAmount: 0},
-    {action: Actions.CALL, betAmount: 0},
-
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.CHECK, betAmount: 0},
-    {action: Actions.FOLD, betAmount: 0},
 
     {action: Actions.CHECK, betAmount: 0},
     {action: Actions.CHECK, betAmount: 0},
@@ -34,6 +19,20 @@ var testInput = [
     {action: Actions.CHECK, betAmount: 0},
     {action: Actions.CHECK, betAmount: 0},
     {action: Actions.CHECK, betAmount: 0},
+
+    {action: Actions.RAISE, betAmount: 425},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+
+    {action: Actions.ALLIN, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
+    {action: Actions.CALL, betAmount: 0},
 ];
 
 function testCase01() {
@@ -46,10 +45,20 @@ function testCase01() {
     }
     table.bigBlindAmount = 200;
     table.smallBlindAmount = 100;
+
     table.setupTable();
     console.log(table.toString());
 
     table.playBetRound();
+    console.log(table.toString());
+
+    table.playFlopRound();
+    console.log(table.toString());
+
+    table.playTurnRound();
+    console.log(table.toString());
+
+    table.playRiverRound();
     console.log(table.toString());
 
 }

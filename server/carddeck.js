@@ -1,10 +1,11 @@
 var random = require("secure-random");
 
-function Suite (name) {
+function Suite (name, value) {
     this.name = name;
+    this.value = value;
     this.equals = function(other) {
         if (other instanceof Suite) {
-            return this.name === other.name;
+            return this.name === other.name && this.value === other.value;
         } else {
             return false;
         }
@@ -24,7 +25,15 @@ function Rank (name, value) {
         } else {
             return false;
         }
-    }
+    };
+
+    this.compareTo = function(other) {
+        if (other instanceof Rank) {
+            return this.value - other.value;
+        } else {
+            return undefined;
+        }
+    };
 
     this.toString = function() {
         return this.name;
@@ -48,7 +57,7 @@ function Card(suite, rank) {
 }
 
 function CardDeck() {
-    this.suites = [new Suite("hearts"), new Suite("spades"), new Suite("diamonds"), new Suite("clubs")];
+    this.suites = [new Suite("hearts", 0), new Suite("spades", 1), new Suite("diamonds", 2), new Suite("clubs", 3)];
     this.ranks = [
         new Rank("two", 2),
         new Rank("three", 3),
@@ -83,6 +92,14 @@ function CardDeck() {
         }
         this.deck = newDeck;
     };
+
+    this.toString = function() {
+        var str = "";
+        for (var i = 0; i < this.deck.length; i++) {
+            str += this.deck[i].toString() + "\n";
+        }
+        return str;
+    }
 }
 
 module.exports = {
