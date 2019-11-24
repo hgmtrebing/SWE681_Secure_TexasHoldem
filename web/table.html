@@ -4,6 +4,11 @@
     <meta charset="utf-8">
     <title>Play Texas Hold'em!</title>
     <link rel="stylesheet" type="text/css" href="./style/main.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" crossorigin="anonymous"> </script>
+    <script src="src/table.js" type="text/javascript"></script>
 </head>
 <body>
 <div class="main">
@@ -15,14 +20,14 @@
                     <span class="player-balance">$15,000 balance</span>
                 </div>
                 <div class="display-card-holder">
-                <div class="card-small cardA">
-                    <p class="card-text black">A</p>
-                    <p class="card-img black">&clubs;</p>
-                </div>
-                <div class="card-small cardb">
-                    <p class="card-text black">10</p>
-                    <p class="card-img black">&spades;</p>
-                </div>
+                    <div class="card-small cardA">
+                        <p class="card-text black">A</p>
+                        <p class="card-img black">&clubs;</p>
+                    </div>
+                    <div class="card-small cardb">
+                        <p class="card-text black">10</p>
+                        <p class="card-img black">&spades;</p>
+                    </div>
                 </div>
                 <div class="player-stats">
                     <span class="player-status">Active</span>
@@ -31,27 +36,49 @@
                 </div>
             </div>
             <div id="player-1">
-                <div class="card-small cardA">
-                    <p class="card-text black">A</p>
-                    <p class="card-img black">&clubs;</p>
+                <div class="player-info">
+                    <span class="player-name">Tim</span>
+                    <span class="player-balance">$7,250 balance</span>
                 </div>
-                <div class="card-small cardb">
-                    <p class="card-text black">10</p>
-                    <p class="card-img black">&spades;</p>
+                <div class="display-card-holder">
+                    <div class="card-small cardA">
+                        <p class="card-text black">A</p>
+                        <p class="card-img black">&clubs;</p>
+                    </div>
+                    <div class="card-small cardb">
+                        <p class="card-text black">10</p>
+                        <p class="card-img black">&spades;</p>
+                    </div>
+                </div>
+                <div class="player-stats">
+                    <span class="player-status">Active</span>
+                    <span class="player-most-recent-action">Raised</span>
+                    <span class="player-current-bets">$550</span>
                 </div>
             </div>
         </div>
         <div class="left-players">
            <div id="player-2">
-                <div class="card-small cardA">
-                    <p class="card-text black">A</p>
-                    <p class="card-img black">&clubs;</p>
+               <div class="player-info">
+                   <span class="player-name">John</span>
+                   <span class="player-balance">$3,250 balance</span>
+               </div>
+               <div class="display-card-holder">
+                    <div class="card-small cardA">
+                        <p class="card-text black">A</p>
+                        <p class="card-img black">&clubs;</p>
+                    </div>
+                    <div class="card-small cardb">
+                        <p class="card-text black">10</p>
+                        <p class="card-img black">&spades;</p>
+                    </div>
                 </div>
-                <div class="card-small cardb">
-                    <p class="card-text black">10</p>
-                    <p class="card-img black">&spades;</p>
+                <div class="player-stats">
+                    <span class="player-status">Active</span>
+                    <span class="player-most-recent-action">Raised</span>
+                    <span class="player-current-bets">$550</span>
                 </div>
-            </div>
+           </div>
         </div>
         <div class="board">
             <div class="card-small" id="flop-1">
@@ -83,36 +110,71 @@
         <div class="right-players">
 
             <div id="player-3">
-                <div class="card-small cardA">
-                    <p class="card-text black">A</p>
-                    <p class="card-img black">&clubs;</p>
+                <div class="player-info">
+                    <span class="player-name">John</span>
+                    <span class="player-balance">$3,250 balance</span>
                 </div>
-                <div class="card-small cardb">
-                    <p class="card-text black">10</p>
-                    <p class="card-img black">&spades;</p>
+                <div class="display-card-holder">
+                    <div class="card-small cardA">
+                        <p class="card-text black">A</p>
+                        <p class="card-img black">&clubs;</p>
+                    </div>
+                    <div class="card-small cardb">
+                        <p class="card-text black">10</p>
+                        <p class="card-img black">&spades;</p>
+                    </div>
+                </div>
+                <div class="player-stats">
+                    <span class="player-status">Active</span>
+                    <span class="player-most-recent-action">Raised</span>
+                    <span class="player-current-bets">$550</span>
                 </div>
             </div>
         </div>
         <div class="bottom-players">
             <div id="player-4">
-                <div class="card-small cardA">
-                    <p class="card-text black">A</p>
-                    <p class="card-img black">&clubs;</p>
+                <div class="player-info">
+                    <span class="player-name">John</span>
+                    <span class="player-balance">$3,250 balance</span>
                 </div>
-                <div class="card-small cardb">
-                    <p class="card-text black">10</p>
-                    <p class="card-img black">&spades;</p>
+                <div class="display-card-holder">
+                    <div class="card-small cardA">
+                        <p class="card-text black">A</p>
+                        <p class="card-img black">&clubs;</p>
+                    </div>
+                    <div class="card-small cardb">
+                        <p class="card-text black">10</p>
+                        <p class="card-img black">&spades;</p>
+                    </div>
+                </div>
+                <div class="player-stats">
+                    <span class="player-status">Active</span>
+                    <span class="player-most-recent-action">Raised</span>
+                    <span class="player-current-bets">$550</span>
                 </div>
             </div>
             <div id="player-5">
-                <div class="card-small cardA">
-                    <p class="card-text black">A</p>
-                    <p class="card-img black">&clubs;</p>
+                <div class="player-info">
+                    <span class="player-name">John</span>
+                    <span class="player-balance">$3,250 balance</span>
                 </div>
-                <div class="card-small cardb">
-                    <p class="card-text black">10</p>
-                    <p class="card-img black">&spades;</p>
+                <div class="display-card-holder">
+                    <div class="card-small cardA">
+                        <p class="card-text black">A</p>
+                        <p class="card-img black">&clubs;</p>
+                    </div>
+                    <div class="card-small cardb">
+                        <p class="card-text black">10</p>
+                        <p class="card-img black">&spades;</p>
+                    </div>
                 </div>
+                <div class="player-stats">
+                    <span class="player-status">Active</span>
+                    <span class="player-most-recent-action">Raised</span>
+                    <span class="player-current-bets">$550</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>

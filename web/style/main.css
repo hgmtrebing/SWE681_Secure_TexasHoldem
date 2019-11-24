@@ -20,13 +20,13 @@ html {
 }
 
 #player-0 {
-    position: relative;
+    position: absolute;
     left:20%;
 }
 
 #player-1 {
-    position: relative;
-    left: 50%;
+    position: absolute;
+    left: 60%;
 }
 
 .bottom-players {
@@ -37,13 +37,13 @@ html {
 }
 
 #player-4 {
-    position: relative;
+    position: absolute;
     left:20%;
 }
 
 #player-5 {
-    position: relative;
-    left: 50%;
+    position: absolute;
+    left: 60%;
 }
 
 .left-players {
