@@ -298,9 +298,13 @@ function Table(tableId) {
         var otherUsers = [];
         for (let i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             let player = this.players.getPlayerAt(i);
-            let playerComponent = new OtherPlayerMessageComponent(player.user.name, player.user.balance,
-                player.maxCurrentRoundBet, player.status, this.bigBlind === i, this.smallBlind === i);
-            otherUsers.push(playerComponent);
+            if (player.status !== Status.EMPTY) {
+                let playerComponent = new OtherPlayerMessageComponent(player.user.name, player.user.balance,
+                    player.maxCurrentRoundBet, player.status, this.bigBlind === i, this.smallBlind === i);
+                otherUsers.push(playerComponent);
+            } else {
+                // TODO
+            }
         }
         var message = new GameStatusMessage(otherUsers, table);
         for (let i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {

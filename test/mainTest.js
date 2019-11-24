@@ -2,7 +2,7 @@ var carddeckTest = require('./carddeckTest');
 var rankingTest = require('./rankingTest');
 var tableTest = require('./tableTest');
 
-function main() {
+function mainTest() {
     var testResults = [];
     testResults = testResults.concat(carddeckTest.runAllTests());
     testResults = testResults.concat(rankingTest.runAllTests());
@@ -13,4 +13,4 @@ function main() {
     }
 }
 
-main();
+mainTest();

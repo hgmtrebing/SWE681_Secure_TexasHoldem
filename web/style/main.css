@@ -1,0 +1,106 @@
+html {
+    background-color: green;
+}
+
+.table {
+    margin: 0 auto;
+}
+
+.board {
+    position: absolute;
+    top: 40%;
+    left: 35%;
+}
+
+.top-players {
+    position: absolute;
+    top: 10%;
+    left: 0%;
+    width: 100%;
+}
+
+#player-0 {
+    position: relative;
+    left:20%;
+}
+
+#player-1 {
+    position: relative;
+    left: 50%;
+}
+
+.bottom-players {
+    position: absolute;;
+    top: 80%;
+    left: 0%;
+    width: 100%;
+}
+
+#player-4 {
+    position: relative;
+    left:20%;
+}
+
+#player-5 {
+    position: relative;
+    left: 50%;
+}
+
+.left-players {
+    position: absolute;
+    top: 40%;
+    left: 10%;
+}
+
+.right-players {
+    position: absolute;
+    top: 40%;
+    left: 70%;
+}
+
+.card-small {
+    border: .2em solid black;
+    border-radius: 10%;
+    height: 80px;
+    width: 56px; /*70% of height*/
+    margin-right: 5px;
+    float: left;
+    background-color: white;
+}
+
+.card-text {
+    margin: 0;
+    margin-top: 15%;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 0;
+}
+
+.card-img {
+    text-align: center;
+    margin: 0;
+    font-size: 2em;
+}
+
+.game-status-holder {
+    width: 100%;
+    display: block;
+    text-align: center;
+}
+
+.player-stats {
+    display: block;
+}
+
+.player-card-holder {
+    display: inline;
+}
+
+.red {
+    color: red;
+}
+
+.black {
+    color: black;
+}
