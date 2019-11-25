@@ -6,20 +6,60 @@ const Rank = require('./carddeck').Rank;
 const Log = require('./log');
 const log = new Log.Log();
 
-function CurrentPlayerMessageComponent(name, balance, status, cardA, cardB, isBigBlind, isSmallBlind) {
+function CurrentPlayerMessageComponent(name, balance, bets, seat, status, mostRecentAction, cardA, cardB, isBigBlind, isSmallBlind) {
     this._id = 1;
     this.name = name;
     this.balance = balance;
+    this.bets = bets;
+    this.seat = seat;
     this.status = status;
+    this.mostRecentAction = mostRecentAction;
     this.cardA = cardA;
     this.cardB = cardB;
     this.isBigBlind = isBigBlind;
     this.isSmallBlind = isSmallBlind;
 }
 
-function OtherPlayerMessageComponent (name, balance, bet, status, isBigBlind, isSmallBlind) {
+function OtherPlayerMessageComponent (name, active, seat, balance, bet, status, isBigBlind, isSmallBlind) {
+    var validMessage = true;
+    if (typeof name !== 'string') {
+        validMessage = false;
+        log.logSystemError("name in OtherPlayerMessageComponent was of type " + typeof name + " , not type String");
+
+    } else if (typeof isActive !== 'boolean') {
+        validMessage = false;
+        log.logSystemError("isActive in OtherPlayerMessageComponent was of type " + typeof active + " , not type boolean");
+
+    } else if (typeof balance !== 'number') {
+        validMessage = false;
+        log.logSystemError("balance in OtherPlayerMessageComponent was of type " + typeof balance + " , not type number");
+
+    } else if (typeof bet !== 'number') {
+        validMessage = false;
+        log.logSystemError("bet in OtherPlayerMessageComponent was of type " + typeof bet + " , not type number");
+
+    } else if (status !== Status.ACTIVE.toString() || status !== Status.FOLDED.toString() || status !== Status.EMPTY.toString() ||
+    status !== Status.ALLIN.toString()) {
+        validMessage = false;
+        log.logSystemError("status in OtherPlayerMessageComponent was of type " + typeof status + " , not type String");
+
+    } else if (typeof isBigBlind !== 'boolean') {
+        validMessage = false;
+        log.logSystemError("isBigBlind in OtherPlayerMessageComponent was of type " + typeof isBigBlind + " , not type boolean");
+
+    } else if (typeof isSmallBlind !== 'boolean') {
+        validMessage = false;
+        log.logSystemError("isSmallBlind in OtherPlayerMessageComponent was of type " + typeof isSmallBlind + " , not type boolean");
+
+    }
+
+    if (!validMessage) {
+        throw "OtherPlayerMessageComponent constructed incorrectly. Check the log for more details"
+    }
+
     this._id = 2;
     this.name = name;
+    this.active = active;
     this.balance = balance;
     this.bet = bet;
     this.status = status;
@@ -122,18 +162,15 @@ function UserActionMessage (action, betAmount) {
 
 /**
  * Message sent from the server to all players to communicate the state of the game.
- * @param activePlayers
  * @param currentPlayer
- * @param maxBet
- * @param pot
- * @param flop
- * @param turn
- * @param river
+ * @param otherPlayers
+ * @param tableStatus
  * @constructor
  */
-function GameStatusMessage (activePlayers, tableStatus) {
+function GameStatusMessage (currentPlayer, otherPlayers, tableStatus) {
     this._id = 5;
-    this.activePlayers = activePlayers;
+    this.currentPlayer = currentPlayer;
+    this.otherPlayers = otherPlayers;
     this.tableStatus = tableStatus;
 };
 

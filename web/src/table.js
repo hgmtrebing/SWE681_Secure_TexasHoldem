@@ -5,20 +5,24 @@ $(document).ready(function() {
     const clubIcon = "&clubs;";
     const redClass = "red";
     const blackClass = "black";
+    const player0 = "#player-0";
+    const player1 = "#player-1";
+    const player2 = "#player-2";
+    const player3 = "#player-3";
+    const player4 = "#player-4";
+    const player5 = "#player-5";
 
-    var p = $("#player-0 .card-img");
-    p.removeClass(blackClass);
-    p.addClass(redClass);
-
-    function updateCard (card, suite, rank) {
-        if (suite === null && rank === null) {
-        }
-    }
+    var socket = io();
+    socket.on('game-status-message', function(msg){
+        processMessage(msg);
+    });
 
     function processMessage(message) {
 
+        alert ("Message Received " + JSON.stringify(message));
         // Game Status Message
         if (message._id === 5) {
+            // Table Status
             var tableStatus = message.tableStatus;
             if (tableStatus._id === 3) {
                 $("#pot-display").html("Pot: $" + tableStatus.pot);
@@ -26,26 +30,94 @@ $(document).ready(function() {
                 $("#round-display").html("Round: " + tableStatus.round);
 
                 if (tableStatus.flop1._id === 7) {
-
+                    $("#flop-1 .card-img").html(translateSuite(tableStatus.flop1.suiteName));
+                    $("#flop-1 .card-text").html(translateRank(tableStatus.flop1.rankName));
+                    $("#flop-1 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop1.suiteName));
+                    $("#flop-1 .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop1.suiteName));
                 }
 
                 if (tableStatus.flop2._id === 7) {
+                    $("#flop-2 .card-img").html(translateSuite(tableStatus.flop2.suiteName));
+                    $("#flop-2 .card-text").html(translateRank(tableStatus.flop2.rankName));
+                    $("#flop-2 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop2.suiteName));
+                    $("#flop-2 .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop2.suiteName));
 
                 }
 
                 if (tableStatus.flop3._id === 7) {
+                    $("#flop-3 .card-img").html(translateSuite(tableStatus.flop3.suiteName));
+                    $("#flop-3 .card-text").html(translateRank(tableStatus.flop3.rankName));
+                    $("#flop-3 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop3.suiteName));
+                    $("#flop-3 .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop3.suiteName));
 
                 }
 
                 if (tableStatus.turn._id === 7) {
+                    $("#turn .card-img").html(translateSuite(tableStatus.turn.suiteName));
+                    $("#turn .card-text").html(translateRank(tableStatus.turn.rankName));
+                    $("#turn .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.turn.suiteName));
+                    $("#turn .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.turn.suiteName));
 
                 }
 
                 if (tableStatus.river._id === 7) {
+                    $("#river .card-img").html(translateSuite(tableStatus.river.suiteName));
+                    $("#river .card-text").html(translateRank(tableStatus.river.rankName));
+                    $("#river .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.river.suiteName));
+                    $("#river .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.river.suiteName));
 
                 }
 
             }
+
+            processCurrentPlayerStatus(message.currentPlayer);
+
+            // Other Players
+            for (var i = 0; i < message.otherPlayers.length; i++) {
+
+            }
+        }
+    }
+
+    function processCurrentPlayerStatus(currentPlayer) {
+        if (currentPlayer._id === 1) {
+            var seat = "";
+
+            if (currentPlayer.seat === 0) {
+                seat = player0;
+            } else if (currentPlayer.seat === 1) {
+                seat = player1;
+            } else if (currentPlayer.seat === 2) {
+                seat = player2;
+            } else if (currentPlayer.seat === 3) {
+                seat = player3;
+            } else if (currentPlayer.seat === 4) {
+                seat = player4;
+            } else if (currentPlayer.seat === 5) {
+                seat = player5;
+            }
+
+            $(seat + " .player-name").html(currentPlayer.name);
+            $(seat + " .player-balance").html("| Balance: $" + currentPlayer.balance);
+            $(seat + " .player-status").html(currentPlayer.status);
+            $(seat + " .player-most-recent-action").html("| " + currentPlayer.mostRecentAction);
+            $(seat + " .player-current-bets").html("| $" + currentPlayer.bets);
+
+            if (currentPlayer.cardA._id === 7) {
+                $(seat + " .cardA .card-img").html(translateSuite(currentPlayer.cardA.suiteName));
+                $(seat + " .cardA .card-text").html(translateRank(currentPlayer.cardA.rankName));
+                $(seat + " .cardA .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(currentPlayer.cardA.suiteName));
+                $(seat + " .cardA .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(currentPlayer.cardA.suiteName));
+            }
+
+            if (currentPlayer.cardB._id === 7) {
+                $(seat + " .cardb .card-img").html(translateSuite(currentPlayer.cardB.suiteName));
+                $(seat + " .cardb .card-text").html(translateRank(currentPlayer.cardB.rankName));
+                $(seat + " .cardb .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(currentPlayer.cardB.suiteName));
+                $(seat + " .cardb .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(currentPlayer.cardB.suiteName));
+
+            }
+
         }
     }
 
@@ -59,7 +131,21 @@ $(document).ready(function() {
         } else if (suiteName === "spades") {
             return spadeIcon;
         } else {
-            return null;
+            return "";
+        }
+    }
+
+    function translateColor(suiteName) {
+        if (suiteName === "clubs") {
+            return blackClass;
+        } else if (suiteName === "diamonds") {
+            return redClass;
+        } else if (suiteName === "hearts") {
+            return redClass;
+        } else if (suiteName === "spades") {
+            return blackClass;
+        } else {
+            return "";
         }
     }
 
@@ -91,19 +177,10 @@ $(document).ready(function() {
         } else if (rankName === "ace") {
             return "A";
         } else {
-            return null;
+            return "";
         }
     }
 
-    processMessage({
-        _id: 5,
-        tableStatus: {
-            _id: 3,
-            pot: 4500,
-            gameNumber: 15,
-            round: "River"
-        }
-    });
 });
 
 
