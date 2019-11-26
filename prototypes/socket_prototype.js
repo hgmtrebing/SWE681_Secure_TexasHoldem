@@ -7,16 +7,21 @@ var defines = require('../server/definition');
 var Suites = require('../server/carddeck').Suites;
 var Ranks = require('../server/carddeck').Ranks;
 
+app.use(helmet());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+
 app.get('/', function(req, res){
   res.sendFile(path.resolve("web/table.html"));
 });
 
-app.get('/web/src/table.js', function(req, res){
-  res.sendFile(path.resolve("web/src/table.js"));
+app.get('/table.js', function(req, res){
+  res.sendFile(path.resolve("/web/src/table.js"));
 });
 
-app.get('/web/style/main.css', function(req, res){
-  res.sendFile(path.resolve("web/style/main.css"));
+app.get('/main.css', function(req, res){
+  res.sendFile(path.resolve("/web/style/main.css"));
 });
 
 io.on('connection', function(socket){

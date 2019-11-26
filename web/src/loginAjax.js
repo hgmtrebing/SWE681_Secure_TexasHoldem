@@ -16,11 +16,33 @@ $(document).ready(function(){
             $("#error-message").text("Invalid Username or password.")
             $("#error-message").addClass("alert alert-warning");
         }else{
-           // $("#error-message").hide();
-            $("#error-message").text("Successfully Logged In");
-            $("#error-message").removeClass("alert-warning");
-            $("#error-message").addClass("alert-success");
-            //ajax call to the server
+            let login_request ={
+                "username" : usrname,
+               "password" : passwrd
+            }
+            $.ajax({
+                url: "/api/user/login",
+                type: "POST",
+                data: login_request,
+                dataType: "text",
+                success : function(data) {
+                    result =JSON.parse(data);
+                    if(result.success){
+                        //save the access token to cahce/session
+                        $("#error-message").text(result.message);
+                        $("#error-message").removeClass("alert-warning");
+                        $("#error-message").addClass("alert alert-success");
+                        window.location.replace("/home");
+                    }else{
+                        $("#error-message").text(result.message);
+                        $("#error-message").addClass("alert alert-warning");
+                    }
+                },
+                error : function() {
+                        $("#error-message").text("Something went wrong. Please try again later.");
+                        $("#error-message").addClass("alert-warning");
+                }
+            });
             $("#user-name").val("");
             $("#password").val("")
         }

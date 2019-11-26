@@ -22,6 +22,12 @@ let UserSchema = new schema({
         minlength:[8, 'Password should be at least 8 char long'],
         maxlength:[20,'Password cannot be longer than 20 chars'],
         //add password complexity validator (Follow Rules)
+        validate: {
+            validator: function(v) {
+              return /^([a-zA-Z0-9@_$*#!.]{8,20})$/.test(v);
+            },
+            message: props => `${props.value} is not a valid password. See the password rules!`
+          },
         required :[true, 'Password is required']
     } 
 
