@@ -45,7 +45,7 @@ process.on('SIGINT', function () {
 
 
 var app = express();
-app.use(helmet);
+app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
