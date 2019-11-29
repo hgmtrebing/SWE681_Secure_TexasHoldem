@@ -5,9 +5,9 @@ const config = require('../config');
 const Log = require('../server/log.js').Log;
 
 mongoose.connect(config.DBURL, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
-console.log("1");
+
 let log = new Log();
-console.log(log);
+
 /// CONNECTION EVENTS
 // When mongodb successfully connected
 mongoose.connection.on('connected', function () {

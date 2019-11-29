@@ -47,14 +47,14 @@ const db = require('./database/database');
 var app = express();
 
 app.use(helmet());
-// app.use(helmet.contentSecurityPolicy({
-//     directives: {
-//       defaultSrc: ["'self'"],
-//       scriptSrc: ["'self'", 'code.jquery.com', 'stackpath.bootstrapcdn.com', 'cdnjs.cloudflare.com'],
-//       styleSrc: ["'self'", 'stackpath.bootstrapcdn.com'],
-//       fontSrc: ["'self'", 'stackpath.bootstrapcdn.com']
-//     }
-//    }));
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", 'code.jquery.com', 'stackpath.bootstrapcdn.com', 'cdnjs.cloudflare.com'],
+      styleSrc: ["'self'", 'stackpath.bootstrapcdn.com'],
+      fontSrc: ["'self'", 'stackpath.bootstrapcdn.com']
+    }
+   }));
 app.use(helmet.referrerPolicy({policy:'same-origin'}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -97,6 +97,10 @@ app.get("/login.js", function (req, res) {
 
 app.get("/home.js", function (req, res) {
     res.sendFile("web/src/home.js", { root: __dirname });
+});
+
+app.get("/welcome.js", function (req, res) {
+    res.sendFile("web/src/welcome.js", { root: __dirname });
 });
 
 // Route for user login and register
