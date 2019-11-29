@@ -32,6 +32,8 @@ $(document).ready(function(){
                         $("#error-message").text(result.message);
                         $("#error-message").removeClass("alert-warning");
                         $("#error-message").addClass("alert alert-success");
+                        sessionStorage.setItem("user", result.username);
+                        sessionStorage.setItem("token", result.token);
                         window.location.replace("/home");
                     }else{
                         $("#error-message").text(result.message);
