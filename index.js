@@ -71,7 +71,7 @@ app.get("/login", function (req, res) {
 });
 
 app.get("/create-account", function (req, res) {
-    log.logSystem("request received");
+    log.logSystem("Create Account Request received");
     res.sendFile("web/new_user.html", { root: __dirname });
 });
 
@@ -81,6 +81,18 @@ app.get("/newUserAjax.js", function (req, res) {
 
 app.get("/login.js", function (req, res) {
     res.sendFile("web/src/loginAjax.js", { root: __dirname });
+});
+
+app.get("/table", function(req, res) {
+    res.sendFile("web/table.html", {root: __dirname});
+});
+
+app.get("/main.css", function(req, res){
+    res.sendFile("web/style/main.css", {root: __dirname});
+});
+
+app.get("/table.js", function(req, res){
+    res.sendFile("web/src/table.js", {root: __dirname});
 });
 
 // Route for user login and register
@@ -100,6 +112,7 @@ server.listen(8080, function () {
     log.logSystem("HTTPS Server is now listening on port 8080");
 });
 
+/*
 //socket setup:
 let io = socket(server);
 io.on('connection', function(socket){
@@ -108,6 +121,6 @@ io.on('connection', function(socket){
         io.sockets.emit('check', value);
     })
 });
-
+*/
 
 
