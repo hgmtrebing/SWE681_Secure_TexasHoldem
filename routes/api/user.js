@@ -3,33 +3,42 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require("../../model/User");
 const config = require('../../config');
+const Log = require('../../server/log.js').Log;
 
 // @route POST api/users/register
 router.post("/new-user", function (req, res) {
-    User.findOne({ username: req.body.username }, function (err, user) {
+    let username= req.body.username;
+    let password= req.body.password;
+    let syslog = new Log();
+    // validate the user input first
+    User.findOne({ username: username }, function (err, user) {
         if (err) {
+            syslog.logSystemError(err.message);
             res.send({
                 success: false,
-                message: err.message
+                message: "Something went wrong. Please try again later."
             });
         }
         if (user) {
+            syslog.logSystem("Invalid register. Username: " + user.username +" already exists.")
             res.send({
                 success: false,
                 message: 'User name already exist'
             });
         } else {
             let user = new User({
-                username: req.body.username,
-                password: req.body.password
+                username,
+                password
             })
             user.save(function (err, usr) {
                 if (err) {
+                    syslog.logSystemError(err.message);
                     res.send({
                         success: false,
-                        message: err.message
+                        message: "Something went wrong. Please try again later."
                     })
                 } else {
+                    syslog.logSystem("User: "+ user.username +  " Successfully Created")
                     res.send({
                         success: true,
                         username: user.username,
@@ -44,26 +53,31 @@ router.post("/new-user", function (req, res) {
 
 // @route POST api/users/register
 router.post("/login", function (req, res) {
-    //userservice.login(req.body.username, req.body.password).then((result) => res.send(result));
-    User.findOne({ username: req.body.username }, function (err, user) {
+    let username = req.body.username;
+    let password = req.body.password;
+    let syslog = new Log();
+
+    // validate the user input first
+    User.findOne({ username: username }, function (err, user) {
         if (err) {
-            // log this error
+        syslog.logSystemError(err.message);
             res.send({
                 success: false,
-                message: err.message
+                message: "Something went wrong. Please try again later."
             });
         }
         if (user) {
-            user.comparePassword(req.body.password, (err, match) => {
+            user.comparePassword(password, (err, match) => {
                 if (err) {
+                    syslog.logSystemError(err.message);
                     res.send({
                         success: false,
-                        message: err.message
+                        message: "Something went wrong. Please try again later."
                     });
                 }
                 if (match) { //password match
                     const token = jwt.sign({ "username": user.username, "password": user.password }, config.secretKey, { expiresIn: '12h' })
-                    //log this data of login
+                    syslog.logSystem(user.username + "Successfully logged in.");
                     res.send({
                         success: true,
                         token: token,
@@ -72,8 +86,7 @@ router.post("/login", function (req, res) {
                     });
                 }else{ //password mis-match
 
-                    //log this data of login failure - password mismatch
-
+                    syslog.logSystem("Login failed. Password mismatch for " + user.username+ ". Attempted Password: " + password);
                     res.send({
                         success: false,
                         username: user.username,
@@ -83,13 +96,18 @@ router.post("/login", function (req, res) {
             });
         } else {
 
-                    //log this data of login failure -- username invalid
+            //log this data of login failure -- username invalid
+            syslog.logSystem("Unable to find the username: " + username + " in the DB.");
             res.send({
                 success: false,
                 message: 'Invalid Username and Password'
             });
         }
     });
+});
+
+router.post("/logout", function(req,res){
+   ///what do we do here
 });
 
 module.exports = router;
