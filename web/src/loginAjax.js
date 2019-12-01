@@ -8,7 +8,7 @@ $(document).ready(function(){
         usrname = $("#user-name").val();
         passwrd =$("#password").val(); 
         if (usrname == "" || usrname == null || usrname == undefined || passwrd == "" || passwrd == null || passwrd == undefined){
-            $("#error-message").text("Username and password field are required.")
+            $("#error-message").text("Username and password field are required.");
             $("#error-message").addClass("alert alert-warning");
         }else if(!validateUsername(usrname) || !validatePassword(passwrd)){ 
             $("#user-name").val("");
@@ -32,6 +32,8 @@ $(document).ready(function(){
                         $("#error-message").text(result.message);
                         $("#error-message").removeClass("alert-warning");
                         $("#error-message").addClass("alert alert-success");
+                        sessionStorage.setItem("user", result.username);
+                        sessionStorage.setItem("token", result.token);
                         window.location.replace("/home");
                     }else{
                         $("#error-message").text(result.message);

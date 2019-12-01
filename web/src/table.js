@@ -1,20 +1,15 @@
 $(document).ready(function() {
-    const spadeIcon = "&spades;";
-    const diamondIcon = "&diams;";
-    const heartIcon = "&hearts;";
-    const clubIcon = "&clubs;";
-    const redClass = "red";
-    const blackClass = "black";
-    const player0 = "#player-0";
-    const player1 = "#player-1";
-    const player2 = "#player-2";
-    const player3 = "#player-3";
-    const player4 = "#player-4";
-    const player5 = "#player-5";
 
-    var socket = io();
     socket.on('game-status-message', function(msg){
         processMessage(msg);
+    });
+
+    socket.on('get-user-action-message', function (msg) {
+        processMessage(msg);
+    });
+
+    $("#raise-range").on("input change", function() {
+        $("#raise-amount").html("$" + $("#raise-range").val());
     });
 
     function processMessage(message) {
@@ -71,11 +66,120 @@ $(document).ready(function() {
             }
 
             processCurrentPlayerStatus(message.currentPlayer);
+            processOtherPlayer(message.otherPlayers);
 
-            // Other Players
-            for (var i = 0; i < message.otherPlayers.length; i++) {
+            // Get User Action Message
+        } else if (message._id === 6) {
+            processGetUserActionMessage(message);
+        }
+    }
 
+    function processGetUserActionMessage(message) {
+        var validActions = message.validActions;
+        var callAmount = parseInt(message.callAmount);
+        var balance = parseInt(message.balance);
+        var bets = parseInt(message.bets);
+        var timerStart = parseInt(message.timerStart);
+
+        $("#list-allin-list").addClass('disabled');
+        $("#list-call-list").addClass('disabled');
+        $("#list-check-list").addClass('disabled');
+        $("#list-raise-list").addClass('disabled');
+
+        for (var i = 0; i < validActions.length; i++) {
+            if (validActions[i] === "RAISE") {
+                $("#list-raise-list").removeClass('disabled');
+            } else if (validActions[i] === "CALL") {
+                $("#list-call-list").removeClass('disabled');
+            } else if (validActions[i] === "CHECK") {
+                $("#list-check-list").removeClass('disabled');
+            } else if (validActions[i] === "ALLIN") {
+                $("#list-allin-list").removeClass('disabled');
             }
+        }
+
+        $("#modal-balance").html("Your balance: $" + balance);
+        $("#modal-bets").html("Your bets, so far: $" + bets);
+        $("#modal-call-amount").html("Call Amount: $" + callAmount);
+        $("#modal-timer").html("Time Remaining: " + timerStart);
+        $("#list-all-in").html("Go all in for $" + (balance-bets) + "?");
+        $("#list-call").html("Call for $" + callAmount);
+
+        $("#raise-range").attr("min", callAmount);
+        $("#raise-range").attr("max", balance);
+        $("#raise-range").attr("step", 10);
+        $("#raise-amount").html("$" + callAmount);
+
+        var countdown = setInterval(function() {
+            if (timerStart >= 0) {
+                $("#modal-timer").html("Time Remaining: " + timerStart);
+                timerStart--;
+            } else if (timerStart >= -3) {
+                timerStart--;
+            } else {
+                $("#user-action-modal").modal('hide');
+                clearTimeout(countdown);
+            }
+        }, 1000);
+
+        $("#user-action-modal").modal({});
+    }
+
+    function processOtherPlayer(otherPlayers) {
+        for (var i = 0; i < otherPlayers.length; i++) {
+            var player = otherPlayers[i];
+            var name = player.name;
+            var balance = player.balance;
+            var bet = player.bet;
+            var status = player.status;
+            var action = player.action;
+            var cardASuite = player.cardA.suiteName;
+            var cardARank = player.cardA.rankName;
+            var cardBSuite = player.cardB.suiteName;
+            var cardBRank = player.cardB.rankName;
+            var isBigBlind = player.isBigBlind;
+            var isSmallBlind = player.isSmallBlind;
+
+            var playerHtml;
+            if (i === 0) {
+                playerHtml = player0;
+            } else if (i === 1) {
+                playerHtml = player1;
+            } else if (i === 2) {
+                playerHtml = player2;
+            } else if (i === 3) {
+                playerHtml = player3;
+            } else if (i === 4) {
+                playerHtml = player4;
+            } else if (i === 5) {
+                playerHtml = player5;
+            } else {
+                // TODO
+            }
+
+            $(playerHtml + " .player-name").html(name);
+            $(playerHtml + " .player-balance").html("$" + balance);
+            $(playerHtml + " .player-current-bets").html("$" + bet);
+            $(playerHtml + " .player-status").html(status);
+            $(playerHtml + " .player-most-recent-action").html(action);
+
+            $(playerHtml + " .cardA .card-text").html(translateRank(cardARank));
+            $(playerHtml + " .cardA .card-img").html(translateSuite(cardASuite));
+            $(playerHtml + " .cardA .card-img").removeClass(blackClass);
+            $(playerHtml + " .cardA .card-img").removeClass(redClass);
+            $(playerHtml + " .cardA .card-img").addClass(translateColor(cardASuite));
+            $(playerHtml + " .cardA .card-text").removeClass(blackClass);
+            $(playerHtml + " .cardA .card-text").removeClass(redClass);
+            $(playerHtml + " .cardA .card-text").addClass(translateColor(cardASuite));
+
+            $(playerHtml + " .cardb .card-text").html(translateRank(cardBRank));
+            $(playerHtml + " .cardb .card-img").html(translateSuite(cardBSuite));
+            $(playerHtml + " .cardb .card-img").removeClass(blackClass);
+            $(playerHtml + " .cardb .card-img").removeClass(redClass);
+            $(playerHtml + " .cardb .card-img").addClass(translateColor(cardBSuite));
+            $(playerHtml + " .cardb .card-text").removeClass(blackClass);
+            $(playerHtml + " .cardb .card-text").removeClass(redClass);
+            $(playerHtml + " .cardb .card-text").addClass(translateColor(cardBSuite));
         }
     }
 
@@ -183,4 +287,49 @@ $(document).ready(function() {
 
 });
 
+const spadeIcon = "&spades;";
+const diamondIcon = "&diams;";
+const heartIcon = "&hearts;";
+const clubIcon = "&clubs;";
+const redClass = "red";
+const blackClass = "black";
+const player0 = "#player-0";
+const player1 = "#player-1";
+const player2 = "#player-2";
+const player3 = "#player-3";
+const player4 = "#player-4";
+const player5 = "#player-5";
+
+const socket = io();
+
+$("#ok-button").on("click", function () {
+    var msg = {_id: 4, action: "", betAmount: 0};
+    if ($("#list-call-list").hasClass('active')) {
+        msg.action = 'CALL';
+        msg.betAmount = callAmount;
+    } else if ($("#list-allin-list").hasClass('active')) {
+        msg.action = 'ALLIN';
+        msg.betAmount = balance - bets;
+    } else if ($("#list-check-list").hasClass('active')) {
+        msg.action = 'CHECK';
+    } else if ($("#list-raise-list").hasClass('active')) {
+        msg.action = 'RAISE';
+        msg.betAmount = $("#raise-range").val();
+    }
+    alert("before");
+    socket.emit("user-action-msg", msg, function () {
+        alert("SENT");
+    });
+    alert("after");
+});
+
+$("#fold-button").on("click", function () {
+    var msg = {_id: 4, action: "FOLD", betAmount: 0};
+    socket.emit("user-action-msg", msg);
+});
+
+$("#leave-button").on("click", function () {
+    var msg = {_id: 4, action: "LEAVE", betAmount: 0};
+    socket.emit("user-action-msg", msg);
+});
 

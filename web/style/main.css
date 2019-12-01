@@ -64,6 +64,8 @@ html {
     height: 80px;
     width: 56px; /*70% of height*/
     margin-right: 5px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     float: left;
     background-color: white;
 }
@@ -75,12 +77,16 @@ html {
     font-size: 1.5em;
     font-weight: bold;
     padding: 0;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .card-img {
     text-align: center;
     margin: 0;
     font-size: 2em;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .game-status-holder {
