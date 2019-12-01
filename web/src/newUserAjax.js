@@ -6,92 +6,93 @@ $(document).ready(function(){
     });
 
     $("#submit-button").on("click", function () {
-
-        var errors = false;
-        if ($("#user-name").val() == "" || ($("#user-name").val() == null || $("#user-name").val() == undefined)) {
-            $("#empty-username").css("display", "block");
-            errors = true;
-        } else {
-            $("#empty-username").css("display", "none");
+        let clientSideCheckPass = true;
+        usrname = $("#user-name").val();
+        passwrd =$("#password-01").val(); 
+        repasswrd = $("#password-02").val();
+        if(usrname == "" || usrname == null || usrname == undefined){
+            $("#username-error-message").text("Username is a required field");
+            $("#username-error-message").addClass("alert alert-warning");
+            clientSideCheckPass = false;
+        }else if(!validateUsername(usrname)){
+            $("#username-error-message").text("Invalid Username. Please enter a valid username.");
+            $("#username-error-message").addClass("alert alert-warning");
+            clientSideCheckPass = false;
+        }else{
+            $("#username-error-message").text("");
+            $("#username-error-message").removeClass("alert alert-warning");
         }
 
-        if ($("#user-name").val().length < 5) {
-            $("#short-username").css("display", "block");
-            errors = true;
-        } else {
-            $("#short-username").css("display", "none");
+        if(passwrd == "" || passwrd == null || passwrd == undefined){
+            $("#password-error-message").text("Password is a required field");
+            $("#password-error-message").addClass("alert alert-warning");
+            clientSideCheckPass = false;
+        }else if(!validatePassword(passwrd)){
+            $("#password-error-message").text("Invalid Password. Please enter a valid password.");
+            $("#password-error-message").addClass("alert alert-warning");
+            clientSideCheckPass = false;
+        }else{
+            $("#password-error-message").text("");
+            $("#password-error-message").removeClass("alert alert-warning");
         }
 
-        if ($("#user-name").val().length > 20) {
-            $("#long-username").css("display", "block");
-            errors = true;
-        } else {
-            $("#long-username").css("display", "none");
+        if(repasswrd == "" || repasswrd == null || repasswrd == undefined){
+            $("#reenter-passwrd-error-message").text("Re-enter Password is a required field");
+            $("#reenter-passwrd-error-message").addClass("alert alert-warning");
+            clientSideCheckPass = false;
+        }else if(validatePassword(passwrd) && passwrd !== repasswrd){
+            $("#reenter-passwrd-error-message").text("Password and Re-enter Password does not match.");
+            $("#reenter-passwrd-error-message").addClass("alert alert-warning");
+            clientSideCheckPass = false;
+        }else{
+            $("#reenter-passwrd-error-message").text("");
+            $("#reenter-passwrd-error-message").removeClass("alert alert-warning");
         }
-
-        if (!validCharacters.test( $("#user-name").val() )) {
-            $("#invalid-username").css("display", "block");
-            errors = true;
-        } else {
-            $("#invalid-username").css("display", "none");
-        }
-
-        if ($("#password-01").val() == "" || ($("#password-01").val() == null || $("#password-01").val() == undefined)) {
-            $("#empty-password").css("display", "block");
-            errors = true;
-        } else {
-            $("#empty-password").css("display", "none");
-        }
-
-        if ($("#password-01").val().length < 8) {
-            $("#short-password").css("display", "block");
-            errors = true;
-        } else {
-            $("#short-password").css("display", "none");
-        }
-
-        if ($("#password-01").val().length > 20) {
-            $("#long-password").css("display", "block");
-            errors = true;
-        } else {
-            $("#long-password").css("display", "none");
-        }
-
-        if (!validCharacters.test( $("#password-01").val() )) {
-            $("#invalid-password").css("display", "block");
-            errors = true;
-        } else {
-            $("#invalid-password").css("display", "none");
-        }
-
-        if ($("#password-01").val() !== $("#password-02").val()) {
-            $("#password-mismatch").css("display", "block");
-            errors = true;
-        }
-
-        if (!errors) {
-
-            var username = $("#user-name").val();
-            var password = $("#password-01").val();
-            var new_user_request = {
-                "username" : username,
-                "password" : password
-            };
-
+        var new_user_request = {
+            "username" : usrname,
+            "password" : passwrd
+        };
+        if(clientSideCheckPass){
             $.ajax({
-                url: "/new-user",
+                url: "/api/user/new-user",
                 type: "POST",
                 data: new_user_request,
                 dataType: "text",
-
-                success : function(completeHtmlPage) {
-                    $("html").empty();
-                    $("html").append(completeHtmlPage);
+                success : function(data) {
+                    result =JSON.parse(data);
+                    console.log(result);
+                    if(result.success){
+                        $("#error-message").text(result.message);
+                        $("#error-message").removeClass("alert-warning");
+                        $("#error-message").addClass("alert alert-success");
+                        window.location.replace("/login");
+                    }else{
+                        $("#error-message").text(result.message);
+                        $("#error-message").addClass("alert alert-warning");
+                    }
                 },
                 error : function() {
-                    alert("An error has been encountered! Please try again.");
+                        $("#error-message").text("Something went wrong. Please try again later.");
+                        $("#error-message").addClass("alert-warning");
                 }
             });
         }
+        $("#user-name").val("");
+        $("#password-01").val(""); 
+        $("#password-02").val("");
+
     });
+
 });
+
+//Validate Username for min-char:5, max-char:20, alphanumeric 
+function validateUsername(username){
+    let validUsername = /^[a-zA-Z0-9]{5,20}$/;
+   return validUsername.test(username);
+}
+
+//Validate Username for min-char:8, max-char:20, alphanumeric inlcuding chars like @_$*#!. 
+function validatePassword(passwrd){
+    let validPassword = /^([a-zA-Z0-9@_$*#!.]{8,20})$/; //need to change this later
+    return validPassword.test(passwrd);
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Texas Hold'em</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous">
+        </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            Home
+        </a>
+        <span class="float-left dropdown"><a class="btn btn-info dropdown-toggle" href="#" role="button"
+                id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Welcome, User 397
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item" href="#">Log Out</a>
+
+            </div>
+        </span>
+    </nav>
+    <br /><br /><br /><br />
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                    <table class="table">
+                            <thead class="thead-light">
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Game-Table</th>
+                                <th scope="col">Number of players</th>
+                                <th scope="col"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row">1</th>
+                                <td>Table#1</td>
+                                <td>2</td>
+                                <td><button class="btn btn-primary">Join Table</button></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">2</th>
+                                <td>Table#2</td>
+                                <td>6</td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">3</th>
+                                <td>Table#3</td>
+                                <td>4</td>
+                                <td><button class="btn btn-primary">Join Table</button></td>
+                              </tr>
+                              <tr>
+                                    <th></th>
+                                    <td></td>
+                                    <td></td>
+                                    <td><button class="btn btn-success">Create New Game</button></td>
+                                  </tr>
+                            </tbody>
+                          </table>
+            </div>
+
+            <div class="col-6">
+                    <table class="table">
+                            <thead class="thead-light">
+                                    <tr>
+                                            <th colspan="4" class="text-center">Game Moves History</th>
+                                    </tr>
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Game-Table</th>
+                                <th scope="col">Date</th>
+                                <th scope="col"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row">1</th>
+                                <td>Table#1</td>
+                                <td>Jan 13, 2019</td>
+                                <td><button class="btn btn-primary">View</button></td>
+                              </tr>
+                              <tr>
+                                    <th scope="row">1</th>
+                                    <td>Table#1</td>
+                                    <td>May 13, 2019</td>
+                                    <td><button class="btn btn-primary">View</button></td>
+                                  </tr>
+                                  <tr>
+                                        <th scope="row">1</th>
+                                        <td>Table#1</td>
+                                        <td>Jun 13, 2019</td>
+                                        <td><button class="btn btn-primary">View</button></td>
+                                      </tr>
+                            </tbody>
+                          </table>
+                </div>
+
+
+        </div>
+
+    </div>
+
+</body>
+<script type="text/javascript">
+    $(document).ready(function () {
+        let socket = io.connect('https://localhost:8080');
+        $("#socket").click(function () {
+            socket.emit('check', {
+                message: "Check"
+            });
+        });
+
+        //listen for the event
+        socket.on('check', function (value) {
+            $("#result").text(value.message);
+        })
+
+    });  
+</script>
+
+</html>

@@ -56,8 +56,8 @@ app.get('/', function (req, res) {
     res.sendFile("web/welcome.html", { root: __dirname });
 });
 
-app.get('/game', function (req, res) {
-    res.sendFile("web/game.html", { root: __dirname });
+app.get('/home', function (req, res) {
+    res.sendFile("web/home.html", { root: __dirname });
 });
 
 // example of passing middleware to verify token for each request.
