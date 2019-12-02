@@ -20,7 +20,7 @@ var Suites = {
     HEARTS: new Suite("hearts", 0),
     SPADES: new Suite("spades", 1),
     DIAMONDS: new Suite("diamonds", 2),
-    CLUBS: new Suite("clubs")
+    CLUBS: new Suite("clubs", 3),
 };
 
 function Rank (name, value) {

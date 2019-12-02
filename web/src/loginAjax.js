@@ -8,7 +8,7 @@ $(document).ready(function(){
         usrname = $("#user-name").val();
         passwrd =$("#password").val(); 
         if (usrname == "" || usrname == null || usrname == undefined || passwrd == "" || passwrd == null || passwrd == undefined){
-            $("#error-message").text("Username and password field are required.")
+            $("#error-message").text("Username and password field are required.");
             $("#error-message").addClass("alert alert-warning");
         }else if(!validateUsername(usrname) || !validatePassword(passwrd)){ 
             $("#user-name").val("");

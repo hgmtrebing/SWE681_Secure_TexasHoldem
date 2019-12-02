@@ -20,37 +20,59 @@ function CurrentPlayerMessageComponent(name, balance, bets, seat, status, mostRe
     this.isSmallBlind = isSmallBlind;
 }
 
-function OtherPlayerMessageComponent (name, active, seat, balance, bet, status, isBigBlind, isSmallBlind) {
+function OtherPlayerMessageComponent (name, seat, balance, bet, status, action, cardA, cardB, isBigBlind, isSmallBlind) {
     var validMessage = true;
+
+    // Type check - name should be a string
     if (typeof name !== 'string') {
         validMessage = false;
         log.logSystemError("name in OtherPlayerMessageComponent was of type " + typeof name + " , not type String");
 
-    } else if (typeof isActive !== 'boolean') {
-        validMessage = false;
-        log.logSystemError("isActive in OtherPlayerMessageComponent was of type " + typeof active + " , not type boolean");
+    }
 
-    } else if (typeof balance !== 'number') {
+    if (typeof balance !== 'number') {
         validMessage = false;
         log.logSystemError("balance in OtherPlayerMessageComponent was of type " + typeof balance + " , not type number");
 
-    } else if (typeof bet !== 'number') {
+    }
+
+    if (typeof bet !== 'number') {
         validMessage = false;
         log.logSystemError("bet in OtherPlayerMessageComponent was of type " + typeof bet + " , not type number");
 
-    } else if (status !== Status.ACTIVE.toString() || status !== Status.FOLDED.toString() || status !== Status.EMPTY.toString() ||
-    status !== Status.ALLIN.toString()) {
+    }
+
+    if (status !== Status.ACTIVE && status !== Status.FOLDED && status !== Status.EMPTY &&
+    status !== Status.ALLIN) {
         validMessage = false;
         log.logSystemError("status in OtherPlayerMessageComponent was of type " + typeof status + " , not type String");
 
-    } else if (typeof isBigBlind !== 'boolean') {
+    }
+
+    if (action !== Actions.ALLIN && action !== Actions.CALL && action !== Actions.CHECK && action !== Actions.FOLD &&
+    action !== Actions.LEAVE && action !== Actions.RAISE && action !== Actions.TIMEOUT) {
+        validMessage = false;
+        log.logSystemError("action in OtherPlayerMessageComponent was of type " + typeof action + " , not a valid Action");
+    }
+
+    if (typeof isBigBlind !== 'boolean') {
         validMessage = false;
         log.logSystemError("isBigBlind in OtherPlayerMessageComponent was of type " + typeof isBigBlind + " , not type boolean");
+    }
 
-    } else if (typeof isSmallBlind !== 'boolean') {
+    if (typeof isSmallBlind !== 'boolean') {
         validMessage = false;
         log.logSystemError("isSmallBlind in OtherPlayerMessageComponent was of type " + typeof isSmallBlind + " , not type boolean");
+    }
 
+    if (!cardA instanceof CardComponent) {
+        validMessage = false;
+        log.logSystemError("cardA in OtherPlayerMessageComponent was of type " + typeof cardA + " , not type CardComponent");
+    }
+
+    if (!cardB instanceof CardComponent) {
+        validMessage = false;
+        log.logSystemError("cardB in OtherPlayerMessageComponent was of type " + typeof cardB + " , not type CardComponent");
     }
 
     if (!validMessage) {
@@ -59,10 +81,12 @@ function OtherPlayerMessageComponent (name, active, seat, balance, bet, status, 
 
     this._id = 2;
     this.name = name;
-    this.active = active;
     this.balance = balance;
     this.bet = bet;
     this.status = status;
+    this.action = action;
+    this.cardA = cardA;
+    this.cardB = cardB;
     this.isBigBlind = isBigBlind;
     this.isSmallBlind = isSmallBlind;
 }
@@ -146,16 +170,25 @@ function TableMessageComponent (maxBet, pot, gameNumber, round, flop1, flop2, fl
 /**
  * This message is sent by a Player during the player's turn to the server.
  * @param action
- * @param betAmount
+ * @param callAmount
+ * @param balance
+ * @param bets
+ * @param timerStart
  * @constructor
  */
 function UserActionMessage (action, betAmount) {
     this._id = 4;
-    if (!action in Actions) {
-        throw "The action of UserAction must be a valid action";
-    } else if (!betAmount instanceof Number) {
+
+    for (var i = 0; i < action.length; i++) {
+        if (!action[i] in Actions) {
+            throw "The action of UserAction must be a valid action";
+        }
+    }
+
+    if (!betAmount instanceof Number) {
         throw "The Bet Amount must be a Number";
     }
+
     this.action = action;
     this.betAmount = betAmount;
 }
@@ -174,10 +207,13 @@ function GameStatusMessage (currentPlayer, otherPlayers, tableStatus) {
     this.tableStatus = tableStatus;
 };
 
-function GetUserActionMessage (validActions, callAmount) {
+function GetUserActionMessage (validActions, callAmount, balance, bets, timerStart) {
     this._id = 6;
     this.validActions = validActions;
     this.callAmount = callAmount;
+    this.balance = balance;
+    this.bets = bets;
+    this.timerStart = timerStart;
 };
 
 module.exports = {

@@ -73,7 +73,7 @@ app.get('/', function (req, res) {
 });
 
 app.get('/home', function (req, res) {
-    res.sendFile("web/home.html", { root: __dirname});
+    res.sendFile("web/home.html", { root: __dirname });
 });
 
 // example of passing middleware to verify token for each request.
@@ -98,6 +98,17 @@ app.get("/newUserAjax.js", function (req, res) {
 app.get("/login.js", function (req, res) {
     res.sendFile("web/src/loginAjax.js", { root: __dirname });
 });
+
+app.get("/table", function(req, res) {
+    res.sendFile("web/table.html", {root: __dirname});
+});
+
+app.get("/main.css", function(req, res){
+    res.sendFile("web/style/main.css", {root: __dirname});
+});
+
+app.get("/table.js", function(req, res){
+    res.sendFile("web/src/table.js", {root: __dirname});
 
 app.get("/home.js", function (req, res) {
     res.sendFile("web/src/home.js", { root: __dirname });
@@ -130,6 +141,7 @@ server.listen(8080, function () {
 });
 
 
+/*
 //socket setup:
 let io = socket(server);
 //authorize on connection
@@ -147,7 +159,7 @@ io.on('connection', function(socket){
       });
 
 });
-
+*/
 
 
 

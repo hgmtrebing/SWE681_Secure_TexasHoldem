@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 const config = require('./config.js');
 /*
 Middleware to verify token for every request once the user have logged in and have the assigned token
@@ -27,8 +27,8 @@ let verifyToken = (req, res, next) => {
         });
     }
 
-}
+};
 
 module.exports = {
     verifyToken : verifyToken
-}
+};
