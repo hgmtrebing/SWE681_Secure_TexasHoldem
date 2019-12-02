@@ -7,6 +7,8 @@ const userRoute = require('./routes/api/user');
 const helmet = require('helmet');
 const Log = require('./server/log.js').Log;
 const socket = require('socket.io');
+const socketioJwt   = require('socketio-jwt');
+const config = require("./config");
 
 
 /************************************** Initialize Log ******************************* */
@@ -52,7 +54,9 @@ app.use(helmet.contentSecurityPolicy({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", 'code.jquery.com', 'stackpath.bootstrapcdn.com', 'cdnjs.cloudflare.com'],
       styleSrc: ["'self'", 'stackpath.bootstrapcdn.com'],
-      fontSrc: ["'self'", 'stackpath.bootstrapcdn.com']
+      fontSrc: ["'self'", 'stackpath.bootstrapcdn.com'],
+      connectSrc: ["'self'"]
+
     }
    }));
 app.use(helmet.referrerPolicy({policy:'same-origin'}));
@@ -125,14 +129,26 @@ server.listen(8080, function () {
     log.logSystem("HTTPS Server is now listening on port 8080");
 });
 
+
 //socket setup:
 let io = socket(server);
+//authorize on connection
+io.use(socketioJwt.authorize({
+    secret: config.secretKey,
+    handshake: true,
+    auth_header_required: true
+  }));
+  
 io.on('connection', function(socket){
     log.logSystem("Made socket Connection by a user! " + socket.id);
-    socket.on('check', function(value){
-        io.sockets.emit('check', value);
-    })
+
+    socket.on('disconnect', (reason) => {
+        console.log("Socket Disconnected: " + reason);
+      });
+
 });
+
+
 
 
 

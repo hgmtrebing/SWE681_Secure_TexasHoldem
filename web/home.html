@@ -117,21 +117,4 @@
     </div>
 
 </body>
-<script type="text/javascript">
-    $(document).ready(function () {
-        let socket = io.connect('https://localhost:8080');
-        $("#socket").click(function () {
-            socket.emit('check', {
-                message: "Check"
-            });
-        });
-
-        //listen for the event
-        socket.on('check', function (value) {
-            $("#result").text(value.message);
-        })
-
-    });  
-</script>
-
 </html>
