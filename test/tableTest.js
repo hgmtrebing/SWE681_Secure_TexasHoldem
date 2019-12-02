@@ -200,6 +200,265 @@ function conductIndividualBetRaiseTest05 () {
         ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
 }
 
+function conductIndividualBetFoldTest01 () {
+    var table = new Table(1);
+    var player = table.players.getPlayerAt(0);
+    player.addUser({name: "u0", balance: 10000});
+    player.receive = function() {
+        return {action: "FOLD", betAmount: 0};
+    };
+    table.setupTable();
+    table.maxCurrentRoundBet = 3500;
+    table.conductIndividualBet(0);
+
+    var passed = true;
+    if (table.pot !== 0 || table.maxCurrentRoundBet !== 3500 || player.bets !== 0 ||
+        player.currentRoundBet !== 0 || player.status !== defines.Status.FOLDED || player.user.balance !== 10000) {
+        passed = false;
+    }
+    return new TestResult(passed, "conductIndividualBetFoldTest01. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player.bets = " + player.bets + ", Player.currentRoundBets = " + player.currentRoundBet +
+        ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
+}
+
+function conductIndividualBetFoldTest02 () {
+    var table = new Table(1);
+    var player = table.players.getPlayerAt(0);
+    player.addUser({name: "u0", balance: 10000});
+    player.receive = function() {
+        return {action: "RAISE", betAmount: 5000};
+    };
+    table.setupTable();
+
+    player.status = defines.Status.FOLDED;
+    table.maxCurrentRoundBet = 3500;
+    table.conductIndividualBet(0);
+
+    var passed = true;
+    if (table.pot !== 0 || table.maxCurrentRoundBet !== 3500 || player.bets !== 0 ||
+        player.currentRoundBet !== 0 || player.status !== defines.Status.FOLDED || player.user.balance !== 10000) {
+        passed = false;
+    }
+    return new TestResult(passed, "conductIndividualBetFoldTest02. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player.bets = " + player.bets + ", Player.currentRoundBets = " + player.currentRoundBet +
+        ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
+}
+
+function conductIndividualBetCheckTest01 () {
+    var table = new Table(1);
+    var player = table.players.getPlayerAt(0);
+    player.addUser({name: "u0", balance: 10000});
+    player.receive = function() {
+        return {action: "CHECK", betAmount: 0};
+    };
+    table.setupTable();
+    table.maxCurrentRoundBet = 0;
+    table.conductIndividualBet(0);
+
+    var passed = true;
+    if (table.pot !== 0 || table.maxCurrentRoundBet !== 0 || player.bets !== 0 ||
+        player.currentRoundBet !== 0 || player.status !== defines.Status.ACTIVE || player.user.balance !== 10000) {
+        passed = false;
+    }
+    return new TestResult(passed, "conductIndividualBetCheckTest01. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player.bets = " + player.bets + ", Player.currentRoundBets = " + player.currentRoundBet +
+        ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
+}
+
+function conductIndividualBetCheckTest02 () {
+    var table = new Table(1);
+    var player = table.players.getPlayerAt(0);
+    player.addUser({name: "u0", balance: 10000});
+    player.receive = function() {
+        return {action: "CHECK", betAmount: 500};
+    };
+    table.setupTable();
+    table.maxCurrentRoundBet = 0;
+    table.conductIndividualBet(0);
+
+    var passed = true;
+    if (table.pot !== 0 || table.maxCurrentRoundBet !== 0 || player.bets !== 0 ||
+        player.currentRoundBet !== 0 || player.status !== defines.Status.ACTIVE || player.user.balance !== 10000) {
+        passed = false;
+    }
+    return new TestResult(passed, "conductIndividualBetCheckTest02. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player.bets = " + player.bets + ", Player.currentRoundBets = " + player.currentRoundBet +
+        ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
+}
+
+function conductIndividualBetCheckTest03 () {
+    var table = new Table(1);
+    var player = table.players.getPlayerAt(0);
+    player.addUser({name: "u0", balance: 10000});
+    player.receive = function() {
+        return {action: "CHECK", betAmount: 500};
+    };
+    table.setupTable();
+    table.maxCurrentRoundBet = 250;
+    table.conductIndividualBet(0);
+
+    var passed = true;
+    if (table.pot !== 0 || table.maxCurrentRoundBet !== 250 || player.bets !== 0 ||
+        player.currentRoundBet !== 0 || player.status !== defines.Status.FOLDED || player.user.balance !== 10000) {
+        passed = false;
+    }
+    return new TestResult(passed, "conductIndividualBetCheckTest03. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player.bets = " + player.bets + ", Player.currentRoundBets = " + player.currentRoundBet +
+        ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
+}
+
+function conductIndividualBetAllinTest01 () {
+    var table = new Table(1);
+    var player = table.players.getPlayerAt(0);
+    player.addUser({name: "u0", balance: 10000});
+    player.receive = function() {
+        return {action: "ALLIN", betAmount: 0};
+    };
+    table.setupTable();
+    table.maxCurrentRoundBet = 250;
+    table.conductIndividualBet(0);
+
+    var passed = true;
+    if (table.pot !== 0 || table.maxCurrentRoundBet !== 10000 || player.bets !== 10000 ||
+        player.currentRoundBet !== 10000 || player.status !== defines.Status.ALLIN || player.user.balance !== 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "conductIndividualBetAllinTest01. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player.bets = " + player.bets + ", Player.currentRoundBets = " + player.currentRoundBet +
+        ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
+}
+
+function conductIndividualBetAllinTest02 () {
+    var table = new Table(1);
+    var player = table.players.getPlayerAt(0);
+    player.addUser({name: "u0", balance: 10000});
+    player.receive = function() {
+        return {action: "ALLIN", betAmount: 500};
+    };
+    table.setupTable();
+    table.maxCurrentRoundBet = 13000;
+    table.conductIndividualBet(0);
+
+    var passed = true;
+    if (table.pot !== 0 || table.maxCurrentRoundBet !== 13000 || player.bets !== 10000 ||
+        player.currentRoundBet !== 10000 || player.status !== defines.Status.ALLIN || player.user.balance !== 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "conductIndividualBetAllinTest02. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player.bets = " + player.bets + ", Player.currentRoundBets = " + player.currentRoundBet +
+        ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
+}
+
+function conductIndividualBetAllinTest03 () {
+    var table = new Table(1);
+    var player = table.players.getPlayerAt(0);
+    player.addUser({name: "u0", balance: 10000});
+    player.receive = function() {
+        return {action: "ALLIN", betAmount: 500};
+    };
+    player.bets = 1000;
+
+    table.setupTable();
+    table.maxCurrentRoundBet = 13000;
+    table.conductIndividualBet(0);
+
+    var passed = true;
+    if (table.pot !== 0 || table.maxCurrentRoundBet !== 13000 || player.bets !== 11000 ||
+        player.currentRoundBet !== 10000 || player.status !== defines.Status.ALLIN || player.user.balance !== 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "conductIndividualBetAllinTest03. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player.bets = " + player.bets + ", Player.currentRoundBets = " + player.currentRoundBet +
+        ", Player.Status = " + player.status + ", Player.user.balance = " + player.user.balance);
+}
+
+function conductBetsTest01 () {
+    var table = new Table(1);
+
+    var player0 = table.players.getPlayerAt(0);
+    player0.addUser({name: "u0", balance: 10000});
+    player0.actionCounter = 0;
+    player0.receive = function() {
+         var actions = [
+            {action: "CHECK", betAmount: 0},
+            {action: "CHECK", betAmount: 0},
+        ];
+        return actions[player0.actionCounter++];
+    };
+
+    var player1 = table.players.getPlayerAt(1);
+    player1.addUser({name: "u0", balance: 10000});
+    player1.actionCounter = 0;
+    player1.receive = function() {
+        var actions = [
+            {action: "CHECK", betAmount: 0},
+            {action: "CALL", betAmount: 0},
+            {action: "CALL", betAmount: 0},
+        ];
+        return actions[player1.actionCounter++];
+    };
+
+    var player2 = table.players.getPlayerAt(2);
+    player2.addUser({name: "u0", balance: 10000});
+    player2.actionCounter = 0;
+    player2.receive = function() {
+        var actions = [
+            {action: "CHECK", betAmount: 0},
+            {action: "RAISE", betAmount: 2000},
+        ];
+        return actions[player2.actionCounter++];
+    };
+
+    var player3 = table.players.getPlayerAt(3);
+    player3.addUser({name: "u0", balance: 10000});
+    player3.actionCounter = 0;
+    player3.receive = function() {
+        var actions = [
+            {action: "RAISE", betAmount: 1500},
+            {action: "CALL", betAmount: 0},
+        ];
+        return actions[player3.actionCounter++];
+    };
+
+    var player4 = table.players.getPlayerAt(4);
+    player4.addUser({name: "u0", balance: 10000});
+    player4.actionCounter = 0;
+    player4.receive = function() {
+        var actions = [
+            {action: "CALL", betAmount: 0},
+            {action: "CALL", betAmount: 0},
+        ];
+        return actions[player4.actionCounter++];
+    };
+
+    var player5 = table.players.getPlayerAt(5);
+    player5.addUser({name: "u0", balance: 10000});
+    player5.actionCounter = 0;
+    player5.receive = function() {
+        var actions = [
+            {action: "CALL", betAmount: 0},
+            {action: "FOLD", betAmount: 0},
+        ];
+        return actions[player5.actionCounter++];
+    };
+
+    table.setupTable();
+    table.conductBets(0);
+
+    var passed = true;
+    if (table.pot !== 9500 || player0.status !== defines.Status.FOLDED || player1.status !== defines.Status.ACTIVE ||
+    player2.status !== defines.Status.ACTIVE || player3.status !== defines.Status.ACTIVE || player4.status !== defines.Status.ACTIVE || player5.status !== defines.Status.FOLDED || player0.bets !== 0 || player1.bets !== 2000 || player2.bets !==
+    2000 || player3.bets !== 2000 || player4.bets !== 2000 || player5.bets !== 1500) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "conductBetsTest01. Pot = " + table.pot + ", table.maxCurrentRoundBet "
+        + table.maxCurrentRoundBet + ", Player0.status = " + player0.status + ", Player01.status = " + player1.status +
+        ", Player02.status = " + player2.status + ", Player03.status = " + player3.status + "Player04.status = " + player4.status +
+        ", Player05.status = " + player5.status + ", Player0.bets = " + player0.bets + ", Player01.bets = " + player1.bets + ", Player02.bets = " + player2.bets + ", Player03.bets = " + player3.bets + ", Player04.bets = " + player4.bets + ", Player05.bets = " + player5.bets);
+
+}
+
 function runAllTests() {
     var testResults = [];
     testResults.push(setupTableTest01());
@@ -212,6 +471,15 @@ function runAllTests() {
     testResults.push(conductIndividualBetRaiseTest03());
     testResults.push(conductIndividualBetRaiseTest04());
     testResults.push(conductIndividualBetRaiseTest05());
+    testResults.push(conductIndividualBetFoldTest01());
+    testResults.push(conductIndividualBetFoldTest02());
+    testResults.push(conductIndividualBetCheckTest01());
+    testResults.push(conductIndividualBetCheckTest02());
+    testResults.push(conductIndividualBetCheckTest03());
+    testResults.push(conductIndividualBetAllinTest01());
+    testResults.push(conductIndividualBetAllinTest02());
+    testResults.push(conductIndividualBetAllinTest03());
+    testResults.push(conductBetsTest01());
 
     return testResults;
 }

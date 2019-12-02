@@ -1,4 +1,5 @@
 var Actions = {
+    UNDEFINED: "UNDEFINED",
     CHECK : "CHECK",
     FOLD : "FOLD",
     LEAVE : "LEAVE",
