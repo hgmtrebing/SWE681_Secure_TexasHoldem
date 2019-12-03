@@ -4,12 +4,22 @@ const jwt = require('jsonwebtoken');
 const User = require("../../model/User");
 const config = require('../../config');
 const Log = require('../../server/log.js').Log;
+const Validator = require('./../../input-validators/validators').inputValidators;
 
 // @route POST api/users/register
 router.post("/new-user", function (req, res) {
-    let username= req.body.username;
-    let password= req.body.password;
+    let username = req.body.username;
+    let password = req.body.password;
     let syslog = new Log();
+    let validator = new Validator();
+    if (!validator.validateUsername(username) || !console.log(validator.validatePassword(password)){
+        syslog.logSystem("Invalid register attemt. Invalid username or password");
+        res.send({
+            success: false,
+            message: 'Invalid Username or Password.'
+        });
+    }
+
     // validate the user input first
     User.findOne({ username: username }, function (err, user) {
         if (err) {
@@ -20,7 +30,7 @@ router.post("/new-user", function (req, res) {
             });
         }
         if (user) {
-            syslog.logSystem("Invalid register. Username: " + user.username +" already exists.")
+            syslog.logSystem("Invalid register. Username: " + user.username + " already exists.")
             res.send({
                 success: false,
                 message: 'User name already exist'
@@ -38,7 +48,7 @@ router.post("/new-user", function (req, res) {
                         message: "Something went wrong. Please try again later."
                     })
                 } else {
-                    syslog.logSystem("User: "+ user.username +  " Successfully Created")
+                    syslog.logSystem("User: " + user.username + " Successfully Created")
                     res.send({
                         success: true,
                         username: user.username,
@@ -56,11 +66,18 @@ router.post("/login", function (req, res) {
     let username = req.body.username;
     let password = req.body.password;
     let syslog = new Log();
-
+    let validator = new Validator();
+    if (!validator.validateUsername(username) || !console.log(validator.validatePassword(password)){
+        syslog.logSystem("Invalid login attemt. Invalid username or password");
+        res.send({
+            success: false,
+            message: 'Invalid Username or Password.'
+        });
+    }
     // validate the user input first
     User.findOne({ username: username }, function (err, user) {
         if (err) {
-        syslog.logSystemError(err.message);
+            syslog.logSystemError(err.message);
             res.send({
                 success: false,
                 message: "Something went wrong. Please try again later."
@@ -84,9 +101,9 @@ router.post("/login", function (req, res) {
                         username: user.username,
                         message: 'Successfully logged in'
                     });
-                }else{ //password mis-match
+                } else { //password mis-match
 
-                    syslog.logSystem("Login failed. Password mismatch for " + user.username+ ". Attempted Password: " + password);
+                    syslog.logSystem("Login failed. Password mismatch for " + user.username + ". Attempted Password: " + password);
                     res.send({
                         success: false,
                         username: user.username,
@@ -106,8 +123,8 @@ router.post("/login", function (req, res) {
     });
 });
 
-router.post("/logout", function(req,res){
-   ///what do we do here
+router.post("/logout", function (req, res) {
+    ///what do we do here
 });
 
 module.exports = router;

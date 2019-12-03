@@ -109,6 +109,7 @@ app.get("/main.css", function(req, res){
 
 app.get("/table.js", function(req, res){
     res.sendFile("web/src/table.js", {root: __dirname});
+});
 
 app.get("/home.js", function (req, res) {
     res.sendFile("web/src/home.js", { root: __dirname });
@@ -160,7 +161,4 @@ io.on('connection', function(socket){
 
 });
 */
-
-
-
 
