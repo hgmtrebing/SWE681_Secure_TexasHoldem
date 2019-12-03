@@ -1,9 +1,11 @@
 const Status = require("./definition").Status;
+const Actions = require("./definition").Actions;
 
 function Player (seat, status, receiveFunction) {
-    this.user = null;
+    this.user = {name: "EMPTY SEAT", balance: 0};
     this.seat = seat;
     this.status = status;
+    this.lastAction = Actions.UNDEFINED;
     this.currentRoundBet = 0;
     this.bets = 0;
     this.cardA = null;

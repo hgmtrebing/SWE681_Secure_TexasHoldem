@@ -107,7 +107,7 @@ app.get("/main.css", function(req, res){
     res.sendFile("web/style/main.css", {root: __dirname});
 });
 
-app.get("/table.js", function(req, res){
+app.get("/table.js", function(req, res) {
     res.sendFile("web/src/table.js", {root: __dirname});
 });
 

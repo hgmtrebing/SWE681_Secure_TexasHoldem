@@ -243,6 +243,10 @@ function rankHand(cards) {
     return rankings;
 }
 
+function compareRankings (rankingsA, rankingsB) {
+
+}
+
 module.exports = {
     sortCardsByRank: sortCardsByRank,
     sortCardsBySuite: sortCardsBySuite,
