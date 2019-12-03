@@ -13,6 +13,7 @@ const OtherPlayerMessageComponent = require("./messages").OtherPlayerMessageComp
 const CardComponent = require('./messages').CardComponent;
 const Rankings = require("./ranking").Rankings;
 const rankHand = require("./ranking").rankHand;
+const compareRankings = require("./ranking").compareRankings;
 
 function Table(tableId) {
     this.tableId = tableId;
@@ -152,6 +153,7 @@ function Table(tableId) {
 
     this.determineWinner = function () {
         this.round = Rounds.FINAL;
+        var topPlayer = null;
         for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             var player = this.players.getPlayerAt(i);
             if (player.status === Status.ACTIVE) {
@@ -163,9 +165,15 @@ function Table(tableId) {
                 cards.push(this.river);
                 cards.push(player.cardA);
                 cards.push(player.cardB);
-                var rank = rankHand(cards);
+                player.rank = rankHand(cards);
+                if (topPlayer === null || compareRankings(player.rank, topPlayer.rank) > 0) {
+                    topPlayer = player;
+                } else if (compareRankings(player.rank, topPlayer) === 0) {
+                    // TODO
+                }
             }
         }
+        return topPlayer;
     };
 
     this.cleanupTable = function () {

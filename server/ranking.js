@@ -243,8 +243,61 @@ function rankHand(cards) {
     return rankings;
 }
 
-function compareRankings (rankingsA, rankingsB) {
+function compareRankings (rankings01, rankings02) {
+    var ranking = 0;
+    var counter = 0;
+    while (ranking === 0 && (counter < rankings01.length && counter < rankings02.length)) {
+        ranking = compareIndividualRanking(rankings01[counter], rankings02[counter]);
+        counter++;
+    }
 
+    if (ranking === 0) {
+        if (rankings01.length !== rankings02.length) {
+            return rankings01.length - rankings02.length;
+        } else {
+            return 0;
+        }
+    } else {
+        return ranking;
+    }
+}
+
+function compareIndividualRanking(ranking01, ranking02) {
+    if (ranking01.ranking.rankBaseValue === ranking02.ranking.rankBaseValue) {
+
+        if (ranking01.minorHighCardRank !== null && ranking02.minorHighCardRank!== null &&
+            ranking01.minorHighCardRank !== undefined && ranking02.minorHighCardRank!== undefined &&
+            ranking01.highCardRank.value === ranking02.highCardRank.value) {
+
+            if(ranking01.minorHighCardRank2 !== null && ranking02.minorHighCardRank2 !== null &&
+                ranking01.minorHighCardRank2 !== undefined && ranking02.minorHighCardRank2 !== undefined &&
+                ranking01.minorHighCardRank.value === ranking02.minorHighCardRank.value) {
+
+                if (ranking01.minorHighCardRank3 !== null && ranking02.minorHighCardRank3 !== null &&
+                    ranking01.minorHighCardRank3 !== undefined && ranking02.minorHighCardRank3 !== undefined &&
+                    ranking01.minorHighCardRank2.value === ranking02.minorHighCardRank2.value) {
+
+                    if (ranking01.minorHighCardRank4 !== null && ranking02.minorHighCardRank4 !== null &&
+                        ranking01.minorHighCardRank4 !== undefined && ranking02.minorHighCardRank4 !== undefined &&
+                        ranking01.minorHighCardRank3.value === ranking02.minorHighCardRank3.value) {
+
+                        return ranking01.minorHighCardRank4.value - ranking02.minorHighCardRank4.value;
+
+                    } else {
+                        return ranking01.minorHighCardRank3.value - ranking02.minorHighCardRank3.value;
+                    }
+                } else {
+                    return ranking01.minorHighCardRank2.value - ranking02.minorHighCardRank2.value;
+                }
+            } else {
+                return ranking01.minorHighCardRank.value - ranking02.minorHighCardRank.value;
+            }
+        } else {
+            return ranking01.highCardRank.value - ranking02.highCardRank.value;
+        }
+    } else {
+        return ranking01.ranking.rankBaseValue - ranking02.ranking.rankBaseValue;
+    }
 }
 
 module.exports = {
@@ -253,5 +306,8 @@ module.exports = {
     countCardsByRank: countCardsByRank,
     countCardsBySuite: countCardsBySuite,
     rankHand : rankHand,
+    compareRankings : compareRankings,
+    compareIndividualRanking : compareIndividualRanking,
+    HandRanking : HandRanking,
     Rankings : Rankings
 };

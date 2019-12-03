@@ -333,6 +333,169 @@ function rankHandTest10() {
     return new TestResult(passed, "rankHandTest09. " + result[0]);
 }
 
+function compareIndividualRankingTest01() {
+    var ranking01 = new ranking.HandRanking(ranking.Rankings.ROYAL_FLUSH, Ranks.ACE);
+    var ranking02 = new ranking.HandRanking(ranking.Rankings.ROYAL_FLUSH, Ranks.ACE);
+
+    var result = ranking.compareIndividualRanking(ranking01, ranking02);
+    var passed = true;
+    if (result !== 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "compareIndividualRankingTest01. result = " + result);
+}
+
+function compareIndividualRankingTest02() {
+    var ranking01 = new ranking.HandRanking(ranking.Rankings.ROYAL_FLUSH, Ranks.ACE);
+    var ranking02 = new ranking.HandRanking(ranking.Rankings.STRAIGHT_FLUSH, Ranks.KING);
+
+    var result = ranking.compareIndividualRanking(ranking01, ranking02);
+    var passed = true;
+    if (result <= 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "compareIndividualRankingTest02. result = " + result);
+}
+
+function compareIndividualRankingTest03() {
+    var ranking01 = new ranking.HandRanking(ranking.Rankings.PAIR, Ranks.SEVEN);
+    var ranking02 = new ranking.HandRanking(ranking.Rankings.PAIR, Ranks.TEN);
+
+    var result = ranking.compareIndividualRanking(ranking01, ranking02);
+    var passed = true;
+    if (result >= 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "compareIndividualRankingTest03. result = " + result);
+}
+
+function compareIndividualRankingTest04() {
+    var ranking01 = new ranking.HandRanking(ranking.Rankings.TWO_PAIR, Ranks.TEN, Ranks.SIX);
+    var ranking02 = new ranking.HandRanking(ranking.Rankings.TWO_PAIR, Ranks.TEN, Ranks.SEVEN);
+
+    var result = ranking.compareIndividualRanking(ranking01, ranking02);
+    var passed = true;
+    if (result >= 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "compareIndividualRankingTest04. result = " + result);
+}
+
+function compareIndividualRankingTest05() {
+    var ranking01 = new ranking.HandRanking(ranking.Rankings.FULL_HOUSE, Ranks.TEN, Ranks.SIX);
+    var ranking02 = new ranking.HandRanking(ranking.Rankings.FULL_HOUSE, Ranks.TEN, Ranks.SIX);
+
+    var result = ranking.compareIndividualRanking(ranking01, ranking02);
+    var passed = true;
+    if (result !== 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "compareIndividualRankingTest05. result = " + result);
+}
+
+function compareIndividualRankingTest06() {
+    var ranking01 = new ranking.HandRanking(ranking.Rankings.FLUSH, Ranks.TEN, Ranks.NINE, Ranks.EIGHT, Ranks.SEVEN, Ranks.SIX);
+    var ranking02 = new ranking.HandRanking(ranking.Rankings.FLUSH, Ranks.TEN, Ranks.NINE, Ranks.EIGHT, Ranks.SEVEN, Ranks.FIVE);
+
+    var result = ranking.compareIndividualRanking(ranking01, ranking02);
+    var passed = true;
+    if (result <= 0) {
+        passed = false;
+    }
+    return new TestResult(passed, "compareIndividualRankingTest06. result = " + result);
+}
+
+function compareRankingsTest01() {
+    var cards01 = [
+        new Card(Suites.SPADES, Ranks.SIX),
+        new Card(Suites.SPADES, Ranks.TWO),
+        new Card(Suites.SPADES, Ranks.QUEEN),
+        new Card(Suites.SPADES, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.SEVEN),
+        new Card(Suites.HEARTS, Ranks.SEVEN),
+        new Card(Suites.DIAMONDS, Ranks.SEVEN),
+    ];
+
+    var cards02 = [
+        new Card(Suites.SPADES, Ranks.SIX),
+        new Card(Suites.SPADES, Ranks.TWO),
+        new Card(Suites.SPADES, Ranks.QUEEN),
+        new Card(Suites.SPADES, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.SEVEN),
+        new Card(Suites.HEARTS, Ranks.SEVEN),
+        new Card(Suites.DIAMONDS, Ranks.SEVEN),
+    ];
+
+    var result = ranking.compareRankings(ranking.rankHand(cards01), ranking.rankHand(cards02));
+    var passed = true;
+    if (result !== 0) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "compareRankingsTest01. result = " + result);
+}
+
+
+function compareRankingsTest02() {
+    var cards01 = [
+        new Card(Suites.SPADES, Ranks.TWO),
+        new Card(Suites.SPADES, Ranks.TWO),
+        new Card(Suites.SPADES, Ranks.QUEEN),
+        new Card(Suites.SPADES, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.SEVEN),
+        new Card(Suites.HEARTS, Ranks.SEVEN),
+        new Card(Suites.DIAMONDS, Ranks.SEVEN),
+    ];
+
+    var cards02 = [
+        new Card(Suites.SPADES, Ranks.SIX),
+        new Card(Suites.SPADES, Ranks.TWO),
+        new Card(Suites.SPADES, Ranks.QUEEN),
+        new Card(Suites.SPADES, Ranks.KING),
+        new Card(Suites.SPADES, Ranks.SEVEN),
+        new Card(Suites.HEARTS, Ranks.SEVEN),
+        new Card(Suites.DIAMONDS, Ranks.SEVEN),
+    ];
+
+    var result = ranking.compareRankings(ranking.rankHand(cards01), ranking.rankHand(cards02));
+    var passed = true;
+    if (result <= 0) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "compareRankingsTest02. result = " + result);
+}
+
+function compareRankingsTest03() {
+    var cards01 = [
+        new Card(Suites.HEARTS, Ranks.TWO),
+        new Card(Suites.HEARTS, Ranks.THREE),
+        new Card(Suites.HEARTS, Ranks.FOUR),
+        new Card(Suites.HEARTS, Ranks.FIVE),
+        new Card(Suites.HEARTS, Ranks.SIX),
+        new Card(Suites.CLUBS, Ranks.SEVEN),
+        new Card(Suites.DIAMONDS, Ranks.SEVEN),
+    ];
+
+    var cards02 = [
+        new Card(Suites.SPADES, Ranks.TWO),
+        new Card(Suites.SPADES, Ranks.THREE),
+        new Card(Suites.SPADES, Ranks.FOUR),
+        new Card(Suites.SPADES, Ranks.FIVE),
+        new Card(Suites.SPADES, Ranks.SIX),
+        new Card(Suites.HEARTS, Ranks.JACK),
+        new Card(Suites.DIAMONDS, Ranks.SEVEN),
+    ];
+
+    var result = ranking.compareRankings(ranking.rankHand(cards01), ranking.rankHand(cards02));
+    var passed = true;
+    if (result <= 0) {
+        passed = false;
+    }
+
+    return new TestResult(passed, "compareRankingsTest03. result = " + result);
+}
+
 
 function runAllTests() {
     var testResults = [];
@@ -350,6 +513,15 @@ function runAllTests() {
     testResults.push(rankHandTest08());
     testResults.push(rankHandTest09());
     testResults.push(rankHandTest10());
+    testResults.push(compareIndividualRankingTest01());
+    testResults.push(compareIndividualRankingTest02());
+    testResults.push(compareIndividualRankingTest03());
+    testResults.push(compareIndividualRankingTest04());
+    testResults.push(compareIndividualRankingTest05());
+    testResults.push(compareIndividualRankingTest06());
+    testResults.push(compareRankingsTest01());
+    testResults.push(compareRankingsTest02());
+    testResults.push(compareRankingsTest03());
 
 
     return testResults;
