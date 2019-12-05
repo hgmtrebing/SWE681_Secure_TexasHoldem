@@ -1,11 +1,16 @@
 $(document).ready(function() {
 
-    socket.on('game-status-message', function(msg){
+    socketConnection.connect("https://localhost:8081");
+    socketConnection.on('game-status-message', function(msg){
         processMessage(msg);
     });
 
-    socket.on('get-user-action-message', function (msg) {
+    socketConnection.on('get-user-action-message', function (msg) {
         processMessage(msg);
+    });
+
+    socketConnection.on("get-user-info", function (msg) {
+        socketConnection.emit("user-info", {username: sessionStorage.user, token: sessionStorage.token});
     });
 
     $("#raise-range").on("input change", function() {
@@ -300,7 +305,8 @@ const player3 = "#player-3";
 const player4 = "#player-4";
 const player5 = "#player-5";
 
-const socket = io();
+const socketConnection = io();
+
 
 $("#ok-button").on("click", function () {
     var msg = {_id: 4, action: "", betAmount: 0};
@@ -317,7 +323,7 @@ $("#ok-button").on("click", function () {
         msg.betAmount = $("#raise-range").val();
     }
     alert("before");
-    socket.emit("user-action-msg", msg, function () {
+    socketConnection.emit("user-action-msg", msg, function () {
         alert("SENT");
     });
     alert("after");
@@ -325,7 +331,7 @@ $("#ok-button").on("click", function () {
 
 $("#fold-button").on("click", function () {
     var msg = {_id: 4, action: "FOLD", betAmount: 0};
-    socket.emit("user-action-msg", msg);
+    socketConnection.emit("user-action-msg", msg);
 });
 
 $("#leave-button").on("click", function () {

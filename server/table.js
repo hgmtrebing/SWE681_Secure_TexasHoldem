@@ -30,6 +30,9 @@ function Table(tableId) {
 
     this.players = new PlayerCollection();
 
+    this.waitingForInput = false;
+    this.conductingBets = false;
+
     this.pot = 0;
     this.maxCurrentRoundBet = 0;
     this.bigBlindAmount = 0;
@@ -71,6 +74,39 @@ function Table(tableId) {
         this.playRiverRound();
         this.determineWinner();
         this.cleanupTable();
+    };
+
+    this.next = function() {
+        if (this.waitingForInput) {
+            this.players.addWaitingPlayers();
+            if (this.players.getNumberOfPlayers(Status.ACTIVE) >= 2) {
+                this.waitingForInput = false;
+            }
+        } else if (this.conductingBets) {
+            // TODO
+        } else if (this.round === Rounds.WAITING) {
+            this.round = Rounds.SETUP;
+            this.setupTable();
+        } else if (this.round === Rounds.SETUP) {
+            this.round = Rounds.BET;
+            this.playBetRound();
+        } else if (this.round === Rounds.BET) {
+            this.round = Rounds.FLOP;
+            this.playFlopRound();
+        } else if (this.round === Rounds.FLOP) {
+            this.round = Rounds.TURN;
+            this.playTurnRound();
+        } else if (this.round === Rounds.TURN) {
+            this.round = Rounds.RIVER;
+            this.playRiverRound();
+        } else if (this.round === Rounds.RIVER) {
+            this.round = Rounds.FINAL;
+            this.determineWinner();
+        } else if (this.round === Rounds.FINAL) {
+            this.round = Rounds.CLEANUP;
+            this.cleanupTable();
+            this.round = Rounds.WAITING;
+        }
     };
 
     this.setupTable = function () {
