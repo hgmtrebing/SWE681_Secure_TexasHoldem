@@ -29,8 +29,28 @@ let UserSchema = new schema({
             message: props => `${props.value} is not a valid password. See the password rules!`
           },
         required :[true, 'Password is required']
-    } 
-
+    },
+    balance:{
+      type: Number,
+      default: 50000
+      //validate on update
+    },
+    win:{
+      type: Number,
+      default: 0
+    },
+    tie:{
+      type: Number,
+      default: 0
+    },
+    loss:{
+      type: Number,
+      default: 0
+    },
+    GamePlayed:{
+      type: Number,
+      default: 0
+    }
 },{timestamps:true})
 
 // This function is automatically called before any user model object is saved in the database

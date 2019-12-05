@@ -5,6 +5,7 @@ const User = require("../../model/User");
 const config = require('../../config');
 const Log = require('../../server/log.js').Log;
 const Validator = require('./../../input-validators/validators').inputValidators;
+let middleware = require('./../../middleware');
 
 // @route POST api/users/register
 router.post("/new-user", function (req, res) {
@@ -63,14 +64,14 @@ router.post("/new-user", function (req, res) {
 
 });
 
-// @route POST api/users/register
+// @route POST api/user/register
 router.post("/login", function (req, res) {
     let username = req.body.username;
     let password = req.body.password;
     let syslog = new Log();
     let validator = new Validator();
     if (!validator.validateUsername(username) || !validator.validatePassword(password)) {
-        syslog.logSystem("Invalid login attemt. Invalid username or password");
+        syslog.logSystem("Invalid login attempt. Invalid username or password");
         res.send({
             success: false,
             message: 'Invalid Username or Password.'
@@ -99,6 +100,7 @@ router.post("/login", function (req, res) {
                         res.send({
                             success: true,
                             token: token,
+                            userId: user._id,
                             username: user.username,
                             message: 'Successfully logged in'
                         });
@@ -129,6 +131,22 @@ router.post("/login", function (req, res) {
 
 router.post("/logout", function (req, res) {
     ///what do we do here
+});
+
+router.get("/profile/:userId",middleware.verifyToken, function(req,res){
+    let userId= req.params.userId;
+    User.findById(userId,{'_id':0, 'username':1, 'balance':1, 'win':1, 'tie':1, 'GamePlayed':1, 'loss':1}, function(err, user){
+        if (err) {
+            syslog.logSystemError(err.message);
+            res.send({
+                success: false,
+                message: "Something went wrong. Please try again later."
+            });
+        }
+        if(user){
+            res.send(user);
+        }
+    })
 });
 
 module.exports = router;

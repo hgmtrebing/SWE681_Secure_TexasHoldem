@@ -33,6 +33,7 @@ $(document).ready(function(){
                         $("#error-message").removeClass("alert-warning");
                         $("#error-message").addClass("alert alert-success");
                         sessionStorage.setItem("user", result.username);
+                        sessionStorage.setItem("userId", result.userId);
                         sessionStorage.setItem("token", result.token);
                         window.location.replace("/home");
                     }else{

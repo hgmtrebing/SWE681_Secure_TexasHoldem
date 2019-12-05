@@ -25,19 +25,23 @@
         </a>
         <span class="float-left dropdown"><a class="btn btn-info dropdown-toggle" href="#" role="button"
                 id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            </a>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <a class="dropdown-item" href="#">Log Out</a>
                 Welcome, <span id="username"></span>
-            </a>
+              </a>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                 <button class="dropdown-item" id="log_out">Log Out</button>
 
             </div>
         </span>
     </nav>
-    <br /><br /><br /><br />
+    <br /><br />
+    <br /><br />
     <div class="container">
+      <div class="row">
+        <div class="col-6"></div>
+        <div class="col-6 text-right">
+            <h1>Balance: <span id="user_amount" class="badge badge-success">New</span></h1>
+        </div>
+      </div>
         <div class="row">
             <div class="col-6">
                     <table class="table">
@@ -79,6 +83,29 @@
             </div>
 
             <div class="col-6">
+              <div>
+                  <table class="table">
+                      <thead class="thead-light">
+                              <tr>
+                                      <th colspan="4" class="text-center">Game Stats</th>
+                              </tr>
+                        <tr>
+                          <th scope="col">#GamePlayed</th>
+                          <th scope="col">Game-Won</th>
+                          <th scope="col">Game-Loss</th>
+                          <th scope="col">Game-Tied</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th id="game_num"></th>
+                          <td id="game_won"></td>
+                          <td id="game_loss"></td>
+                          <td id="game_tied"></td>
+                      </tbody>
+                    </table>
+              </div>
+              <div>
                     <table class="table">
                             <thead class="thead-light">
                                     <tr>
@@ -87,6 +114,7 @@
                               <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Game-Table</th>
+                                <th scope="col">Round</th>
                                 <th scope="col">Date</th>
                                 <th scope="col"></th>
                               </tr>
@@ -95,25 +123,28 @@
                               <tr>
                                 <th scope="row">1</th>
                                 <td>Table#1</td>
+                                <th>Round#5</th>
                                 <td>Jan 13, 2019</td>
                                 <td><button class="btn btn-primary">View</button></td>
                               </tr>
                               <tr>
                                     <th scope="row">1</th>
                                     <td>Table#1</td>
-                                    <td>May 13, 2019</td>
+                                    <th>Round#6</th>
+                                    <td>Jan 13, 2019</td>
                                     <td><button class="btn btn-primary">View</button></td>
                                   </tr>
                                   <tr>
                                         <th scope="row">1</th>
-                                        <td>Table#1</td>
+                                        <td>Table#34</td>
+                                        <th>Round#1</th>
                                         <td>Jun 13, 2019</td>
                                         <td><button class="btn btn-primary">View</button></td>
                                       </tr>
                             </tbody>
                           </table>
                 </div>
-
+              </div>
 
         </div>
 

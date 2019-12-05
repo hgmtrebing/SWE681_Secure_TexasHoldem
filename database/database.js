@@ -11,7 +11,6 @@ let log = new Log();
 /// CONNECTION EVENTS
 // When mongodb successfully connected
 mongoose.connection.on('connected', function () {
-  console.log('Mongoose connection is now open to ' + config.DBURL);
   log.logSystem('Mongoose connection is now open to ' + config.DBURL);
 });
 

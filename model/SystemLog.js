@@ -15,6 +15,6 @@ let SystemLoggerSchema = new schema({
     message: {
         type: String
     }
-}, { timestamps: true });
+});
 
 module.exports = mongoose.model('SystemLog', SystemLoggerSchema);
