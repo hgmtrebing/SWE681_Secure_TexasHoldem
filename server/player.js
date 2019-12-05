@@ -10,6 +10,7 @@ function Player (seat, status, receiveFunction) {
     this.bets = 0;
     this.cardA = null;
     this.cardB = null;
+    this.rank = null;
 
     this.addUser = function(user) {
         this.user = user;

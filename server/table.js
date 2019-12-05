@@ -13,6 +13,7 @@ const OtherPlayerMessageComponent = require("./messages").OtherPlayerMessageComp
 const CardComponent = require('./messages').CardComponent;
 const Rankings = require("./ranking").Rankings;
 const rankHand = require("./ranking").rankHand;
+const compareRankings = require("./ranking").compareRankings;
 
 function Table(tableId) {
     this.tableId = tableId;
@@ -28,6 +29,9 @@ function Table(tableId) {
     this.round = null;
 
     this.players = new PlayerCollection();
+
+    this.waitingForInput = false;
+    this.conductingBets = false;
 
     this.pot = 0;
     this.maxCurrentRoundBet = 0;
@@ -70,6 +74,39 @@ function Table(tableId) {
         this.playRiverRound();
         this.determineWinner();
         this.cleanupTable();
+    };
+
+    this.next = function() {
+        if (this.waitingForInput) {
+            this.players.addWaitingPlayers();
+            if (this.players.getNumberOfPlayers(Status.ACTIVE) >= 2) {
+                this.waitingForInput = false;
+            }
+        } else if (this.conductingBets) {
+            // TODO
+        } else if (this.round === Rounds.WAITING) {
+            this.round = Rounds.SETUP;
+            this.setupTable();
+        } else if (this.round === Rounds.SETUP) {
+            this.round = Rounds.BET;
+            this.playBetRound();
+        } else if (this.round === Rounds.BET) {
+            this.round = Rounds.FLOP;
+            this.playFlopRound();
+        } else if (this.round === Rounds.FLOP) {
+            this.round = Rounds.TURN;
+            this.playTurnRound();
+        } else if (this.round === Rounds.TURN) {
+            this.round = Rounds.RIVER;
+            this.playRiverRound();
+        } else if (this.round === Rounds.RIVER) {
+            this.round = Rounds.FINAL;
+            this.determineWinner();
+        } else if (this.round === Rounds.FINAL) {
+            this.round = Rounds.CLEANUP;
+            this.cleanupTable();
+            this.round = Rounds.WAITING;
+        }
     };
 
     this.setupTable = function () {
@@ -152,6 +189,7 @@ function Table(tableId) {
 
     this.determineWinner = function () {
         this.round = Rounds.FINAL;
+        var topPlayer = null;
         for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             var player = this.players.getPlayerAt(i);
             if (player.status === Status.ACTIVE) {
@@ -163,9 +201,15 @@ function Table(tableId) {
                 cards.push(this.river);
                 cards.push(player.cardA);
                 cards.push(player.cardB);
-                var rank = rankHand(cards);
+                player.rank = rankHand(cards);
+                if (topPlayer === null || compareRankings(player.rank, topPlayer.rank) > 0) {
+                    topPlayer = player;
+                } else if (compareRankings(player.rank, topPlayer) === 0) {
+                    // TODO
+                }
             }
         }
+        return topPlayer;
     };
 
     this.cleanupTable = function () {
