@@ -2,7 +2,7 @@ const Status = require("./definition").Status;
 const Actions = require("./definition").Actions;
 
 function Player (seat, status, receiveFunction) {
-    this.user = {name: "EMPTY SEAT", balance: 0};
+    this.user = {username: "EMPTY SEAT", balance: 0};
     this.seat = seat;
     this.status = status;
     this.lastAction = Actions.UNDEFINED;
@@ -61,6 +61,30 @@ function PlayerCollection () {
             var player = this.players[i];
             if (player.status !== Status.EMPTY) {
                 player.status = Status.ACTIVE;
+                this.log.logSystem("Player #" + i + "( " + player.user.username + " ) was set to ACTIVE");
+            }
+        }
+    };
+
+    /**
+     * Removes a user with a given username from both the "Waiting Players" list and the
+     * @param username
+     */
+    this.removeUser = function(username) {
+
+        // check waiting users first
+        for (var i = 0; i < this.waitingUsers.length; i++) {
+            if (this.waitingUsers[i].username === username) {
+                this.waitingUsers.splice(i, 1);
+                this.log.logSystem("Waiting User removed from index " + i);
+            }
+        }
+
+        // Now check players
+        for (var i = 0; i < this.players.length; i++) {
+            if (this.players[i].user.username === username) {
+                this.players[i].removeUser();
+                this.log.logSystem("Player removed from seat #" + i);
             }
         }
     };
@@ -71,11 +95,13 @@ function PlayerCollection () {
     this.addWaitingPlayers = function() {
         while ( this.waitingUsers.length > 0) {
             if (this.getNumberOfPlayers(Status.EMPTY, true) <= 0) {
+                this.log.logSystem("Attempting to add waiting players, but there are no remaining seats");
                 return;
             }
             var user = this.waitingUsers.pop();
             var index = this.getNextPlayerIndex(0, Status.EMPTY, true, true, true);
             this.players[index].addUser(user);
+            this.log.logSystem("User " + user.username + " added as Player #" + index);
         }
     };
 

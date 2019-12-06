@@ -192,9 +192,8 @@ function UserActionMessage (action, betAmount) {
 
 /**
  * Message sent from the server to all players to communicate the state of the game.
- * @param currentPlayer
  * @param otherPlayers
- * @param tableStatus
+ * @param tableStatus - tableMessageComponent
  * @constructor
  */
 function GameStatusMessage (otherPlayers, tableStatus) {

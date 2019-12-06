@@ -54,6 +54,14 @@ function Table(tableId) {
         }
     };
 
+    this.addMessage = function() {
+
+    };
+
+    this.processMessage = function() {
+
+    };
+
     /**
      * As long as the number of players is less than two, this method will wait for more players, adding them as they
      * appear.

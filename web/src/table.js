@@ -305,7 +305,6 @@ const player3 = "#player-3";
 const player4 = "#player-4";
 const player5 = "#player-5";
 
-const socketConnection = io();
 
 
 $("#ok-button").on("click", function () {
@@ -336,6 +335,6 @@ $("#fold-button").on("click", function () {
 
 $("#leave-button").on("click", function () {
     var msg = {_id: 4, action: "LEAVE", betAmount: 0};
-    socket.emit("user-action-msg", msg);
+    socketConnection.emit("user-action-msg", msg);
 });
 
