@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Texas Hold'em</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" crossorigin="anonymous"></script>
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/main.css">
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script src="/socket.js" type="text/javascript"></script>
+    <script src="/home.js" type="text/javascript"></script>
+    <script src="/table.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+    <div id="home" class="visible">
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            Home
+        </a>
+        <span class="float-left dropdown"><a class="btn btn-info dropdown-toggle" href="#" role="button"
+                id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item" href="#">Log Out</a>
+                Welcome, <span id="username"></span>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <button class="dropdown-item" id="log_out">Log Out</button>
+
+            </div>
+        </span>
+    </nav>
+    <br /><br /><br /><br />
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                    <table class="table">
+                            <thead class="thead-light">
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Game-Table</th>
+                                <th scope="col">Number of players</th>
+                                <th scope="col"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row">1</th>
+                                <td>Table#1</td>
+                                <td>2</td>
+                                <td><button class="btn btn-primary">Join Table</button></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">2</th>
+                                <td>Table#2</td>
+                                <td>6</td>
+                                <td></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">3</th>
+                                <td>Table#3</td>
+                                <td>4</td>
+                                <td><button class="btn btn-primary">Join Table</button></td>
+                              </tr>
+                              <tr>
+                                    <th></th>
+                                    <td></td>
+                                    <td></td>
+                                    <td><button class="btn btn-success">Create New Game</button></td>
+                                  </tr>
+                            </tbody>
+                          </table>
+            </div>
+
+            <div class="col-6">
+                    <table class="table">
+                            <thead class="thead-light">
+                                    <tr>
+                                            <th colspan="4" class="text-center">Game Moves History</th>
+                                    </tr>
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Game-Table</th>
+                                <th scope="col">Date</th>
+                                <th scope="col"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row">1</th>
+                                <td>Table#1</td>
+                                <td>Jan 13, 2019</td>
+                                <td><button class="btn btn-primary">View</button></td>
+                              </tr>
+                              <tr>
+                                    <th scope="row">1</th>
+                                    <td>Table#1</td>
+                                    <td>May 13, 2019</td>
+                                    <td><button class="btn btn-primary">View</button></td>
+                                  </tr>
+                                  <tr>
+                                        <th scope="row">1</th>
+                                        <td>Table#1</td>
+                                        <td>Jun 13, 2019</td>
+                                        <td><button class="btn btn-primary">View</button></td>
+                                      </tr>
+                            </tbody>
+                          </table>
+                </div>
+
+
+        </div>
+
+    </div>
+    </div>
+
+    <div id="table" class="hidden">
+
+
+        <div class="modal fade" id="user-action-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Your Turn!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modal-call-amount"></div>
+                        <div id="modal-balance"></div>
+                        <div id="modal-bets"></div>
+                        <div id="modal-timer"></div>
+                        <!--
+                        <ul class="list-group">
+                            <li class="list-group-item"><button type="button" class="btn btn-danger" data-dismiss="modal">All In</button></li>
+                            <li class="list-group-item"><button type="button" class="btn btn-warning" data-dismiss="modal">Raise</button></li>
+                            <li class="list-group-item"><button type="button" class="btn btn-primary" data-dismiss="modal">Check</button></li>
+                            <li class="list-group-item"><button type="button" class="btn btn-success" data-dismiss="modal">Call</button></li>
+                            <li class="list-group-item"><button type="button" class="btn btn-warning" data-dismiss="modal">Fold</button></li>
+                            <li class="list-group-item"><button type="button" class="btn btn-danger" data-dismiss="modal">Leave</button></li>
+                        </ul>
+                        -->
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="list-group" id="list-tab" role="tablist">
+                                    <a class="list-group-item list-group-item-action" id="list-check-list" data-toggle="list" href="#list-check" role="tab" aria-controls="home">Check</a>
+                                    <a class="list-group-item list-group-item-action" id="list-call-list" data-toggle="list" href="#list-call" role="tab" aria-controls="profile">Call</a>
+                                    <a class="list-group-item list-group-item-action" id="list-raise-list" data-toggle="list" href="#list-raise" role="tab" aria-controls="messages">Raise</a>
+                                    <a class="list-group-item list-group-item-action" id="list-allin-list" data-toggle="list" href="#list-all-in" role="tab" aria-controls="settings">All In</a>
+                                </div>
+                            </div>
+                            <div class="col-8">
+                                <div class="tab-content" id="nav-tabContent">
+                                    <div class="tab-pane fade show active" id="list-check" role="tabpanel" aria-labelledby="list-home-list">
+                                        Check?
+                                    </div>
+                                    <div class="tab-pane fade" id="list-call" role="tabpanel" aria-labelledby="list-profile-list">
+                                        Call?
+                                    </div>
+                                    <div class="tab-pane fade" id="list-raise" role="tabpanel" aria-labelledby="list-messages-list">
+                                        <label for="raise-range">Raise Amount</label>
+                                        <input type="range" class="custom-range" id="raise-range"/>
+                                        <div id="raise-amount"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="list-all-in" role="tabpanel" aria-labelledby="list-settings-list">
+                                        Go All In?
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-secondary active">
+                                    <input type="radio" name="options" id="option1" autocomplete="off" checked> Ok
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="options" id="option2" autocomplete="off"> Fold
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="options" id="option3" autocomplete="off"> Leave
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main">
+            <div id="table">
+                <div class="top-players">
+                    <div id="player-0">
+                        <div class="player-info">
+                            <span class="player-name"></span>
+                            <span class="player-balance"></span>
+                        </div>
+                        <div class="display-card-holder">
+                            <div class="card-small cardA">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                            <div class="card-small cardb">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                        </div>
+                        <div class="player-stats">
+                            <span class="player-status"></span>
+                            <span class="player-most-recent-action"></span>
+                            <span class="player-current-bets"></span>
+                        </div>
+                    </div>
+                    <div id="player-1">
+                        <div class="player-info">
+                            <span class="player-name"></span>
+                            <span class="player-balance"></span>
+                        </div>
+                        <div class="display-card-holder">
+                            <div class="card-small cardA">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                            <div class="card-small cardb">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                        </div>
+                        <div class="player-stats">
+                            <span class="player-status"></span>
+                            <span class="player-most-recent-action"></span>
+                            <span class="player-current-bets"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="left-players">
+                    <div id="player-2">
+                        <div class="player-info">
+                            <span class="player-name"></span>
+                            <span class="player-balance"></span>
+                        </div>
+                        <div class="display-card-holder">
+                            <div class="card-small cardA">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                            <div class="card-small cardb">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                        </div>
+                        <div class="player-stats">
+                            <span class="player-status"></span>
+                            <span class="player-most-recent-action"></span>
+                            <span class="player-current-bets"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="board">
+                    <div class="card-small" id="flop-1">
+                        <p class="card-text black"></p>
+                        <p class="card-img black"></p>
+                    </div>
+                    <div class="card-small" id="flop-2">
+                        <p class="card-text black"></p>
+                        <p class="card-img black"></p>
+                    </div>
+                    <div class="card-small" id="flop-3">
+                        <p class="card-text red"></p>
+                        <p class="card-img red"></p>
+                    </div>
+                    <div class="card-small" id="turn">
+                        <p class="card-text red"></p>
+                        <p class="card-img red"></p>
+                    </div>
+                    <div class="card-small" id="river">
+                        <p class="card-text red"></p>
+                        <p class="card-img red"></p>
+                    </div>
+                    <div class="game-status-holder">
+                        <p id="game-display"></p>
+                        <p id="round-display"></p>
+                        <p id="pot-display"></p>
+                    </div>
+                </div>
+                <div class="right-players">
+
+                    <div id="player-3">
+                        <div class="player-info">
+                            <span class="player-name"></span>
+                            <span class="player-balance"></span>
+                        </div>
+                        <div class="display-card-holder">
+                            <div class="card-small cardA">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                            <div class="card-small cardb">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                        </div>
+                        <div class="player-stats">
+                            <span class="player-status"></span>
+                            <span class="player-most-recent-action"></span>
+                            <span class="player-current-bets"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom-players">
+                    <div id="player-4">
+                        <div class="player-info">
+                            <span class="player-name"></span>
+                            <span class="player-balance"></span>
+                        </div>
+                        <div class="display-card-holder">
+                            <div class="card-small cardA">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                            <div class="card-small cardb">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                        </div>
+                        <div class="player-stats">
+                            <span class="player-status"></span>
+                            <span class="player-most-recent-action"></span>
+                            <span class="player-current-bets"></span>
+                        </div>
+                    </div>
+                    <div id="player-5">
+                        <div class="player-info">
+                            <span class="player-name"></span>
+                            <span class="player-balance"></span>
+                        </div>
+                        <div class="display-card-holder">
+                            <div class="card-small cardA">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                            <div class="card-small cardb">
+                                <p class="card-text black"></p>
+                                <p class="card-img black"></p>
+                            </div>
+                        </div>
+                        <div class="player-stats">
+                            <span class="player-status"></span>
+                            <span class="player-most-recent-action"></span>
+                            <span class="player-current-bets"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -10,6 +10,10 @@ const GetUserActionMessage = require("./messages").GetUserActionMessage;
 const TableMessageComponent = require("./messages").TableMessageComponent;
 const CurrentPlayerMessageComponent = require("./messages").CurrentPlayerMessageComponent;
 const OtherPlayerMessageComponent = require("./messages").OtherPlayerMessageComponent;
+const CardComponent = require('./messages').CardComponent;
+const Rankings = require("./ranking").Rankings;
+const rankHand = require("./ranking").rankHand;
+const compareRankings = require("./ranking").compareRankings;
 
 function Table(tableId) {
     this.tableId = tableId;
@@ -25,6 +29,9 @@ function Table(tableId) {
     this.round = null;
 
     this.players = new PlayerCollection();
+
+    this.waitingForInput = false;
+    this.conductingBets = false;
 
     this.pot = 0;
     this.maxCurrentRoundBet = 0;
@@ -47,6 +54,14 @@ function Table(tableId) {
         }
     };
 
+    this.addMessage = function() {
+
+    };
+
+    this.processMessage = function() {
+
+    };
+
     /**
      * As long as the number of players is less than two, this method will wait for more players, adding them as they
      * appear.
@@ -67,6 +82,39 @@ function Table(tableId) {
         this.playRiverRound();
         this.determineWinner();
         this.cleanupTable();
+    };
+
+    this.next = function() {
+        if (this.waitingForInput) {
+            this.players.addWaitingPlayers();
+            if (this.players.getNumberOfPlayers(Status.ACTIVE) >= 2) {
+                this.waitingForInput = false;
+            }
+        } else if (this.conductingBets) {
+            // TODO
+        } else if (this.round === Rounds.WAITING) {
+            this.round = Rounds.SETUP;
+            this.setupTable();
+        } else if (this.round === Rounds.SETUP) {
+            this.round = Rounds.BET;
+            this.playBetRound();
+        } else if (this.round === Rounds.BET) {
+            this.round = Rounds.FLOP;
+            this.playFlopRound();
+        } else if (this.round === Rounds.FLOP) {
+            this.round = Rounds.TURN;
+            this.playTurnRound();
+        } else if (this.round === Rounds.TURN) {
+            this.round = Rounds.RIVER;
+            this.playRiverRound();
+        } else if (this.round === Rounds.RIVER) {
+            this.round = Rounds.FINAL;
+            this.determineWinner();
+        } else if (this.round === Rounds.FINAL) {
+            this.round = Rounds.CLEANUP;
+            this.cleanupTable();
+            this.round = Rounds.WAITING;
+        }
     };
 
     this.setupTable = function () {
@@ -149,7 +197,27 @@ function Table(tableId) {
 
     this.determineWinner = function () {
         this.round = Rounds.FINAL;
-
+        var topPlayer = null;
+        for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
+            var player = this.players.getPlayerAt(i);
+            if (player.status === Status.ACTIVE) {
+                var cards = [];
+                cards.push(this.flop[0]);
+                cards.push(this.flop[1]);
+                cards.push(this.flop[2]);
+                cards.push(this.turn);
+                cards.push(this.river);
+                cards.push(player.cardA);
+                cards.push(player.cardB);
+                player.rank = rankHand(cards);
+                if (topPlayer === null || compareRankings(player.rank, topPlayer.rank) > 0) {
+                    topPlayer = player;
+                } else if (compareRankings(player.rank, topPlayer) === 0) {
+                    // TODO
+                }
+            }
+        }
+        return topPlayer;
     };
 
     this.cleanupTable = function () {
@@ -277,30 +345,42 @@ function Table(tableId) {
     };
 
     this.sendGameStateToPlayers = function() {
-        var localFlop = null;
+        var localFlop1 = null;
+        var localFlop2 = null;
+        var localFlop3 = null;
         var localTurn = null;
         var localRiver = null;
         if (this.round === Rounds.FLOP) {
-            localFlop = this.flop;
+            localFlop1 = this.flop[0];
+            localFlop2 = this.flop[1];
+            localFlop3 = this.flop[2];
         } else if (this.round === Rounds.TURN) {
-            localFlop = this.flop;
+            localFlop1 = this.flop[0];
+            localFlop2 = this.flop[1];
+            localFlop3 = this.flop[2];
             localTurn = this.turn;
         } else if (this.round === Rounds.RIVER) {
-            localFlop = this.flop;
+            localFlop1 = this.flop[0];
+            localFlop2 = this.flop[1];
+            localFlop3 = this.flop[2];
             localTurn = this.turn;
             localRiver = this.river;
         } else if (this.round === Rounds.FINAL) {
-            localFlop = this.flop;
+            localFlop1 = this.flop[0];
+            localFlop2 = this.flop[1];
+            localFlop3 = this.flop[2];
             localTurn = this.turn;
             localRiver = this.river;
         }
-        var table = new TableMessageComponent(this.maxCurrentRoundBet, this.pot, this.round, localFlop, localTurn, localRiver);
+        var table = new TableMessageComponent(this.maxCurrentRoundBet, this.pot, this.roundId, this.round, localFlop1, localFlop2, localFlop3,  localTurn, localRiver);
         var otherUsers = [];
         for (let i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             let player = this.players.getPlayerAt(i);
             if (player.status !== Status.EMPTY) {
-                let playerComponent = new OtherPlayerMessageComponent(player.user.name, player.user.balance,
-                    player.maxCurrentRoundBet, player.status, this.bigBlind === i, this.smallBlind === i);
+                let cardA = new CardComponent(player.cardA.suite, player.cardA.rank);
+                let cardB = new CardComponent(player.cardB.suite, player.cardB.rank);
+                let playerComponent = new OtherPlayerMessageComponent(player.user.name, player.seat, player.user.balance,
+                    player.currentRoundBet, player.status, player.lastAction, cardA, cardB, this.bigBlind === i, this.smallBlind === i);
                 otherUsers.push(playerComponent);
             } else {
                 // TODO

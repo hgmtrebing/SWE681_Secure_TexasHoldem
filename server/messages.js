@@ -49,8 +49,7 @@ function OtherPlayerMessageComponent (name, seat, balance, bet, status, action, 
 
     }
 
-    if (action !== Actions.ALLIN && action !== Actions.CALL && action !== Actions.CHECK && action !== Actions.FOLD &&
-    action !== Actions.LEAVE && action !== Actions.RAISE && action !== Actions.TIMEOUT) {
+    if (!action in Actions) {
         validMessage = false;
         log.logSystemError("action in OtherPlayerMessageComponent was of type " + typeof action + " , not a valid Action");
     }
@@ -123,9 +122,7 @@ function TableMessageComponent (maxBet, pot, gameNumber, round, flop1, flop2, fl
         validMessage = false;
         log.logSystemError("gameNumber in TableMessageComponet was of type " + typeof gameNumber + " , not type number");
 
-    } else if (round !== Rounds.WAITING.toString() && round !== Rounds.BET.toString() &&
-        round !== Rounds.FLOP.toString() && round !== Rounds.TURN.toString() && round !== Rounds.RIVER.toString() &&
-    round !== Rounds.FINAL.toString() && round !== Rounds.CLEANUP.toString()) {
+    } else if (!round in Rounds) {
         validMessage = false;
         log.logSystemError("round in TableMessageComponet was given " + round + ", not a value in definition.js.Rounds");
 
@@ -195,14 +192,12 @@ function UserActionMessage (action, betAmount) {
 
 /**
  * Message sent from the server to all players to communicate the state of the game.
- * @param currentPlayer
  * @param otherPlayers
- * @param tableStatus
+ * @param tableStatus - tableMessageComponent
  * @constructor
  */
-function GameStatusMessage (currentPlayer, otherPlayers, tableStatus) {
+function GameStatusMessage (otherPlayers, tableStatus) {
     this._id = 5;
-    this.currentPlayer = currentPlayer;
     this.otherPlayers = otherPlayers;
     this.tableStatus = tableStatus;
 };

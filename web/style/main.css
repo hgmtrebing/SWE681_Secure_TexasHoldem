@@ -1,9 +1,17 @@
 html {
     background-color: green;
+    margin: 0;
+    height: 100%;
 }
 
-.table {
+body {
+    margin: 0;
+    height: 100%;
+}
+
+#table {
     margin: 0 auto;
+    background-color: green;
 }
 
 .board {
@@ -44,6 +52,15 @@ html {
 #player-5 {
     position: absolute;
     left: 60%;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    margin: 0;
+    height: 100%;
 }
 
 .left-players {

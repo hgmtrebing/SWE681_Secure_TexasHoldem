@@ -2,11 +2,15 @@ const https = require("https");
 const fs = require("fs");
 const express = require("express");
 var bodyParser = require("body-parser");
-let middleware = require('./middleware');
-const userRoute = require('./routes/api/user');
-const helmet = require('helmet');
-const Log = require('./server/log.js').Log;
 const socket = require('socket.io');
+const socketioJwt   = require('socketio-jwt');
+const helmet = require('helmet');
+const childProcess = require('child_process');
+const GameServer = require('./server/game_server').GameServer;
+const middleware = require('./middleware');
+const userRoute = require('./routes/api/user');
+const Log = require('./server/log.js').Log;
+const config = require("./config");
 
 
 /************************************** Initialize Log ******************************* */
@@ -49,10 +53,11 @@ var app = express();
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'code.jquery.com', 'stackpath.bootstrapcdn.com', 'cdnjs.cloudflare.com'],
+      defaultSrc: ["'self'", 'localhost:8081'],
+      scriptSrc: ["'self'", 'code.jquery.com', 'stackpath.bootstrapcdn.com', 'cdnjs.cloudflare.com', 'cdn.jsdelivr.net'],
       styleSrc: ["'self'", 'stackpath.bootstrapcdn.com'],
-      fontSrc: ["'self'", 'stackpath.bootstrapcdn.com']
+      fontSrc: ["'self'", 'stackpath.bootstrapcdn.com'],
+      connectSrc: ["'self'", 'https://localhost:8081/*']
     }
    }));
 app.use(helmet.referrerPolicy({policy:'same-origin'}));
@@ -69,7 +74,7 @@ app.get('/', function (req, res) {
 });
 
 app.get('/home', function (req, res) {
-    res.sendFile("web/home.html", { root: __dirname });
+    res.sendFile("web/main.html", { root: __dirname });
 });
 
 // example of passing middleware to verify token for each request.
@@ -103,8 +108,9 @@ app.get("/main.css", function(req, res){
     res.sendFile("web/style/main.css", {root: __dirname});
 });
 
-app.get("/table.js", function(req, res){
+app.get("/table.js", function(req, res) {
     res.sendFile("web/src/table.js", {root: __dirname});
+});
 
 app.get("/home.js", function (req, res) {
     res.sendFile("web/src/home.js", { root: __dirname });
@@ -112,6 +118,10 @@ app.get("/home.js", function (req, res) {
 
 app.get("/welcome.js", function (req, res) {
     res.sendFile("web/src/welcome.js", { root: __dirname });
+});
+
+app.get("/socket.js", function (req, res) {
+    res.sendFile("web/src/socket.js", { root: __dirname });
 });
 
 // Route for user login and register
@@ -122,6 +132,7 @@ app.use("/api/user", userRoute);
 //Error Handler
 
 
+
 /*********************************   ROUTING  ******************************************************/
 
 var server = https.createServer({
@@ -130,19 +141,37 @@ var server = https.createServer({
 }, app);
 
 
+/*********************************   GAME SERVER  ******************************************************/
+const gameServer = new GameServer(server);
+gameServer.start();
+
 
 
 server.listen(8080, function () {
     log.logSystem("HTTPS Server is now listening on port 8080");
 });
 
+
 /*
 //socket setup:
 let io = socket(server);
+//authorize on connection
+io.use(socketioJwt.authorize({
+    secret: config.secretKey,
+    handshake: true,
+    auth_header_required: true
+  }));
+
+
 io.on('connection', function(socket){
     log.logSystem("Made socket Connection by a user! " + socket.id);
     socket.on('check', function(value){
         io.sockets.emit('check', value);
     })
+
+    socket.on('disconnect', (reason) => {
+        console.log("Socket Disconnected: " + reason);
+      });
+
 });
 */
