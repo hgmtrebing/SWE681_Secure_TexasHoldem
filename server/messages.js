@@ -6,18 +6,10 @@ const Rank = require('./carddeck').Rank;
 const Log = require('./log');
 const log = new Log.Log();
 
-function CurrentPlayerMessageComponent(name, balance, bets, seat, status, mostRecentAction, cardA, cardB, isBigBlind, isSmallBlind) {
+function CurrentPlayerMessageComponent(cardA, cardB) {
     this._id = 1;
-    this.name = name;
-    this.balance = balance;
-    this.bets = bets;
-    this.seat = seat;
-    this.status = status;
-    this.mostRecentAction = mostRecentAction;
     this.cardA = cardA;
     this.cardB = cardB;
-    this.isBigBlind = isBigBlind;
-    this.isSmallBlind = isSmallBlind;
 }
 
 function OtherPlayerMessageComponent (name, seat, balance, bet, status, action, cardA, cardB, isBigBlind, isSmallBlind) {
@@ -196,8 +188,9 @@ function UserActionMessage (action, betAmount) {
  * @param tableStatus - tableMessageComponent
  * @constructor
  */
-function GameStatusMessage (otherPlayers, tableStatus) {
+function GameStatusMessage (currentPlayer, otherPlayers, tableStatus) {
     this._id = 5;
+    this.currentPlayer = currentPlayer;
     this.otherPlayers = otherPlayers;
     this.tableStatus = tableStatus;
 };

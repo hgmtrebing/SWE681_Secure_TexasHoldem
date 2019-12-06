@@ -30,6 +30,8 @@ function Table(tableId) {
 
     this.players = new PlayerCollection();
 
+    this.pendingMessages = [];
+
     this.waitingForInput = false;
     this.conductingBets = false;
 
@@ -54,12 +56,12 @@ function Table(tableId) {
         }
     };
 
-    this.addMessage = function() {
-
+    this.addMessage = function(message) {
+        this.pendingMessages.push(message);
     };
 
     this.processMessage = function() {
-
+        // Process User Action Message
     };
 
     /**
@@ -91,7 +93,7 @@ function Table(tableId) {
                 this.waitingForInput = false;
             }
         } else if (this.conductingBets) {
-            // TODO
+            this.conductNextBet();
         } else if (this.round === Rounds.WAITING) {
             this.round = Rounds.SETUP;
             this.setupTable();
@@ -162,7 +164,7 @@ function Table(tableId) {
             this.pot += this.bigBlindAmount;
 
             this.maxCurrentRoundBet = this.bigBlindAmount;
-            this.conductBets(this.maxCurrentRoundBet);
+            this.startBetting(this.maxCurrentRoundBet);
         } else {
             this.round = Rounds.FINAL;
         }
@@ -171,7 +173,7 @@ function Table(tableId) {
     this.playFlopRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
             this.round = Rounds.FLOP;
-            this.conductBets(0);
+            this.startBetting(0);
         } else {
             this.round = Rounds.FINAL;
         }
@@ -180,7 +182,7 @@ function Table(tableId) {
     this.playTurnRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
             this.round = Rounds.TURN;
-            this.conductBets(0);
+            this.startBetting(0);
         } else {
             this.round = Rounds.FINAL;
         }
@@ -189,7 +191,7 @@ function Table(tableId) {
     this.playRiverRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
             this.round = Rounds.RIVER;
-            this.conductBets(0);
+            this.startBetting(0);
         } else {
             this.round = Rounds.FINAL;
         }
@@ -232,7 +234,7 @@ function Table(tableId) {
 
         // Reset Bets and Pots
         this.pot = 0;
-        this.currentMaxCurrBet = 0;
+        this.maxCurrentRoundBet = 0;
 
         // Add Player Hands back
         for (var i = 0; i < this.players.getNumberOfPlayers(); i++) {
@@ -261,6 +263,32 @@ function Table(tableId) {
         for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             var player = this.players.getPlayerAt(i);
             player.currentRoundBet = 0;
+        }
+    };
+
+    this.startBetting = function(startingBet) {
+        this.conductingBets = true;
+        this.maxCurrentRoundBet = startingBet;
+        this.currentPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, true, true);
+        this.lastPlayer = -1; // special value used in conductNextBet
+    };
+
+    this.conductNextBet = function() {
+        // Indicates we've reached the end of iteration
+        if (this.currentPlayer === this.lastPlayer) {
+            this.maxCurrentRoundBet = 0;
+
+            // Reset current round bets for player
+            for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
+                var player = this.players.getPlayerAt(i);
+                player.currentRoundBet = 0;
+            }
+        } else {
+            this.conductIndividualBet(this.currentPlayer);
+            this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
+            if (this.lastPlayer === -1) {
+                this.lastPlayer = this.currentPlayer;
+            }
         }
     };
 
@@ -386,9 +414,14 @@ function Table(tableId) {
                 // TODO
             }
         }
-        var message = new GameStatusMessage(otherUsers, table);
+        var message = new GameStatusMessage(new CurrentPlayerMessageComponent(), otherUsers, table);
         for (let i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
-            this.players.getPlayerAt(i).send(message);
+            var player = this.players.getPlayerAt(i);
+            let cardA = new CardComponent(player.cardA.suite, player.cardA.rank);
+            let cardB = new CardComponent(player.cardB.suite, player.cardB.rank);
+            message.currentPlayer.cardA = cardA;
+            message.currentPlayer.cardB = cardB;
+            player.send(message);
         }
     };
 

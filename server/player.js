@@ -25,6 +25,14 @@ function Player (seat, status, receiveFunction) {
 
     this.send = function(message) {
             console.log("GAME STATUS SENT TO PLAYER " + this.seat + ": Round-" + message.tableStatus.round);
+            if (message._id === 5) {
+                this.user.socket.emit("game-status-message", message);
+            }
+
+            if (message._id === 1) {
+                // Current Player Message
+                this.socket.emit("current-player-message", message);
+            }
     };
 
     this.receive = receiveFunction;

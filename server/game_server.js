@@ -13,7 +13,6 @@ function GameServer (server) {
 	this.tableCounter = 1;
 	this.tableLimit = 10;
 	this.mainLoopRunning = false;
-	this.server = server;
 	this.tableUrl = "table.html";
 	this.homePage = "home_page";
 	this.io = require('socket.io')(server);
@@ -80,8 +79,29 @@ function GameServer (server) {
 	};
 
 	this.joinTable = function(username, tableId) {
-		// return true if succeeded
-		return false;
+
+		// Get table and ensure that it exists
+	    var table = this.getTable(tableId);
+	    if (table === null || table === undefined) {
+	    	this.log.logSystem("User " + username + " attempted to join nonexistent Table #" + tableId);
+	    	return false;
+		}
+
+	    if (username in this.users) {
+			var oldLocation = this.users[username].location;
+			var table2 = this.getTable(oldLocation);
+			if (table2 !== null && table2 !== undefined) {
+				table2.players.removeUser(username);
+			}
+			this.log.logSystem("User " + username + " removed from old location ( " + oldLocation + " ) and added to new location ( " + tableId + " )");
+			table2.players.waitingUsers.push(this.users[username]);
+			this.users[username].location = tableId;
+			this.log.logSystem("User " + username + "  added to table ( " + tableId + " )");
+		} else {
+			this.log.logSystemError("Unexpected internal condition: user " + username + " did not previously exist in this.users during join-table operation");
+		}
+
+		return true;
 	};
 
 	this.sendMessageToTable = function(msg) {
