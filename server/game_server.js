@@ -10,7 +10,7 @@ function GameServer (server) {
 	this.tables = [];
 	this.users = {};
 	this.server = server;
-	this.tableCounter = 1;
+	this.tableCounter = 0;
 	this.tableLimit = 10;
 	this.mainLoopRunning = false;
 	this.tableUrl = "table.html";
@@ -21,7 +21,7 @@ function GameServer (server) {
 	 * Creates a new Table with a new Table ID, provided the number of tables
 	 */
 	this.createTable = function () {
-		if (this.tables.length < this.tables.length) {
+		if (this.tables.length < this.tableLimit) {
 			var newTable = new Table(this.tableCounter);
 			this.tables.push(newTable);
 			this.log.logSystem("Table created, with ID: " + this.tableCounter);
@@ -74,8 +74,31 @@ function GameServer (server) {
 		setInterval(this.mainLoop, 500, this);
 	};
 
-	this.sendHomePageUpdates = function() {
+	this.createHomePageUpdateMessage = function() {
+		var tableArray = [];
+		for (let i = 0; i < this.tables.length; i++) {
+			tableArray.push({
+				tableId: this.tables[i].tableId,
+                tableName: 'table#' + this.tables[i].tableId,
+				players: this.tables[i].players.getNumberOfPlayers(Status.EMPTY, false),
+				joinAllowed: this.tables[i].players.getNumberOfPlayers(Status.EMPTY, true) > 0
+			});
+		}
 
+		return tableArray;
+	};
+
+	this.sendHomePageUpdateToIndividualSocket = function(socket) {
+		var msg = this.createHomePageUpdateMessage();
+	    socket.emit("home-page-update-message", msg);
+	};
+
+	this.sendHomePageUpdates = function() {
+		const usernames = Object.keys(this.users);
+		for (let i = 0; i < usernames.length; i++ ) {
+			var socket = this.users[usernames[i]].socket;
+			this.sendHomePageUpdateToIndividualSocket(socket);
+		}
 	};
 
 	this.joinTable = function(username, tableId) {
@@ -114,6 +137,8 @@ function GameServer (server) {
 		// add user to userSockets
         const log = new Log();
         log.logSystem("User Connected");
+
+        this.sendHomePageUpdateToIndividualSocket(socket);
 		socket.emit('get-user-info', {});
 
 		socket.on('user-info', function(msg) {
@@ -184,7 +209,7 @@ function GameServer (server) {
 
 		});
 
-	});
+	}.bind(this));
 
 	this.mainLoop = function(gameServer) {
 		if (!gameServer.mainLoopRunning) {
