@@ -1,6 +1,11 @@
 const TestResult = require('./TestResult').TestResult;
 const Table = require('../server/table').Table;
 const defines = require('../server/definition');
+const Card = require('../server/carddeck').Card;
+
+function appendToString(origString, fieldName, result) {
+    return origString + ", " + fieldName + " : " + result;
+}
 
 function setupTableTest01 () {
     var table = new Table(15);
@@ -39,6 +44,9 @@ function conductIndividualBetCallTest01 () {
     player.receive = function() {
         return {action: "CALL", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
+
     table.setupTable();
     table.maxCurrentRoundBet = 400;
     table.conductIndividualBet(0);
@@ -60,6 +68,8 @@ function conductIndividualBetCallTest02 () {
     player.receive = function() {
         return {action: "CALL", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 1500;
     table.conductIndividualBet(0);
@@ -81,6 +91,8 @@ function conductIndividualBetCallTest03 () {
     player.receive = function () {
         return {action: "CALL", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -102,6 +114,8 @@ function conductIndividualBetRaiseTest01 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 1000};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -123,6 +137,8 @@ function conductIndividualBetRaiseTest02 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 2000};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 1525;
     table.conductIndividualBet(0);
@@ -144,6 +160,8 @@ function conductIndividualBetRaiseTest03 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 12000};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -165,6 +183,8 @@ function conductIndividualBetRaiseTest04 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -186,6 +206,8 @@ function conductIndividualBetRaiseTest05 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 1500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 2500;
     table.conductIndividualBet(0);
@@ -207,6 +229,8 @@ function conductIndividualBetFoldTest01 () {
     player.receive = function() {
         return {action: "FOLD", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 3500;
     table.conductIndividualBet(0);
@@ -228,6 +252,8 @@ function conductIndividualBetFoldTest02 () {
     player.receive = function() {
         return {action: "RAISE", betAmount: 5000};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
 
     player.status = defines.Status.FOLDED;
@@ -251,6 +277,8 @@ function conductIndividualBetCheckTest01 () {
     player.receive = function() {
         return {action: "CHECK", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -272,6 +300,8 @@ function conductIndividualBetCheckTest02 () {
     player.receive = function() {
         return {action: "CHECK", betAmount: 500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -293,6 +323,8 @@ function conductIndividualBetCheckTest03 () {
     player.receive = function() {
         return {action: "CHECK", betAmount: 500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 250;
     table.conductIndividualBet(0);
@@ -314,6 +346,8 @@ function conductIndividualBetAllinTest01 () {
     player.receive = function() {
         return {action: "ALLIN", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 250;
     table.conductIndividualBet(0);
@@ -335,6 +369,8 @@ function conductIndividualBetAllinTest02 () {
     player.receive = function() {
         return {action: "ALLIN", betAmount: 500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 13000;
     table.conductIndividualBet(0);
@@ -356,6 +392,8 @@ function conductIndividualBetAllinTest03 () {
     player.receive = function() {
         return {action: "ALLIN", betAmount: 500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     player.bets = 1000;
 
     table.setupTable();
@@ -385,6 +423,8 @@ function conductBetsTest01 () {
         ];
         return actions[player0.actionCounter++];
     };
+    player0.user.socket = {};
+    player0.user.socket.emit = function () {};
 
     var player1 = table.players.getPlayerAt(1);
     player1.addUser({name: "u0", balance: 10000});
@@ -397,6 +437,8 @@ function conductBetsTest01 () {
         ];
         return actions[player1.actionCounter++];
     };
+    player1.user.socket = {};
+    player1.user.socket.emit = function () {};
 
     var player2 = table.players.getPlayerAt(2);
     player2.addUser({name: "u0", balance: 10000});
@@ -408,6 +450,8 @@ function conductBetsTest01 () {
         ];
         return actions[player2.actionCounter++];
     };
+    player2.user.socket = {};
+    player2.user.socket.emit = function () {};
 
     var player3 = table.players.getPlayerAt(3);
     player3.addUser({name: "u0", balance: 10000});
@@ -419,6 +463,8 @@ function conductBetsTest01 () {
         ];
         return actions[player3.actionCounter++];
     };
+    player3.user.socket = {};
+    player3.user.socket.emit = function () {};
 
     var player4 = table.players.getPlayerAt(4);
     player4.addUser({name: "u0", balance: 10000});
@@ -430,6 +476,8 @@ function conductBetsTest01 () {
         ];
         return actions[player4.actionCounter++];
     };
+    player4.user.socket = {};
+    player4.user.socket.emit = function () {};
 
     var player5 = table.players.getPlayerAt(5);
     player5.addUser({name: "u0", balance: 10000});
@@ -441,6 +489,8 @@ function conductBetsTest01 () {
         ];
         return actions[player5.actionCounter++];
     };
+    player5.user.socket = {};
+    player5.user.socket.emit = function () {};
 
     table.setupTable();
     table.conductBets(0);
@@ -458,6 +508,344 @@ function conductBetsTest01 () {
         ", Player05.status = " + player5.status + ", Player0.bets = " + player0.bets + ", Player01.bets = " + player1.bets + ", Player02.bets = " + player2.bets + ", Player03.bets = " + player3.bets + ", Player04.bets = " + player4.bets + ", Player05.bets = " + player5.bets);
 
 }
+
+function startingBetTest01 () {
+    var table = new Table(1);
+    var player0 = table.players.getPlayerAt(0);
+    player0.addUser({name: "u0", balance: 10000});
+    player0.currentAction = {action: defines.Actions.CALL, betAmount: 1000};
+    player0.user.socket = {};
+    player0.user.socket.emit = function () {};
+    table.setupTable();
+
+    table.startBetting(1000);
+    table.conductNextBet();
+
+    returnString = "startingBetTest01. ";
+    var a = player0.user.balance === 9000;
+    returnString = appendToString(returnString, "player0.user.balance === 9000;", a);
+    var b = player0.status === defines.Status.ACTIVE;
+    returnString = appendToString(returnString, "player0.status === defines.Status.ACTIVE;", b);
+    var c = player0.lastAction.action === defines.Actions.CALL;
+    returnString = appendToString(returnString, "player0.lastAction === defines.Actions.CALL;", c);
+    var d = player0.currentAction === null;
+    returnString = appendToString(returnString, "player0.currentAction === null;", d);
+    var e = player0.bets === 1000;
+    returnString = appendToString(returnString, "player0.bets === 1000;", e);
+    var f = player0.currentRoundBet === 1000;
+    returnString = appendToString(returnString, "player0.currentRoundBet === 1000;", f);
+    var g = table.waitingForInput === false;
+    returnString = appendToString(returnString, "table.waitingForInput === false;", g);
+    var h = table.conductingBets === true;
+    returnString = appendToString(returnString, "table.conductingBets === true;", h);
+    var i = table.userTimeoutCounter === 0;
+    returnString = appendToString(returnString, "table.userTimeoutCounter = 0;", i);
+    var j = table.userTimeoutFunction === null;
+    returnString = appendToString(returnString, "table.userTimeoutFunction = null;", j);
+    var k = table.pot === 1000;
+    returnString = appendToString(returnString, "table.pot === 1000;", k);
+    var l = table.lastPlayer === 0;
+    returnString = appendToString(returnString, "table.lastPlayer === 0;", l);
+    var m = table.currentPlayer === 1;
+    returnString = appendToString(returnString, "table.currentPlayer === 1;", m);
+
+    var passed = false;
+    if (a && b && c && d && e && f && g && h && i && j && k && l && m) {
+        passed = true;
+    }
+    return new TestResult(passed, returnString);
+}
+
+function startingBetTest02 () {
+    var table = new Table(1);
+    var player0 = table.players.getPlayerAt(3);
+    player0.addUser({name: "u0", balance: 10000});
+    player0.currentAction = {action: defines.Actions.CALL, betAmount: 1000};
+    player0.user.socket = {};
+    player0.user.socket.emit = function () {};
+    table.setupTable();
+
+    table.startBetting(1000);
+    table.conductNextBet();
+    table.conductNextBet();
+
+    returnString = "startingBetTest02. ";
+    var a = player0.user.balance === 10000;
+    returnString = appendToString(returnString, "player0.user.balance === 10000;", a);
+    var b = player0.status === defines.Status.ACTIVE;
+    returnString = appendToString(returnString, "player0.status === defines.Status.ACTIVE;", b);
+    var c = player0.lastAction.action === defines.Actions.UNDEFINED;
+    returnString = appendToString(returnString, "player0.lastAction.action === defines.Actions.UNDEFINED;", c);
+    var d = player0.currentAction.action === defines.Actions.CALL;
+    returnString = appendToString(returnString, "player0.currentAction.action === defines.Actions.CALL;", d);
+    var e = player0.bets === 0;
+    returnString = appendToString(returnString, "player0.bets === 0;", e);
+    var f = player0.currentRoundBet === 0;
+    returnString = appendToString(returnString, "player0.currentRoundBet === 0;", f);
+    var g = table.waitingForInput === false;
+    returnString = appendToString(returnString, "table.waitingForInput === false;", g);
+    var h = table.conductingBets === true;
+    returnString = appendToString(returnString, "table.conductingBets === true;", h);
+    var i = table.userTimeoutCounter === 0;
+    returnString = appendToString(returnString, "table.userTimeoutCounter = 0;", i);
+    var j = table.userTimeoutFunction === null;
+    returnString = appendToString(returnString, "table.userTimeoutFunction = null;", j);
+    var k = table.pot === 0;
+    returnString = appendToString(returnString, "table.pot === 0;", k);
+    var l = table.lastPlayer === 0;
+    returnString = appendToString(returnString, "table.lastPlayer === 0;", l);
+    var m = table.currentPlayer === 2;
+    returnString = appendToString(returnString, "table.currentPlayer === 2;", m);
+
+    var passed = false;
+    if (a && b && c && d && e && f && g && h && i && j && k && l && m) {
+        passed = true;
+    }
+    return new TestResult(passed, returnString);
+}
+
+function startingBetTest03 () {
+    var table = new Table(1);
+    var player0 = table.players.getPlayerAt(3);
+    player0.addUser({name: "u0", balance: 10000});
+    player0.currentAction = {action: defines.Actions.CALL, betAmount: 1000};
+    player0.user.socket = {};
+    player0.user.socket.emit = function () {};
+    table.setupTable();
+
+    table.startBetting(0);
+    table.conductNextBet();
+    table.conductNextBet();
+    table.conductNextBet();
+    table.conductNextBet();
+
+    returnString = "startingBetTest03. ";
+    var a = player0.user.balance === 10000;
+    returnString = appendToString(returnString, "player0.user.balance === 10000;", a);
+    var b = player0.status === defines.Status.ACTIVE;
+    returnString = appendToString(returnString, "player0.status === defines.Status.ACTIVE;", b);
+    var c = player0.lastAction.action === defines.Actions.CALL;
+    returnString = appendToString(returnString, "player0.lastAction.action === defines.Actions.CALL;", c);
+    var d = player0.currentAction === null;
+    returnString = appendToString(returnString, "player0.currentAction.action === null;", d);
+    var e = player0.bets === 0;
+    returnString = appendToString(returnString, "player0.bets === 0;", e);
+    var f = player0.currentRoundBet === 0;
+    returnString = appendToString(returnString, "player0.currentRoundBet === 0;", f);
+    var g = table.waitingForInput === false;
+    returnString = appendToString(returnString, "table.waitingForInput === false;", g);
+    var h = table.conductingBets === true;
+    returnString = appendToString(returnString, "table.conductingBets === true;", h);
+    var i = table.userTimeoutCounter === 0;
+    returnString = appendToString(returnString, "table.userTimeoutCounter = 0;", i);
+    var j = table.userTimeoutFunction === null;
+    returnString = appendToString(returnString, "table.userTimeoutFunction = null;", j);
+    var k = table.pot === 0;
+    returnString = appendToString(returnString, "table.pot === 0;", k);
+    var l = table.lastPlayer === 0;
+    returnString = appendToString(returnString, "table.lastPlayer === 0;", l);
+    var m = table.currentPlayer === 4;
+    returnString = appendToString(returnString, "table.currentPlayer === 4;", m);
+
+    var passed = false;
+    if (a && b && c && d && e && f && g && h && i && j && k && l && m) {
+        passed = true;
+    }
+    return new TestResult(passed, returnString);
+}
+
+
+function startingBetTest04 () {
+    var table = new Table(1);
+    var player0 = table.players.getPlayerAt(0);
+    player0.addUser({name: "u0", balance: 10000});
+    player0.currentAction = {action: defines.Actions.CHECK, betAmount: 0};
+    player0.user.socket = {};
+    player0.user.socket.emit = function () {};
+
+    var player1 = table.players.getPlayerAt(1);
+    player1.addUser({name: "u1", balance: 10000});
+    player1.currentAction = {action: defines.Actions.RAISE, betAmount: 1500};
+    player1.user.socket = {};
+    player1.user.socket.emit = function () {};
+
+    var player2 = table.players.getPlayerAt(2);
+    player2.addUser({name: "u2", balance: 10000});
+    player2.currentAction = {action: defines.Actions.FOLD, betAmount: 0};
+    player2.user.socket = {};
+    player2.user.socket.emit = function () {};
+
+    var player3 = table.players.getPlayerAt(3);
+    player3.addUser({name: "u3", balance: 10000});
+    player3.currentAction = {action: defines.Actions.CALL, betAmount: 1500};
+    player3.user.socket = {};
+    player3.user.socket.emit = function () {};
+
+    table.setupTable();
+    table.startBetting(0);
+    table.conductNextBet();
+    table.conductNextBet();
+    table.conductNextBet();
+    table.conductNextBet();
+
+    returnString = "startingBetTest04. ";
+    var a = player0.user.balance === 10000;
+    returnString = appendToString(returnString, "player0.user.balance === 10000;", a);
+    var b = player0.status === defines.Status.ACTIVE;
+    returnString = appendToString(returnString, "player0.status === defines.Status.ACTIVE;", b);
+    var c = player0.lastAction.action === defines.Actions.CHECK;
+    returnString = appendToString(returnString, "player0.lastAction.action === defines.Actions.CHECK;", c);
+    var d = player0.currentAction === null;
+    returnString = appendToString(returnString, "player0.currentAction.action === null;", d);
+    var e = player0.bets === 0;
+    returnString = appendToString(returnString, "player0.bets === 0;", e);
+    var f = player0.currentRoundBet === 0;
+    returnString = appendToString(returnString, "player0.currentRoundBet === 0;", f);
+
+    var a1 = player1.user.balance === 8500;
+    returnString = appendToString(returnString, "player1.user.balance === 8500;", a);
+    var b1 = player1.status === defines.Status.ACTIVE;
+    returnString = appendToString(returnString, "player1.status === defines.Status.ACTIVE;", b);
+    var c1 = player1.lastAction.action === defines.Actions.RAISE;
+    returnString = appendToString(returnString, "player1.lastAction.action === defines.Actions.RAISE;", c);
+    var d1 = player1.currentAction === null;
+    returnString = appendToString(returnString, "player1.currentAction.action === null;", d);
+    var e1 = player1.bets === 1500;
+    returnString = appendToString(returnString, "player1.bets === 1500;", e);
+    var f1 = player1.currentRoundBet === 1500;
+    returnString = appendToString(returnString, "player1.currentRoundBet === 1500;", f);
+
+    var a2 = player2.user.balance === 10000;
+    returnString = appendToString(returnString, "player2.user.balance === 10000;", a);
+    var b2 = player2.status === defines.Status.FOLDED;
+    returnString = appendToString(returnString, "player2.status === defines.Status.FOLDED;", b);
+    var c2 = player2.lastAction.action === defines.Actions.FOLD;
+    returnString = appendToString(returnString, "player2.lastAction.action === defines.Actions.FOLD;", c);
+    var d2 = player2.currentAction === null;
+    returnString = appendToString(returnString, "player2.currentAction.action === null;", d);
+    var e2 = player2.bets === 0;
+    returnString = appendToString(returnString, "player2.bets === 0;", e);
+    var f2 = player2.currentRoundBet === 0;
+
+    var a3 = player3.user.balance === 8500;
+    returnString = appendToString(returnString, "player3.user.balance === 8500;", a);
+    var b3 = player3.status === defines.Status.ACTIVE;
+    returnString = appendToString(returnString, "player3.status === defines.Status.ACTIVE;", b);
+    var c3 = player3.lastAction.action === defines.Actions.CALL;
+    returnString = appendToString(returnString, "player3.lastAction.action === defines.Actions.CALL;", c);
+    var d3 = player3.currentAction === null;
+    returnString = appendToString(returnString, "player3.currentAction.action === null;", d);
+    var e3 = player3.bets === 1500;
+    returnString = appendToString(returnString, "player3.bets === 0;", e);
+    var f3 = player3.currentRoundBet === 1500;
+
+    var g = table.waitingForInput === false;
+    returnString = appendToString(returnString, "table.waitingForInput === false;", g);
+    var h = table.conductingBets === true;
+    returnString = appendToString(returnString, "table.conductingBets === true;", h);
+    var i = table.userTimeoutCounter === 0;
+    returnString = appendToString(returnString, "table.userTimeoutCounter = 0;", i);
+    var j = table.userTimeoutFunction === null;
+    returnString = appendToString(returnString, "table.userTimeoutFunction = null;", j);
+    var k = table.pot === 3000;
+    returnString = appendToString(returnString, "table.pot === 3000;", k);
+    var l = table.lastPlayer === 1;
+    returnString = appendToString(returnString, "table.lastPlayer === 1;", l);
+    var m = table.currentPlayer === 4;
+    returnString = appendToString(returnString, "table.currentPlayer === 4;", m);
+
+    var passed = false;
+    if (a && b && c && d && e && f && g && h && i && j && k && l && m && a1 && b1 && c1 && d1 && e1 && f1 && a2 && b2 &&
+    c2 && d2 && e2 && f2 && a3 && b3 && c3 && d3 && e3 && f3) {
+        passed = true;
+    }
+    return new TestResult(passed, returnString);
+}
+
+function nextTest01 () {
+    var table = new Table(1);
+    table.players.waitingUsers.push({username: "u0", balance: 10000, socket: {emit: function () {}}});
+    table.players.waitingUsers.push({username: "u1", balance: 10000, socket: {emit: function () {}}});
+    table.players.waitingUsers.push({username: "u2", balance: 10000, socket: {emit: function () {}}});
+    table.players.waitingUsers.push({username: "u3", balance: 10000, socket: {emit: function () {}}});
+    table.players.waitingUsers.push({username: "u4", balance: 10000, socket: {emit: function () {}}});
+    table.players.waitingUsers.push({username: "u5", balance: 10000, socket: {emit: function () {}}});
+    table.bigBlindAmount = 200;
+    table.smallBlindAmount = 100;
+
+
+    table.next();
+
+    var str = "nextTest01. ";
+    var a1 = table.round === defines.Rounds.SETUP;
+    str = appendToString(str, "table.round === defines.Rounds.SETUP;", a1);
+    var a2 = table.players.getNumberOfPlayers(defines.Status.EMPTY, true) === 0;
+    str = appendToString(str, "table.players.getNumberOfPlayers(defines.Status.EMPTY, false) === 0;", a2);
+    var a3 = table.players.getNumberOfPlayers(defines.Status.ACTIVE, true) === 6;
+    str = appendToString(str,  "table.players.getNumberOfPlayers(defines.Status.ACTIVE, true) === 6;", a3);
+
+    table.next();
+
+    var b1 = table.round === defines.Rounds.BET;
+    str = appendToString(str, "table.round === defines.Rounds.BET;", b1);
+    var b2 = table.players.getNumberOfPlayers(defines.Status.EMPTY, true) === 0;
+    str = appendToString(str, "table.players.getNumberOfPlayers(defines.Status.EMPTY, false) === 0;", b2);
+    var b3 = table.players.getNumberOfPlayers(defines.Status.ACTIVE, true) === 6;
+    str = appendToString(str,  "table.players.getNumberOfPlayers(defines.Status.ACTIVE, true) === 6;", b3);
+    var b4 = table.players.players[0].cardA instanceof Card;
+    str = appendToString(str,"table.players[0].cardA instanceof Card;", b4 );
+    var b5 = table.players.players[0].cardB instanceof Card;
+    str = appendToString(str,"table.players[0].cardB instanceof Card;", b5 );
+    var b6 = table.players.players[1].cardA instanceof Card;
+    str = appendToString(str,"table.players[1].cardA instanceof Card;", b6 );
+    var b7 = table.players.players[1].cardB instanceof Card;
+    str = appendToString(str,"table.players[1].cardB instanceof Card;", b7 );
+    var b8 = table.players.players[2].cardA instanceof Card;
+    str = appendToString(str,"table.players[2].cardA instanceof Card;", b8 );
+    var b9 = table.players.players[2].cardB instanceof Card;
+    str = appendToString(str,"table.players[2].cardB instanceof Card;", b9 );
+    var b10 = table.players.players[3].cardA instanceof Card;
+    str = appendToString(str,"table.players[3].cardA instanceof Card;", b10 );
+    var b11 = table.players.players[3].cardB instanceof Card;
+    str = appendToString(str,"table.players[3].cardB instanceof Card;", b11 );
+    var b12 = table.players.players[4].cardA instanceof Card;
+    str = appendToString(str,"table.players[4].cardA instanceof Card;", b12 );
+    var b13 = table.players.players[4].cardB instanceof Card;
+    str = appendToString(str,"table.players[4].cardB instanceof Card;", b13 );
+    var b14 = table.players.players[5].cardA instanceof Card;
+    str = appendToString(str,"table.players[5].cardA instanceof Card;", b14 );
+    var b15 = table.players.players[5].cardB instanceof Card;
+    str = appendToString(str,"table.players[5].cardB instanceof Card;", b15 );
+    var b16 = table.flop[0] instanceof Card;
+    str = appendToString(str,"table.flop[0] instanceof Card;", b16 );
+    var b17 = table.flop[1] instanceof Card;
+    str = appendToString(str,"table.flop[1] instanceof Card;", b17 );
+    var b18 = table.flop[2] instanceof Card;
+    str = appendToString(str,"table.flop[2] instanceof Card;", b18 );
+    var b19 = table.turn instanceof Card;
+    str = appendToString(str,"table.turn instanceof Card;", b19 );
+    var b20 = table.river instanceof Card;
+    str = appendToString(str,"table.river instanceof Card;", b20 );
+
+    table.next();
+
+    var c1 = table.round === defines.Rounds.FLOP;
+    str = appendToString(str, "table.round === defines.Rounds.BET;", c1);
+
+    table.next();
+    setTimeout(function(){
+        table.next();
+        console.log(table.players.toString());
+    }, 45000);
+
+    var passed = false;
+    if (a1 && a2 && a3 && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9 && b10 && b11 && b12 && b13 && b14 && b15
+    && b16 && b17 && b18 && b19 && b20 && c1) {
+        passed = true;
+    }
+    return new TestResult(passed, str);
+}
+
 
 function runAllTests() {
     var testResults = [];
@@ -480,6 +868,11 @@ function runAllTests() {
     testResults.push(conductIndividualBetAllinTest02());
     testResults.push(conductIndividualBetAllinTest03());
     testResults.push(conductBetsTest01());
+    testResults.push(startingBetTest01());
+    testResults.push(startingBetTest02());
+    testResults.push(startingBetTest03());
+    testResults.push(startingBetTest04());
+    testResults.push(nextTest01());
 
     return testResults;
 }

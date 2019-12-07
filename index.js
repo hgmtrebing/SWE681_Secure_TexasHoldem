@@ -120,6 +120,10 @@ app.get("/welcome.js", function (req, res) {
     res.sendFile("web/src/welcome.js", { root: __dirname });
 });
 
+app.get("/socket.js", function (req, res) {
+    res.sendFile("web/src/socket.js", { root: __dirname });
+});
+
 // Route for user login and register
 app.use("/api/user", userRoute);
 

@@ -206,11 +206,13 @@ $(document).ready(function() {
                 seat = player5;
             }
 
+            /*
             $(seat + " .player-name").html(currentPlayer.name);
             $(seat + " .player-balance").html("| Balance: $" + currentPlayer.balance);
             $(seat + " .player-status").html(currentPlayer.status);
             $(seat + " .player-most-recent-action").html("| " + currentPlayer.mostRecentAction);
             $(seat + " .player-current-bets").html("| $" + currentPlayer.bets);
+             */
 
             if (currentPlayer.cardA._id === 7) {
                 $(seat + " .cardA .card-img").html(translateSuite(currentPlayer.cardA.suiteName));
@@ -305,7 +307,6 @@ const player3 = "#player-3";
 const player4 = "#player-4";
 const player5 = "#player-5";
 
-const socketConnection = io();
 
 
 $("#ok-button").on("click", function () {
@@ -336,6 +337,6 @@ $("#fold-button").on("click", function () {
 
 $("#leave-button").on("click", function () {
     var msg = {_id: 4, action: "LEAVE", betAmount: 0};
-    socket.emit("user-action-msg", msg);
+    socketConnection.emit("user-action-msg", msg);
 });
 

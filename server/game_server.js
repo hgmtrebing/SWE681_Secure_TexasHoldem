@@ -8,22 +8,28 @@ const Status = require('./definition').Status;
 function GameServer (server) {
 	this.log = new Log();
 	this.tables = [];
+	this.users = {};
 	this.server = server;
 	this.tableCounter = 1;
+	this.tableLimit = 10;
 	this.mainLoopRunning = false;
-	this.server = server;
+	this.tableUrl = "table.html";
+	this.homePage = "home_page";
 	this.io = require('socket.io')(server);
 
 	/**
-	 * Creates a new Table with a new Table ID and a new
+	 * Creates a new Table with a new Table ID, provided the number of tables
 	 */
 	this.createTable = function () {
-		if (this.tables.length < 10) {
+		if (this.tables.length < this.tables.length) {
 			var newTable = new Table(this.tableCounter);
 			this.tables.push(newTable);
 			this.log.logSystem("Table created, with ID: " + this.tableCounter);
 			this.tableCounter++;
+			return {result: true, id: newTable.tableId};
 		}
+		this.log.logSystem("Table could not be created, since the number of current tables ( " + this.tables.length + " ) is at the limit on tables ( " + this.tableLimit + " )");
+		return {result: false, id: null};
 	};
 
 	/**
@@ -36,6 +42,7 @@ function GameServer (server) {
 				this.tables.splice(i, 1);
 				this.log.logSystem("Table #" + tableId + " has been deleted");
 			}
+			this.log.logSystem("Table #" + tableId + " delete attempt has failed, either because the Table ID could not be found or because the Table was not completely empty");
 		}
 	};
 
@@ -52,8 +59,55 @@ function GameServer (server) {
 		}
 	};
 
+
+	/**
+	 * Validates Inbound Messages
+	 */
+	this.validateMessage = function (msg) {
+		// Validate user and token
+		// Validate against input whitelist
+		// return true or false
+		return true;
+	};
+
 	this.start = function() {
 		setInterval(this.mainLoop, 500, this);
+	};
+
+	this.sendHomePageUpdates = function() {
+
+	};
+
+	this.joinTable = function(username, tableId) {
+
+		// Get table and ensure that it exists
+	    var table = this.getTable(tableId);
+	    if (table === null || table === undefined) {
+	    	this.log.logSystem("User " + username + " attempted to join nonexistent Table #" + tableId);
+	    	return false;
+		}
+
+	    if (username in this.users) {
+			var oldLocation = this.users[username].location;
+			var table2 = this.getTable(oldLocation);
+			if (table2 !== null && table2 !== undefined) {
+				table2.players.removeUser(username);
+			}
+			this.log.logSystem("User " + username + " removed from old location ( " + oldLocation + " ) and added to new location ( " + tableId + " )");
+			table2.players.waitingUsers.push(this.users[username]);
+			this.users[username].location = tableId;
+			this.log.logSystem("User " + username + "  added to table ( " + tableId + " )");
+		} else {
+			this.log.logSystemError("Unexpected internal condition: user " + username + " did not previously exist in this.users during join-table operation");
+		}
+
+		return true;
+	};
+
+	this.sendMessageToTable = function(msg) {
+		var tableId = this.users[msg.username].location;
+		var table = this.getTable(tableId);
+		table.addMessage(msg);
 	};
 
 	this.io.on('connection', function(socket) {
@@ -63,48 +117,68 @@ function GameServer (server) {
 		socket.emit('get-user-info', {});
 
 		socket.on('user-info', function(msg) {
-			log.logSystem('User info message sent');
-			console.log(msg.username + ":" + msg.token);
-			/*
-			var validated = db_placeholder.validateUser(msg.username, msg.jwt);
+			log.logSystem('User Info Message received from user: ' + msg.username);
+			var validated = this.validateMessage(msg);
 			if (validated) {
-				userSockets[username] = socket;
+				if (msg.username in this.users) {
+					this.users[msg.username].socket = socket;
+					log.logSystem("User " + msg.username + " was already in the system and reassigned a new socket");
+					if (msg.location === this.homePage) {
+					    var oldLocation = this.users[msg.username].location;
+					    var table = this.getTable(oldLocation);
+					    table.players.removeUser(msg.username);
+						this.users[msg.username].location = this.homePage;
+						log.logSystem("User " + msg.username + " was removed from any active games and returned to the homepage");
+					}
+				} else {
+					this.users[msg.username] = {
+						username: msg.username,
+						socket: socket,
+						location: msg.location
+					};
+					log.logSystem("User " + msg.username + " has connected for the first time to the system");
+				}
 			}
-			 */
 
-		});
+		}.bind(this));
 
 		socket.on('create-table', function(msg) {
-			log.logSystem('Create Table message sent');
-		    /*
-			var validated = db_placeholder.validateUser(msg.username, msg.jwt);
+			log.logSystem('Create Table message sent from user ' + msg.username);
+			var validated = this.validateMessage(msg);
 			if (validated) {
-				var table = createTable();
-				socket.emit("join-table"); // TODO - implement on client side
+				var val = this.createTable();
+				if (val.result === true) {
+					log.logSystem('Alerting user ' + msg.username + " of successful table creation");
+					socket.emit("create-table-success", {});
+					this.sendHomePageUpdates();
+				} else {
+					log.logSystem('Alerting user ' + msg.username + " of failed table creation");
+					socket.emit("create-table-failure", {});
+				}
 			}
-		     */
-		});
+		}.bind(this));
 
 		socket.on('join-table', function(msg) {
-			log.logSystem('Join Table message sent');
-		    /*
-			var validated = db_placeholder.validateUser(msg.username, msg.jwt);
+			log.logSystem('Join Table message received from ' + msg.username);
+			var validated = this.validateMessage(msg);
 			if (validated) {
-
+				var result = this.joinTable(msg.username, msg.tableId);
+				if (result) {
+					log.logSystem("Alerting user " + msg.username + " of success at joining table #" + msg.tableId);
+					socket.emit("join-table-success", {url: this.tableUrl});
+				}
+				log.logSystem("Alerting user " + msg.username + " of failure at joining table #" + msg.tableId);
+				socket.emit("join-table-failure");
 			}
-		     */
-		});
+		}.bind(this));
 
 		socket.on('user-action-message', function(msg) {
-			log.logSystem('User Action message sent');
-		    /*
-			var validated = db_placeholder.validateUser(msg.username, msg.jwt);
+			log.logSystem('User Action message received from ' + msg.username);
+			var validated = this.validateMessage(msg);
 			if (validated) {
-
+				this.sendMessageToTable(msg);
 			}
-		     */
-
-		});
+		}.bind(this));
 
 		socket.on('disconnect', function() {
 
@@ -116,7 +190,7 @@ function GameServer (server) {
 		if (!gameServer.mainLoopRunning) {
 			gameServer.mainLoopRunning = true;
 			for (var i = 0; i < gameServer.tables.length; i++) {
-				tables[i].next();
+				gameServer.tables[i].next();
 			}
 			gameServer.mainLoopRunning = false;
 		} else {
