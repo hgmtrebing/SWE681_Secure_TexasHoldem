@@ -39,6 +39,9 @@ function conductIndividualBetCallTest01 () {
     player.receive = function() {
         return {action: "CALL", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
+
     table.setupTable();
     table.maxCurrentRoundBet = 400;
     table.conductIndividualBet(0);
@@ -60,6 +63,8 @@ function conductIndividualBetCallTest02 () {
     player.receive = function() {
         return {action: "CALL", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 1500;
     table.conductIndividualBet(0);
@@ -81,6 +86,8 @@ function conductIndividualBetCallTest03 () {
     player.receive = function () {
         return {action: "CALL", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -102,6 +109,8 @@ function conductIndividualBetRaiseTest01 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 1000};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -123,6 +132,8 @@ function conductIndividualBetRaiseTest02 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 2000};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 1525;
     table.conductIndividualBet(0);
@@ -144,6 +155,8 @@ function conductIndividualBetRaiseTest03 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 12000};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -165,6 +178,8 @@ function conductIndividualBetRaiseTest04 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -186,6 +201,8 @@ function conductIndividualBetRaiseTest05 () {
     player.receive = function () {
         return {action: "RAISE", betAmount: 1500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 2500;
     table.conductIndividualBet(0);
@@ -207,6 +224,8 @@ function conductIndividualBetFoldTest01 () {
     player.receive = function() {
         return {action: "FOLD", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 3500;
     table.conductIndividualBet(0);
@@ -228,6 +247,8 @@ function conductIndividualBetFoldTest02 () {
     player.receive = function() {
         return {action: "RAISE", betAmount: 5000};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
 
     player.status = defines.Status.FOLDED;
@@ -251,6 +272,8 @@ function conductIndividualBetCheckTest01 () {
     player.receive = function() {
         return {action: "CHECK", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -272,6 +295,8 @@ function conductIndividualBetCheckTest02 () {
     player.receive = function() {
         return {action: "CHECK", betAmount: 500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 0;
     table.conductIndividualBet(0);
@@ -293,6 +318,8 @@ function conductIndividualBetCheckTest03 () {
     player.receive = function() {
         return {action: "CHECK", betAmount: 500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 250;
     table.conductIndividualBet(0);
@@ -314,6 +341,8 @@ function conductIndividualBetAllinTest01 () {
     player.receive = function() {
         return {action: "ALLIN", betAmount: 0};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 250;
     table.conductIndividualBet(0);
@@ -335,6 +364,8 @@ function conductIndividualBetAllinTest02 () {
     player.receive = function() {
         return {action: "ALLIN", betAmount: 500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     table.setupTable();
     table.maxCurrentRoundBet = 13000;
     table.conductIndividualBet(0);
@@ -356,6 +387,8 @@ function conductIndividualBetAllinTest03 () {
     player.receive = function() {
         return {action: "ALLIN", betAmount: 500};
     };
+    player.user.socket = {};
+    player.user.socket.emit = function () {};
     player.bets = 1000;
 
     table.setupTable();
@@ -385,6 +418,8 @@ function conductBetsTest01 () {
         ];
         return actions[player0.actionCounter++];
     };
+    player0.user.socket = {};
+    player0.user.socket.emit = function () {};
 
     var player1 = table.players.getPlayerAt(1);
     player1.addUser({name: "u0", balance: 10000});
@@ -397,6 +432,8 @@ function conductBetsTest01 () {
         ];
         return actions[player1.actionCounter++];
     };
+    player1.user.socket = {};
+    player1.user.socket.emit = function () {};
 
     var player2 = table.players.getPlayerAt(2);
     player2.addUser({name: "u0", balance: 10000});
@@ -408,6 +445,8 @@ function conductBetsTest01 () {
         ];
         return actions[player2.actionCounter++];
     };
+    player2.user.socket = {};
+    player2.user.socket.emit = function () {};
 
     var player3 = table.players.getPlayerAt(3);
     player3.addUser({name: "u0", balance: 10000});
@@ -419,6 +458,8 @@ function conductBetsTest01 () {
         ];
         return actions[player3.actionCounter++];
     };
+    player3.user.socket = {};
+    player3.user.socket.emit = function () {};
 
     var player4 = table.players.getPlayerAt(4);
     player4.addUser({name: "u0", balance: 10000});
@@ -430,6 +471,8 @@ function conductBetsTest01 () {
         ];
         return actions[player4.actionCounter++];
     };
+    player4.user.socket = {};
+    player4.user.socket.emit = function () {};
 
     var player5 = table.players.getPlayerAt(5);
     player5.addUser({name: "u0", balance: 10000});
@@ -441,6 +484,8 @@ function conductBetsTest01 () {
         ];
         return actions[player5.actionCounter++];
     };
+    player5.user.socket = {};
+    player5.user.socket.emit = function () {};
 
     table.setupTable();
     table.conductBets(0);
@@ -457,6 +502,24 @@ function conductBetsTest01 () {
         ", Player02.status = " + player2.status + ", Player03.status = " + player3.status + "Player04.status = " + player4.status +
         ", Player05.status = " + player5.status + ", Player0.bets = " + player0.bets + ", Player01.bets = " + player1.bets + ", Player02.bets = " + player2.bets + ", Player03.bets = " + player3.bets + ", Player04.bets = " + player4.bets + ", Player05.bets = " + player5.bets);
 
+}
+
+function startingBetTest01 () {
+    var table = new Table(1);
+    var player0 = table.players.getPlayerAt(0);
+    player0.addUser({name: "u0", balance: 10000});
+    player0.actionCounter = 0;
+    player0.receive = function() {
+        var actions = [
+            {action: "CHECK", betAmount: 0},
+            {action: "CHECK", betAmount: 0},
+        ];
+        return actions[player0.actionCounter++];
+    };
+    player0.user.socket = {};
+    player0.user.socket.emit = function () {};
+
+    this.startBetting(1000);
 }
 
 function runAllTests() {

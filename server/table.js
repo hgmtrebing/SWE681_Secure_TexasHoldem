@@ -62,6 +62,9 @@ function Table(tableId) {
 
     this.processMessage = function() {
         // Process User Action Message
+        while (this.pendingMessages.length > 0) {
+            var message = this.pendingMessages.pop();
+        }
     };
 
     /**
@@ -405,23 +408,24 @@ function Table(tableId) {
         for (let i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             let player = this.players.getPlayerAt(i);
             if (player.status !== Status.EMPTY) {
-                let cardA = new CardComponent(player.cardA.suite, player.cardA.rank);
-                let cardB = new CardComponent(player.cardB.suite, player.cardB.rank);
+                let cardA = null;
+                let cardB = null;
+                if (this.round === Rounds.FINAL) {
+                    cardA = new CardComponent(player.cardA.suite, player.cardA.rank);
+                    cardB = new CardComponent(player.cardB.suite, player.cardB.rank);
+                }
                 let playerComponent = new OtherPlayerMessageComponent(player.user.name, player.seat, player.user.balance,
                     player.currentRoundBet, player.status, player.lastAction, cardA, cardB, this.bigBlind === i, this.smallBlind === i);
                 otherUsers.push(playerComponent);
             } else {
-                // TODO
+                let playerComponent = new OtherPlayerMessageComponent("Empty Seat", player.seat, 0, 0, Status.EMPTY, Actions.UNDEFINED, null, null, false, false);
             }
         }
         var message = new GameStatusMessage(new CurrentPlayerMessageComponent(), otherUsers, table);
-        for (let i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
-            var player = this.players.getPlayerAt(i);
-            let cardA = new CardComponent(player.cardA.suite, player.cardA.rank);
-            let cardB = new CardComponent(player.cardB.suite, player.cardB.rank);
-            message.currentPlayer.cardA = cardA;
-            message.currentPlayer.cardB = cardB;
-            player.send(message);
+        for ( let i = 0; i < this.players.length; i++) {
+            if ( this.players[i].status !== Status.EMPTY ) {
+                this.players[i].send(message);
+            }
         }
     };
 

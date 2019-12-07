@@ -1,16 +1,19 @@
 const Status = require("./definition").Status;
 const Actions = require("./definition").Actions;
+const Log = require('./log').Log;
 
-function Player (seat, status, receiveFunction) {
+function Player (seat, status) {
     this.user = {username: "EMPTY SEAT", balance: 0};
     this.seat = seat;
     this.status = status;
     this.lastAction = Actions.UNDEFINED;
+    this.currentAction = null;
     this.currentRoundBet = 0;
     this.bets = 0;
     this.cardA = null;
     this.cardB = null;
     this.rank = null;
+    this.log = new Log();
 
     this.addUser = function(user) {
         this.user = user;
@@ -24,7 +27,6 @@ function Player (seat, status, receiveFunction) {
     };
 
     this.send = function(message) {
-            console.log("GAME STATUS SENT TO PLAYER " + this.seat + ": Round-" + message.tableStatus.round);
             if (message._id === 5) {
                 this.user.socket.emit("game-status-message", message);
             }
@@ -35,7 +37,9 @@ function Player (seat, status, receiveFunction) {
             }
     };
 
-    this.receive = receiveFunction;
+    this.receive = function() {
+        return this.currentAction;
+    };
 
     this.toString = function() {
         return "Username: " + this.user.name + "\n" +
@@ -52,6 +56,7 @@ function Player (seat, status, receiveFunction) {
 function PlayerCollection () {
 
     this.waitingUsers = [];
+    this.log = new Log();
     this.players = [
         new Player(0, Status.EMPTY),
         new Player(1, Status.EMPTY),
@@ -72,6 +77,17 @@ function PlayerCollection () {
                 this.log.logSystem("Player #" + i + "( " + player.user.username + " ) was set to ACTIVE");
             }
         }
+    };
+
+    this.getPlayerByUsername = function (username) {
+        for ( let i = 0; i < this.players.length; i++ ) {
+            if (this.players[i].user !== null) {
+                if (this.players[i].user.username === username) {
+                    return this.players[i];
+                }
+            }
+        }
+        return null;
     };
 
     /**
