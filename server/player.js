@@ -38,7 +38,10 @@ function Player (seat, status) {
     };
 
     this.receive = function() {
-        return this.currentAction;
+        var retval = this.currentAction;
+        this.lastAction = this.currentAction;
+        this.currentAction = null;
+        return retval;
     };
 
     this.toString = function() {
@@ -79,15 +82,24 @@ function PlayerCollection () {
         }
     };
 
-    this.getPlayerByUsername = function (username) {
+    this.getPlayerIndexByUsername = function (username) {
         for ( let i = 0; i < this.players.length; i++ ) {
             if (this.players[i].user !== null) {
                 if (this.players[i].user.username === username) {
-                    return this.players[i];
+                    return i;
                 }
             }
         }
-        return null;
+        return -1;
+    };
+
+    this.getPlayerByUsername = function (username) {
+        var index = this.getPlayerIndexByUsername(username);
+        if (index > 0 && index < this.players.length) {
+            return this.getPlayerAt(index);
+        } else {
+            return null;
+        }
     };
 
     /**

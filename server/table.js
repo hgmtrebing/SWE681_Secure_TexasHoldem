@@ -32,8 +32,6 @@ function Table(tableId) {
 
     this.pendingMessages = [];
 
-    this.waitingForInput = false;
-    this.conductingBets = false;
 
     this.pot = 0;
     this.maxCurrentRoundBet = 0;
@@ -44,6 +42,10 @@ function Table(tableId) {
 
     this.lastPlayer = 0;
     this.currentPlayer = 0;
+    this.waitingForInput = false;
+    this.conductingBets = false;
+    this.userTimeoutCounter = 0;
+    this.userTimeoutFunction;
 
     /**
      * The main loop for the table. As long as the Table is not inactive, this method will wait for a sufficient number
@@ -64,6 +66,11 @@ function Table(tableId) {
         // Process User Action Message
         while (this.pendingMessages.length > 0) {
             var message = this.pendingMessages.pop();
+            var index = this.players.getPlayerIndexByUsername(message.username);
+            if (index === this.currentPlayer) {
+                this.players.getPlayerAt(this.currentPlayer).currentAction = message;
+                this.log.logSystem("Message received for user " + this.players.getPlayerAt(this.currentPlayer).user.username);
+            }
         }
     };
 
@@ -90,6 +97,7 @@ function Table(tableId) {
     };
 
     this.next = function() {
+        this.processMessage();
         if (this.waitingForInput) {
             this.players.addWaitingPlayers();
             if (this.players.getNumberOfPlayers(Status.ACTIVE) >= 2) {
@@ -280,18 +288,56 @@ function Table(tableId) {
         // Indicates we've reached the end of iteration
         if (this.currentPlayer === this.lastPlayer) {
             this.maxCurrentRoundBet = 0;
+            this.waitingForInput = false;
+            this.conductingBets = false;
+            this.userTimeoutCounter = 0;
+            this.userTimeoutFunction = null;
+            clearInterval(this.userTimeoutFunction);
 
             // Reset current round bets for player
             for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
                 var player = this.players.getPlayerAt(i);
                 player.currentRoundBet = 0;
             }
-        } else {
-            this.conductIndividualBet(this.currentPlayer);
-            this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
-            if (this.lastPlayer === -1) {
-                this.lastPlayer = this.currentPlayer;
+        } else if (this.table.getPlayerAt(this.currentPlayer).status === Status.ACTIVE) {
+
+            var player = this.table.getPlayerAt(this.currentPlayer);
+            if (this.waitingForInput === false) {
+                this.waitingForInput = true;
+                this.userTimeoutFunction = setInterval(function() {
+                    this.userTimeoutCounter++;
+                }.bind(this), 1000);
             }
+
+            if (this.userTimeoutCounter >= 35) {
+                player.status = Status.FOLDED;
+                player.currentAction = null;
+                player.lastAction = Actions.TIMEOUT;
+                clearInterval(this.userTimeoutFunction);
+                this.userTimeoutFunction = null;
+                this.userTimeoutCounter = 0;
+                this.waitingForInput = false;
+                this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.Any, true, false, true);
+            } else if (player.currentAction !== null) {
+                this.conductIndividualBet(this.currentPlayer);
+                if (this.lastPlayer === -1) {
+                    this.lastPlayer = this.currentPlayer;
+                }
+
+                clearInterval(this.userTimeoutFunction);
+                this.userTimeoutFunction = null;
+                this.userTimeoutCounter = 0;
+                this.waitingForInput = false;
+                this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
+            } else {
+                return;
+            }
+        } else {
+            clearInterval(this.userTimeoutFunction);
+            this.userTimeoutFunction = null;
+            this.userTimeoutCounter = 0;
+            this.waitingForInput = false;
+            this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
         }
     };
 
@@ -343,6 +389,7 @@ function Table(tableId) {
                     player.currentRoundBet += player.user.balance;
                     player.user.balance = 0;
                     player.status = Status.ALLIN;
+                    this.lastPlayer = this.currentPlayer;
                     if (player.currentRoundBet > this.maxCurrentRoundBet) {
                         this.maxCurrentRoundBet = player.currentRoundBet;
                     }
