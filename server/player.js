@@ -6,7 +6,7 @@ function Player (seat, status) {
     this.user = {username: "EMPTY SEAT", balance: 0};
     this.seat = seat;
     this.status = status;
-    this.lastAction = Actions.UNDEFINED;
+    this.lastAction = {action: Actions.UNDEFINED, betAmount: 0};
     this.currentAction = null;
     this.currentRoundBet = 0;
     this.bets = 0;
@@ -45,13 +45,20 @@ function Player (seat, status) {
     };
 
     this.toString = function() {
-        return "Username: " + this.user.name + "\n" +
+        var retval = "Username: " + this.user.username + "\n" +
                "Balance: " + this.user.balance + "\n" +
                "Seat: " + this.seat + "\n" +
                "Status: " + this.status + "\n" +
-               "Bets: " + this.bets + "\n" +
-               "Card A: " + this.cardA.toString() + "\n" +
-               "Card B: " + this.cardB.toString() + "\n";
+               "Bets: " + this.bets + "\n";
+
+        if (this.cardA !== null) {
+            retval += "Card A: " + this.cardA.toString() + "\n";
+        }
+
+        if (this.cardB !== null) {
+            retval += "Card B: " + this.cardB.toString() + "\n";
+        }
+        return retval;
     }
 }
 
@@ -214,6 +221,15 @@ function PlayerCollection () {
                 currentIndex--;
             }
         }
+
+        if (matchesStatus && this.players[endingIndex].status === status) {
+            return endingIndex;
+        } else if (!matchesStatus && this.players[endingIndex].status !== status) {
+            return endingIndex;
+        } else if (status === Status.ALL) {
+            return endingIndex;
+        }
+
         return null;
     };
 

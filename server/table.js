@@ -26,7 +26,7 @@ function Table(tableId) {
     this.turn = null;
     this.river = null;
 
-    this.round = null;
+    this.round = Rounds.WAITING;
 
     this.players = new PlayerCollection();
 
@@ -98,35 +98,51 @@ function Table(tableId) {
 
     this.next = function() {
         this.processMessage();
-        if (this.waitingForInput) {
+        if (this.round === Rounds.WAITING) {
             this.players.addWaitingPlayers();
-            if (this.players.getNumberOfPlayers(Status.ACTIVE) >= 2) {
-                this.waitingForInput = false;
+            if (this.players.getNumberOfPlayers(Status.ACTIVE, true) >= 2) {
+                this.round = Rounds.SETUP;
             }
         } else if (this.conductingBets) {
             this.conductNextBet();
-        } else if (this.round === Rounds.WAITING) {
+        } else if (this.round === Rounds.SETUP) {
+            this.log.logGame(this.roundId, this.roundId, "Table is setting up");
             this.round = Rounds.SETUP;
             this.setupTable();
-        } else if (this.round === Rounds.SETUP) {
+            this.round = Rounds.BET;
+        } else if (this.round === Rounds.BET) {
+            this.log.logGame(this.roundId, this.roundId, "Betting Round is starting");
             this.round = Rounds.BET;
             this.playBetRound();
-        } else if (this.round === Rounds.BET) {
+            this.round = Rounds.FLOP;
+        } else if (this.round === Rounds.FLOP) {
+            this.log.logGame(this.roundId, this.roundId, "Flop Round is starting");
             this.round = Rounds.FLOP;
             this.playFlopRound();
-        } else if (this.round === Rounds.FLOP) {
+            this.round = Rounds.TURN;
+        } else if (this.round === Rounds.TURN) {
+            this.log.logGame(this.roundId, this.roundId, "Turn Round is starting");
             this.round = Rounds.TURN;
             this.playTurnRound();
-        } else if (this.round === Rounds.TURN) {
+            this.round = Rounds.RIVER
+        } else if (this.round === Rounds.RIVER) {
+            this.log.logGame(this.roundId, this.roundId, "River Round is starting");
             this.round = Rounds.RIVER;
             this.playRiverRound();
-        } else if (this.round === Rounds.RIVER) {
+            this.round = Rounds.FINAL;
+        } else if (this.round === Rounds.FINAL) {
+            this.log.logGame(this.roundId, this.roundId, "Determining winner of the game");
             this.round = Rounds.FINAL;
             this.determineWinner();
-        } else if (this.round === Rounds.FINAL) {
+            this.round = Rounds.CLEANUP;
+        } else if (this.round === Rounds.CLEANUP) {
+            this.log.logGame(this.roundId, this.roundId, "Cleaning up the table");
             this.round = Rounds.CLEANUP;
             this.cleanupTable();
             this.round = Rounds.WAITING;
+            this.log.logGame(this.roundId, this.roundId, "Returning Table to Waiting Phase");
+        } else {
+            this.log.logGameError("Invalid Table State detected");
         }
     };
 
@@ -299,9 +315,8 @@ function Table(tableId) {
                 var player = this.players.getPlayerAt(i);
                 player.currentRoundBet = 0;
             }
-        } else if (this.table.getPlayerAt(this.currentPlayer).status === Status.ACTIVE) {
-
-            var player = this.table.getPlayerAt(this.currentPlayer);
+        } else if (this.players.getPlayerAt(this.currentPlayer).status === Status.ACTIVE) {
+            var player = this.players.getPlayerAt(this.currentPlayer);
             if (this.waitingForInput === false) {
                 this.waitingForInput = true;
                 this.userTimeoutFunction = setInterval(function() {
@@ -333,6 +348,9 @@ function Table(tableId) {
                 return;
             }
         } else {
+            if (this.lastPlayer === -1) {
+                this.lastPlayer = this.currentPlayer;
+            }
             clearInterval(this.userTimeoutFunction);
             this.userTimeoutFunction = null;
             this.userTimeoutCounter = 0;
