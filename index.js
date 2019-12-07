@@ -148,7 +148,7 @@ server.listen(8080, function () {
 });
 
 
-/*
+
 //socket setup:
 let io = socket(server);
 //authorize on connection
@@ -158,13 +158,30 @@ io.use(socketioJwt.authorize({
     auth_header_required: true
   }));
 
+  //static data
+  let store = [{
+      tableName: 'table#1',
+      players:1,
+      joinAllowed: true
+   },{
+    tableName: 'table#2',
+    players:5,
+    joinAllowed: false
+   },{
+    tableName: 'table#1',
+    players:3,
+    joinAllowed: true
+   }];
 
 io.on('connection', function(socket){
     log.logSystem("Made socket Connection by a user! " + socket.id);
-
+    socket.emit("generalData",{
+        data:store
+    })
+    
     socket.on('disconnect', (reason) => {
         console.log("Socket Disconnected: " + reason);
       });
 
 });
-*/
+

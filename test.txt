@@ -1,1 +1,20 @@
-Hello! 
+Hello!
+
+Databse change(one to many relationships)
+User
+[game_ids]
+
+Game 
+id
+room
+[gameMove_ids]
+
+
+gameMove
+id
+move
+
+
+user
+array of games[2]
+
