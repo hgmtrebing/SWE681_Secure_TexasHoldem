@@ -1,4 +1,4 @@
-// const socketConnection = io();
+const socketConnection = io();
 
-// $(document).ready(function() {
-// });
+$(document).ready(function() {
+});
