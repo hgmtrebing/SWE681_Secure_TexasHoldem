@@ -30,7 +30,7 @@ $(document).ready(function () {
                 user.games = result.GamePlayed;
                 user.tie = result.tie;
                 user.loss = result.loss;
-               // console.log(user);
+                // console.log(user);
                 $("#user_amount").text("$" + user.amount);
                 $("#game_won").text(user.win);
                 $("#game_num").text(user.games);
@@ -64,43 +64,66 @@ $(document).ready(function () {
         }
     });
 
-    let store =[];
+    let store = [];
 
-    socket.on('generalData', function(data){
+    socket.on('generalData', function (data) {
         store = data.data;
         store.forEach(appendDataToGameTable);
     })
 
-    function appendDataToGameTable(item, index){
+    function appendDataToGameTable(item, index) {
         console.log(item);
-        let number = index+ 1;
+        let number = index + 1;
         let tableName = item.tableName;
         let players = item.players;
         let join = '';
-        if(item.joinAllowed){
-            join ='<button class="btn btn-primary">Join Table</button>'
+        if (item.joinAllowed) {
+            join = '<button id="joinBtn" value=' + item.tableId + ' class="btn btn-primary">Join Table</button>'
         }
-        $('#game_table_data').append( `<tr>
-        <th scope="row">`+ number+`</th>
-        <td>`+ tableName+`</td>
-        <td>`+ players+`</td>
-        <td>`+ join+`</td>
+        $('#game_table_data').append(`<tr>
+        <th scope="row">`+ number + `</th>
+        <td>`+ tableName + `</td>
+        <td>`+ players + `</td>
+        <td>`+ join + `</td>
       </tr>`);
     }
-    
+
     socket.on('unauthorized', (error, callback) => {
         if (error.data.type == 'UnauthorizedError' || error.data.code == 'invalid_token') {
             console.log('User token has expired');
         }
     });
 
-    //listen for the event
-    socket.on('check', function (value) {
-        $("#result").text(value.message);
-    })
 
     $("#createTablebtn").click(function () {
-        socket.emit("create-table", {});
+        socket.emit("create-table", {
+            username: username,
+            token: token,
+            userId: _id
+        });
     })
+    //listening to failure to create table message
+    socket.on("create-table-failure", function () {
+        alert("Create Table Failed. There are too many tables");
+    });
+    //listening to successfully created table message
+    socket.on("create-table-success", function () {
+        alert("New Table Successfully Created");
+    });
+    //listening to enter-table
+    socket.on("enter-table", function (msg) {
+        window.open(msg.url);
+    });
+
+    $("body").on('click', '#joinBtn', function (e) {
+        let id = e.target.value;
+        socket.emit("join-table", {
+            username: username,
+            token: token,
+            userId: _id,
+            tableId: id
+        });
+    });
+
 
 });

@@ -164,15 +164,18 @@ io.use(socketioJwt.authorize({
 
   //static data
   let store = [{
+      tableId: 1,
       tableName: 'table#1',
       players:1,
       joinAllowed: true
    },{
+    tableId: 2,
     tableName: 'table#2',
     players:5,
     joinAllowed: false
    },{
-    tableName: 'table#1',
+    tableId: 3,
+    tableName: 'table#3',
     players:3,
     joinAllowed: true
    }];
