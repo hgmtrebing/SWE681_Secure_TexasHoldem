@@ -63,6 +63,8 @@ $(document).ready(function() {
 
 
     function processMessage(message) {
+        console.log("Current: " + currentPlayerSeat);
+        console.log("Me: " + mySeat);
 
         // alert ("Message Received " + JSON.stringify(message));
         // Game Status Message
@@ -74,7 +76,7 @@ $(document).ready(function() {
                 $("#game-display").html("Game: " + tableStatus.gameNumber);
                 $("#round-display").html("Round: " + tableStatus.round);
                 $("#modal-timer").html("Time Remaining: " + tableStatus.timer);
-
+                currentPlayerSeat = parseInt(tableStatus.activePlayer);
                 if (tableStatus.flop1 !== null && tableStatus.flop1._id === 7) {
                     $("#flop-1 .card-img").html(translateSuite(tableStatus.flop1.suiteName));
                     $("#flop-1 .card-text").html(translateRank(tableStatus.flop1.rankName));
@@ -114,6 +116,12 @@ $(document).ready(function() {
 
                 }
 
+            }
+
+            // Used to hide modal if user times out
+            if (currentPlayerSeat !== mySeat) {
+                $("#user-action-modal").modal('hide');
+                firstShow = true;
             }
 
             processCurrentPlayerStatus(message.currentPlayer);
@@ -183,43 +191,47 @@ $(document).ready(function() {
     }
 
     function processGetUserActionMessage(message) {
+        if (currentPlayerSeat === mySeat && firstShow) {
+            firstShow = false;
+            validActions = message.validActions;
+            callAmount = parseInt(message.callAmount);
+            balance = parseInt(message.balance);
+            bets = parseInt(message.bets);
+            timerStart = parseInt(message.timerStart);
 
-        validActions = message.validActions;
-        callAmount = parseInt(message.callAmount);
-        balance = parseInt(message.balance);
-        bets = parseInt(message.bets);
-        timerStart = parseInt(message.timerStart);
+            $("#list-allin-list").addClass('disabled');
+            $("#list-call-list").addClass('disabled');
+            $("#list-check-list").addClass('disabled');
+            $("#list-raise-list").addClass('disabled');
 
-        $("#list-allin-list").addClass('disabled');
-        $("#list-call-list").addClass('disabled');
-        $("#list-check-list").addClass('disabled');
-        $("#list-raise-list").addClass('disabled');
-
-        for (var i = 0; i < validActions.length; i++) {
-            if (validActions[i] === "RAISE") {
-                $("#list-raise-list").removeClass('disabled');
-            } else if (validActions[i] === "CALL") {
-                $("#list-call-list").removeClass('disabled');
-            } else if (validActions[i] === "CHECK") {
-                $("#list-check-list").removeClass('disabled');
-            } else if (validActions[i] === "ALLIN") {
-                $("#list-allin-list").removeClass('disabled');
+            for (var i = 0; i < validActions.length; i++) {
+                if (validActions[i] === "RAISE") {
+                    $("#list-raise-list").removeClass('disabled');
+                } else if (validActions[i] === "CALL") {
+                    $("#list-call-list").removeClass('disabled');
+                } else if (validActions[i] === "CHECK") {
+                    $("#list-check-list").removeClass('disabled');
+                } else if (validActions[i] === "ALLIN") {
+                    $("#list-allin-list").removeClass('disabled');
+                }
             }
+
+            $("#modal-balance").html("Your balance: $" + balance);
+            $("#modal-bets").html("Your bets, so far: $" + bets);
+            $("#modal-call-amount").html("Call Amount: $" + callAmount);
+            $("#modal-timer").html("Time Remaining: " + timerStart);
+            $("#list-all-in").html("Go all in for $" + (balance-bets) + "?");
+            $("#list-call").html("Call for $" + callAmount);
+
+            $("#raise-range").attr("min", callAmount);
+            $("#raise-range").attr("max", balance);
+            $("#raise-range").attr("step", 10);
+            $("#raise-amount").html("$" + callAmount);
+
+            $("#user-action-modal").modal({});
+
         }
 
-        $("#modal-balance").html("Your balance: $" + balance);
-        $("#modal-bets").html("Your bets, so far: $" + bets);
-        $("#modal-call-amount").html("Call Amount: $" + callAmount);
-        $("#modal-timer").html("Time Remaining: " + timerStart);
-        $("#list-all-in").html("Go all in for $" + (balance-bets) + "?");
-        $("#list-call").html("Call for $" + callAmount);
-
-        $("#raise-range").attr("min", callAmount);
-        $("#raise-range").attr("max", balance);
-        $("#raise-range").attr("step", 10);
-        $("#raise-amount").html("$" + callAmount);
-
-        $("#user-action-modal").modal({});
     }
 
     function processOtherPlayer(otherPlayers) {
@@ -415,6 +427,7 @@ var balance = null;
 var bets = null;
 var timerStart = null;
 
-var mySeat;
-var currentPlayerSeat;
+var mySeat = -1;
+var currentPlayerSeat = -2;
+var firstShow = true;
 
