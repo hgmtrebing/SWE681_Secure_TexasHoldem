@@ -305,10 +305,13 @@ function Table(tableId, gameServer) {
                 }
             }
         }
-        this.canAdvanceToNextRound = true;
         this.winner = topPlayerIndex;
         topPlayer.user.balance += this.pot;
         this.pot = 0;
+        setTimeout(function () {
+            this.canAdvanceToNextRound = true;
+
+        }.bind(this), 30000);
     };
 
     this.cleanupTable = function () {

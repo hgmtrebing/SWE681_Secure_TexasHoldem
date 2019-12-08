@@ -121,15 +121,15 @@ $(document).ready(function() {
     }
 
     function processGetUserActionMessage(message) {
-        if (!processingGetUserActionMessage) {
+        if (!processingGetUserActionMessage && $("#user-action-modal").hasClass("show")) {
             return;
         }
 
-        var validActions = message.validActions;
-        var callAmount = parseInt(message.callAmount);
-        var balance = parseInt(message.balance);
-        var bets = parseInt(message.bets);
-        var timerStart = parseInt(message.timerStart);
+        validActions = message.validActions;
+        callAmount = parseInt(message.callAmount);
+        balance = parseInt(message.balance);
+        bets = parseInt(message.bets);
+        timerStart = parseInt(message.timerStart);
 
         $("#list-allin-list").addClass('disabled');
         $("#list-call-list").addClass('disabled');
@@ -367,4 +367,9 @@ const player4 = "#player-4";
 const player5 = "#player-5";
 
 var processingGetUserActionMessage = true;
+var validActions = null;
+var callAmount = null;
+var balance = null;
+var bets = null;
+var timerStart = null;
 
