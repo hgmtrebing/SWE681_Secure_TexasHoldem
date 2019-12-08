@@ -6,8 +6,9 @@ const Rank = require('./carddeck').Rank;
 const Log = require('./log');
 const log = new Log.Log();
 
-function CurrentPlayerMessageComponent(cardA, cardB) {
+function CurrentPlayerMessageComponent(seat, cardA, cardB) {
     this._id = 1;
+    this.seat = seat;
     this.cardA = cardA;
     this.cardB = cardB;
 }

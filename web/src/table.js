@@ -13,6 +13,10 @@ $(document).ready(function() {
         socketConnection.emit("user-info", {username: sessionStorage.user, token: sessionStorage.token});
     });
 
+    socketConnection.on("current-player-message", function(msg){
+        processMessage(msg);
+    });
+
     $("#raise-range").on("input change", function() {
         $("#raise-amount").html("$" + $("#raise-range").val());
     });
@@ -69,6 +73,7 @@ $(document).ready(function() {
                 $("#pot-display").html("Pot: $" + tableStatus.pot);
                 $("#game-display").html("Game: " + tableStatus.gameNumber);
                 $("#round-display").html("Round: " + tableStatus.round);
+                $("#modal-timer").html("Time Remaining: " + tableStatus.timer);
 
                 if (tableStatus.flop1 !== null && tableStatus.flop1._id === 7) {
                     $("#flop-1 .card-img").html(translateSuite(tableStatus.flop1.suiteName));
@@ -117,13 +122,67 @@ $(document).ready(function() {
             // Get User Action Message
         } else if (message._id === 6) {
             processGetUserActionMessage(message);
+        } else if (message._id === 1) {
+            processCurrentPlayer(message);
+        }
+    }
+
+    function processCurrentPlayer(message) {
+        var i = parseInt(message.seat);
+        mySeat = parseInt(message.seat);
+
+        var playerHtml;
+        if (i === 0) {
+            playerHtml = player0;
+        } else if (i === 1) {
+            playerHtml = player1;
+        } else if (i === 2) {
+            playerHtml = player2;
+        } else if (i === 3) {
+            playerHtml = player3;
+        } else if (i === 4) {
+            playerHtml = player4;
+        } else if (i === 5) {
+            playerHtml = player5;
+        } else {
+            // TODO
+        }
+
+            var cardASuite = null;
+            var cardARank = null;
+        if (message.cardA !== null) {
+            cardASuite = message.cardA.suiteName;
+            cardARank = message.cardA.rankName;
+
+            $(playerHtml + " .cardA .card-text").html(translateRank(cardARank));
+            $(playerHtml + " .cardA .card-img").html(translateSuite(cardASuite));
+            $(playerHtml + " .cardA .card-img").removeClass(blackClass);
+            $(playerHtml + " .cardA .card-img").removeClass(redClass);
+            $(playerHtml + " .cardA .card-img").addClass(translateColor(cardASuite));
+            $(playerHtml + " .cardA .card-text").removeClass(blackClass);
+            $(playerHtml + " .cardA .card-text").removeClass(redClass);
+            $(playerHtml + " .cardA .card-text").addClass(translateColor(cardASuite));
+
+        }
+
+        var cardBSuite = null;
+        var cardBRank = null;
+        if (message.cardB !== null) {
+            cardBSuite = message.cardB.suiteName;
+            cardBRank = message.cardB.rankName;
+
+            $(playerHtml + " .cardb .card-text").html(translateRank(cardBRank));
+            $(playerHtml + " .cardb .card-img").html(translateSuite(cardBSuite));
+            $(playerHtml + " .cardb .card-img").removeClass(blackClass);
+            $(playerHtml + " .cardb .card-img").removeClass(redClass);
+            $(playerHtml + " .cardb .card-img").addClass(translateColor(cardBSuite));
+            $(playerHtml + " .cardb .card-text").removeClass(blackClass);
+            $(playerHtml + " .cardb .card-text").removeClass(redClass);
+            $(playerHtml + " .cardb .card-text").addClass(translateColor(cardBSuite));
         }
     }
 
     function processGetUserActionMessage(message) {
-        if (!processingGetUserActionMessage && $("#user-action-modal").hasClass("show")) {
-            return;
-        }
 
         validActions = message.validActions;
         callAmount = parseInt(message.callAmount);
@@ -160,24 +219,7 @@ $(document).ready(function() {
         $("#raise-range").attr("step", 10);
         $("#raise-amount").html("$" + callAmount);
 
-        var countdown = setInterval(function() {
-            if (timerStart >= 0) {
-                $("#modal-timer").html("Time Remaining: " + timerStart);
-                timerStart--;
-            } else if (timerStart >= -3) {
-                timerStart--;
-            } else if (timerStart >= -8) {
-                timerStart--;
-                $("#user-action-modal").modal('hide');
-            } else {
-                processingGetUserActionMessage = true;
-                $("#user-action-modal").modal('hide');
-                clearTimeout(countdown);
-            }
-        }, 1000);
-
         $("#user-action-modal").modal({});
-        processingGetUserActionMessage = false;
     }
 
     function processOtherPlayer(otherPlayers) {
@@ -188,8 +230,8 @@ $(document).ready(function() {
             var bet = player.bet;
             var status = player.status;
             var action = player.action.action;
-            var cardASuite;
-            var cardARank;
+            var cardASuite = null;
+            var cardARank = null;
             if (player.cardA !== null) {
                 cardASuite = player.cardA.suiteName;
                 cardARank = player.cardA.rankName;
@@ -372,4 +414,7 @@ var callAmount = null;
 var balance = null;
 var bets = null;
 var timerStart = null;
+
+var mySeat;
+var currentPlayerSeat;
 

@@ -163,6 +163,7 @@ function Table(tableId, gameServer) {
     this.next = function() {
         this.processMessage();
         this.sendGameStateToPlayers();
+        this.sendCurrentPlayerMessagesToUsers();
         if (this.conductingBets) {
             this.conductNextBet();
         } else if (this.canAdvanceToNextRound) {
@@ -199,7 +200,6 @@ function Table(tableId, gameServer) {
         } else {
             this.log.logGameError("Invalid Table State detected");
         }
-        this.sendGameStateToPlayers();
     };
 
     this.setupTable = function () {
@@ -580,6 +580,25 @@ function Table(tableId, gameServer) {
             }
         }
     };
+
+    this.sendCurrentPlayerMessagesToUsers = function() {
+        for ( let i = 0; i < this.players.players.length; i++) {
+            if ( this.players.players[i].status !== Status.EMPTY ) {
+                var player = this.players.players[i];
+                var cardA = null;
+                var cardB = null;
+                if (player.cardA !== null) {
+                    cardA = new CardComponent(player.cardA.suite, player.cardA.rank);
+                }
+
+                if (player.cardB !== null) {
+                    cardB = new CardComponent(player.cardB.suite, player.cardB.rank);
+                }
+                var msg = new CurrentPlayerMessageComponent(i, cardA, cardB);
+                player.send(msg);
+            }
+        }
+    }
 
     this.toString = function() {
         var str = "";
