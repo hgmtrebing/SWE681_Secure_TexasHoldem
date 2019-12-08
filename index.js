@@ -1,7 +1,7 @@
 const https = require("https");
 const fs = require("fs");
 const express = require("express");
-var bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 const socket = require('socket.io');
 const socketioJwt   = require('socketio-jwt');
 const helmet = require('helmet');
@@ -184,7 +184,7 @@ io.on('connection', function(socket){
     log.logSystem("Made socket Connection by a user! " + socket.id);
     socket.emit("generalData",{
         data:store
-    })
+    });
     
     socket.on('disconnect', (reason) => {
         console.log("Socket Disconnected: " + reason);

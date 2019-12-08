@@ -67,7 +67,7 @@ function Player (seat, status) {
             retval += "Current Action: " + this.currentAction.action + "\n";
         }
         return retval;
-    }
+    };
 }
 
 

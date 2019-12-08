@@ -13,7 +13,7 @@ function Suite (name, value) {
 
     this.toString = function() {
         return this.name;
-    }
+    };
 }
 
 var Suites = {
@@ -44,7 +44,7 @@ function Rank (name, value) {
 
     this.toString = function() {
         return this.name;
-    }
+    };
 }
 
 var Ranks = {
@@ -105,7 +105,7 @@ function CardDeck() {
             str += this.deck[i].toString() + "\n";
         }
         return str;
-    }
+    };
 }
 
 module.exports = {

@@ -502,7 +502,7 @@ function Table(tableId) {
 
                 } else {
                     player.status = Status.FOLDED;
-                    this.log.logGameError(this.tableId, this.roundId, player.user.username + " attempted to RAISE, but lacked sufficient funds and was forcibly folded")
+                    this.log.logGameError(this.tableId, this.roundId, player.user.username + " attempted to RAISE, but lacked sufficient funds and was forcibly folded");
                 }
 
             } else if (input.action === Actions.TIMEOUT) {

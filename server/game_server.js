@@ -220,7 +220,7 @@ function GameServer (server) {
 			gameServer.mainLoopRunning = false;
 		} else {
 		}
-	}
+	};
 }
 
 module.exports = {

@@ -198,7 +198,7 @@ function GameStatusMessage (currentPlayer, otherPlayers, tableStatus) {
     this.currentPlayer = currentPlayer;
     this.otherPlayers = otherPlayers;
     this.tableStatus = tableStatus;
-};
+}
 
 function GetUserActionMessage (validActions, callAmount, balance, bets, timerStart) {
     this._id = 6;
@@ -207,7 +207,7 @@ function GetUserActionMessage (validActions, callAmount, balance, bets, timerSta
     this.balance = balance;
     this.bets = bets;
     this.timerStart = timerStart;
-};
+}
 
 module.exports = {
     GameStatusMessage : GameStatusMessage,

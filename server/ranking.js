@@ -4,7 +4,7 @@ var Card = require('./carddeck').Card;
 
 function Ranking (name, rankBaseValue) {
     if (typeof name !== "string") {
-        throw 'name must be an instance of string'
+        throw 'name must be an instance of string';
     } else if (typeof  rankBaseValue !== 'number') {
         throw 'rankBaseValue must be an instance of number';
     }
@@ -186,7 +186,7 @@ function rankHand(cards) {
             sortCardsByRank(newCards);
             var length = newCards.length;
             rankings.push(new HandRanking(Rankings.FLUSH, newCards[length-1].rank, newCards[length-2].rank,
-                newCards[length-3].rank, newCards[length-4].rank, newCards[length-5].rank))
+                newCards[length-3].rank, newCards[length-4].rank, newCards[length-5].rank));
 
             // Checks the flush for straights
             var counter = length-1;
