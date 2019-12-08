@@ -10,7 +10,7 @@ function GameServer (server) {
 	this.tables = [];
 	this.users = {};
 	this.server = server;
-	this.tableCounter = 0;
+	this.tableCounter = 1;//table starts with 1
 	this.tableLimit = 10;
 	this.mainLoopRunning = false;
 	this.tableUrl = "table.html";
@@ -51,7 +51,7 @@ function GameServer (server) {
 	 * @param tableId - the TableId of the Table to get
 	 * @returns {*}
 	 */
-	this.getTable = function (tableId) {
+	this.getTable = function (tableId) {		
 		for (let i = 0; i < this.tables.length; i++) {
 			if (this.tables[i].tableId === tableId) {
 				return this.tables[i];
@@ -102,7 +102,6 @@ function GameServer (server) {
 	};
 
 	this.joinTable = function(username, tableId) {
-
 		// Get table and ensure that it exists
 	    var table = this.getTable(tableId);
 	    if (table === null || table === undefined) {
@@ -187,7 +186,7 @@ function GameServer (server) {
 			log.logSystem('Join Table message received from ' + msg.username);
 			var validated = this.validateMessage(msg);
 			if (validated) {
-				var result = this.joinTable(msg.username, msg.tableId);
+				var result = this.joinTable(msg.username, parseInt(msg.tableId));
 				if (result) {
 					log.logSystem("Alerting user " + msg.username + " of success at joining table #" + msg.tableId);
 					socket.emit("join-table-success", {url: this.tableUrl});

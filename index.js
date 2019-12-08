@@ -153,42 +153,42 @@ server.listen(8080, function () {
 
 
 
-//socket setup:
-let io = socket(server);
-//authorize on connection
-io.use(socketioJwt.authorize({
-    secret: config.secretKey,
-    handshake: true,
-    auth_header_required: true
-  }));
+// //socket setup:
+// let io = socket(server);
+// //authorize on connection
+// io.use(socketioJwt.authorize({
+//     secret: config.secretKey,
+//     handshake: true,
+//     auth_header_required: true
+//   }));
 
-  //static data
-  let store = [{
-      tableId: 1,
-      tableName: 'table#1',
-      players:1,
-      joinAllowed: true
-   },{
-    tableId: 2,
-    tableName: 'table#2',
-    players:5,
-    joinAllowed: false
-   },{
-    tableId: 3,
-    tableName: 'table#3',
-    players:3,
-    joinAllowed: true
-   }];
+//   //static data
+//   let store = [{
+//       tableId: 1,
+//       tableName: 'table#1',
+//       players:1,
+//       joinAllowed: true
+//    },{
+//     tableId: 2,
+//     tableName: 'table#2',
+//     players:5,
+//     joinAllowed: false
+//    },{
+//     tableId: 3,
+//     tableName: 'table#3',
+//     players:3,
+//     joinAllowed: true
+//    }];
 
-io.on('connection', function(socket){
-    log.logSystem("Made socket Connection by a user! " + socket.id);
-    socket.emit("generalData",{
-        data:store
-    })
+// io.on('connection', function(socket){
+//     log.logSystem("Made socket Connection by a user! " + socket.id);
+//     socket.emit("generalData",{
+//         data:store
+//     })
     
-    socket.on('disconnect', (reason) => {
-        console.log("Socket Disconnected: " + reason);
-      });
+//     socket.on('disconnect', (reason) => {
+//         console.log("Socket Disconnected: " + reason);
+//       });
 
-});
+// });
 
