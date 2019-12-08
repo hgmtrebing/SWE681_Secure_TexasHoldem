@@ -42,8 +42,10 @@ function Table(tableId) {
 
     this.lastPlayer = 0;
     this.currentPlayer = 0;
+    this.winner = -1;
     this.waitingForInput = false;
     this.conductingBets = false;
+    this.canAdvanceToNextRound = false;
     this.userTimeoutCounter = 0;
     this.userTimeoutFunction;
 
@@ -96,54 +98,73 @@ function Table(tableId) {
         this.cleanupTable();
     };
 
+    this.advanceToNextRound = function() {
+        if (this.canAdvanceToNextRound) {
+            this.log.logGame(this.tableId, this.roundId, "Ending Round " + this.round);
+            if (this.round === Rounds.WAITING) {
+                this.round = Rounds.SETUP;
+            } else if (this.round === Rounds.SETUP) {
+                this.round = Rounds.BET;
+            } else if (this.round === Rounds.BET) {
+                this.round = Rounds.FLOP;
+            } else if (this.round === Rounds.FLOP) {
+                this.round = Rounds.TURN;
+            } else if (this.round === Rounds.TURN) {
+                this.round = Rounds.RIVER;
+            } else if (this.round === Rounds.RIVER) {
+                this.round = Rounds.FINAL;
+            } else if (this.round === Rounds.FINAL) {
+                this.round = Rounds.CLEANUP;
+            } else if (this.round === Rounds.CLEANUP) {
+                this.round = Rounds.WAITING;
+            } else {
+                this.log.logGameError(this.tableId, this.roundId, "Invalid Round detected!");
+            }
+            this.log.logGame(this.tableId, this.roundId, "Starting Round " + this.round);
+            this.canAdvanceToNextRound = false;
+        }
+    };
+
     this.next = function() {
         this.processMessage();
-        if (this.round === Rounds.WAITING) {
+        this.sendGameStateToPlayers();
+        if (this.conductingBets) {
+            this.conductNextBet();
+        } else if (this.canAdvanceToNextRound) {
+            this.advanceToNextRound();
+        } else if (this.round === Rounds.WAITING) {
             this.players.addWaitingPlayers();
             if (this.players.getNumberOfPlayers(Status.ACTIVE, true) >= 2) {
-                this.round = Rounds.SETUP;
+                this.canAdvanceToNextRound = true;
             }
-        } else if (this.conductingBets) {
-            this.conductNextBet();
         } else if (this.round === Rounds.SETUP) {
-            this.log.logGame(this.roundId, this.roundId, "Table is setting up");
-            this.round = Rounds.SETUP;
             this.setupTable();
-            this.round = Rounds.BET;
         } else if (this.round === Rounds.BET) {
-            this.log.logGame(this.roundId, this.roundId, "Betting Round is starting");
-            this.round = Rounds.BET;
             this.playBetRound();
-            this.round = Rounds.FLOP;
+
         } else if (this.round === Rounds.FLOP) {
-            this.log.logGame(this.roundId, this.roundId, "Flop Round is starting");
-            this.round = Rounds.FLOP;
+            this.log.logGame(this.tableId, this.roundId, "Flop round starting. Flop cards revealed: " + this.flop.toString());
             this.playFlopRound();
-            this.round = Rounds.TURN;
+
         } else if (this.round === Rounds.TURN) {
-            this.log.logGame(this.roundId, this.roundId, "Turn Round is starting");
-            this.round = Rounds.TURN;
+            this.log.logGame(this.roundId, this.roundId, "Turn Round is starting. Turn card revealed: " + this.turn.toString());
             this.playTurnRound();
-            this.round = Rounds.RIVER
+
         } else if (this.round === Rounds.RIVER) {
-            this.log.logGame(this.roundId, this.roundId, "River Round is starting");
-            this.round = Rounds.RIVER;
+            this.log.logGame(this.roundId, this.roundId, "River Round is starting. River card revealed: " + this.river.toString());
             this.playRiverRound();
-            this.round = Rounds.FINAL;
+
         } else if (this.round === Rounds.FINAL) {
-            this.log.logGame(this.roundId, this.roundId, "Determining winner of the game");
-            this.round = Rounds.FINAL;
+            this.log.logGame(this.roundId, this.roundId, "Game is finished. Determining winner ...");
             this.determineWinner();
-            this.round = Rounds.CLEANUP;
         } else if (this.round === Rounds.CLEANUP) {
             this.log.logGame(this.roundId, this.roundId, "Cleaning up the table");
-            this.round = Rounds.CLEANUP;
             this.cleanupTable();
-            this.round = Rounds.WAITING;
             this.log.logGame(this.roundId, this.roundId, "Returning Table to Waiting Phase");
         } else {
             this.log.logGameError("Invalid Table State detected");
         }
+        this.sendGameStateToPlayers();
     };
 
     this.setupTable = function () {
@@ -166,11 +187,11 @@ function Table(tableId) {
             this.players.getPlayerAt(i).cardA = this.deck.deck.pop();
             this.players.getPlayerAt(i).cardB = this.deck.deck.pop();
         }
+        this.canAdvanceToNextRound = true;
     };
 
     this.playBetRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
-            this.round = Rounds.BET;
 
             // Determine Blinds
             this.bigBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
@@ -193,7 +214,7 @@ function Table(tableId) {
             this.maxCurrentRoundBet = this.bigBlindAmount;
             this.startBetting(this.maxCurrentRoundBet);
         } else {
-            this.round = Rounds.FINAL;
+            this.canAdvanceToNextRound = true;
         }
     };
 
@@ -202,7 +223,7 @@ function Table(tableId) {
             this.round = Rounds.FLOP;
             this.startBetting(0);
         } else {
-            this.round = Rounds.FINAL;
+            this.canAdvanceToNextRound = true;
         }
     };
 
@@ -211,7 +232,7 @@ function Table(tableId) {
             this.round = Rounds.TURN;
             this.startBetting(0);
         } else {
-            this.round = Rounds.FINAL;
+            this.canAdvanceToNextRound = true;
         }
     };
 
@@ -220,16 +241,17 @@ function Table(tableId) {
             this.round = Rounds.RIVER;
             this.startBetting(0);
         } else {
-            this.round = Rounds.FINAL;
+            this.canAdvanceToNextRound = true;
         }
     };
 
     this.determineWinner = function () {
         this.round = Rounds.FINAL;
         var topPlayer = null;
+        var topPlayerIndex = -1;
         for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             var player = this.players.getPlayerAt(i);
-            if (player.status === Status.ACTIVE) {
+            if (player.status !== Status.EMPTY && player.status !== Status.FOLDED) {
                 var cards = [];
                 cards.push(this.flop[0]);
                 cards.push(this.flop[1]);
@@ -241,12 +263,17 @@ function Table(tableId) {
                 player.rank = rankHand(cards);
                 if (topPlayer === null || compareRankings(player.rank, topPlayer.rank) > 0) {
                     topPlayer = player;
+                    topPlayerIndex = i;
                 } else if (compareRankings(player.rank, topPlayer) === 0) {
-                    // TODO
+                    topPlayer = player;
+                    topPlayerIndex = i;
                 }
             }
         }
-        return topPlayer;
+        this.canAdvanceToNextRound = true;
+        this.winner = topPlayerIndex;
+        topPlayer.balance += this.pot;
+        this.pot = 0;
     };
 
     this.cleanupTable = function () {
@@ -268,6 +295,7 @@ function Table(tableId) {
             this.deck.deck.push(this.players.getPlayerAt(i).handA);
             this.deck.deck.push(this.players.getPlayerAt(i).handB);
         }
+        this.canAdvanceToNextRound = true;
     };
 
     this.conductBets = function (startingBet) {
@@ -298,6 +326,7 @@ function Table(tableId) {
         this.maxCurrentRoundBet = startingBet;
         this.currentPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, true, true);
         this.lastPlayer = -1; // special value used in conductNextBet
+        this.log.logGame(this.tableId, this.roundId, "Betting starting for " + this.round + " round");
     };
 
     this.conductNextBet = function() {
@@ -306,6 +335,7 @@ function Table(tableId) {
             this.maxCurrentRoundBet = 0;
             this.waitingForInput = false;
             this.conductingBets = false;
+            this.canAdvanceToNextRound = true;
             this.userTimeoutCounter = 0;
             this.userTimeoutFunction = null;
             clearInterval(this.userTimeoutFunction);
@@ -315,6 +345,8 @@ function Table(tableId) {
                 var player = this.players.getPlayerAt(i);
                 player.currentRoundBet = 0;
             }
+
+            this.log.logGame(this.tableId, this.roundId, "Ending betting for round " + this.round);
         } else if (this.players.getPlayerAt(this.currentPlayer).status === Status.ACTIVE) {
             var player = this.players.getPlayerAt(this.currentPlayer);
             if (this.waitingForInput === false) {
@@ -360,7 +392,6 @@ function Table(tableId) {
     };
 
     this.conductIndividualBet = function(currentPlayer) {
-        this.sendGameStateToPlayers();
         if (this.players.getPlayerAt(currentPlayer).status === Status.ACTIVE) {
             var player = this.players.getPlayerAt(currentPlayer);
             var checkable =  player.currentRoundBet >= this.maxCurrentRoundBet;
@@ -370,18 +401,18 @@ function Table(tableId) {
 
             if (input.action === Actions.CHECK) {
                 if (checkable) {
-                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has CHECKED");
+                    this.log.logGame(this.tableId, this.roundId, player.user.username + " has CHECKED");
                 } else {
-                    this.log.logGameError(this.tableId, this.roundId, player.user.name + " has CHECKED, despite not meeting the bet amount");
+                    this.log.logGameError(this.tableId, this.roundId, player.user.username + " has CHECKED, despite not meeting the bet amount");
                     player.status = Status.FOLDED;
                 }
 
             } else if (input.action === Actions.FOLD) {
                 player.status = Status.FOLDED;
-                this.log.logGame(this.tableId, this.roundId, player.user.name + " has FOLDED");
+                this.log.logGame(this.tableId, this.roundId, player.user.username + " has FOLDED");
 
             } else if (input.action === Actions.LEAVE) {
-                this.log.logGame(this.tableId, this.roundId, player.user.name + " has LEFT the game");
+                this.log.logGame(this.tableId, this.roundId, player.user.username + " has LEFT the game");
                 this.deck.deck.push (player.cardA);
                 this.deck.deck.push (player.cardB);
                 player.cardA = null;
@@ -395,9 +426,14 @@ function Table(tableId) {
                     player.bets += callAmount;
                     player.currentRoundBet += callAmount;
                     this.pot += callAmount;
-                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has CALLED for " + callAmount);
+                    this.log.logGame(this.tableId, this.roundId, player.user.username + " has CALLED for " + callAmount);
+
+                    if (player.user.balance <= 0) {
+                        player.status = Status.ALLIN;
+                        this.log.logGame(this.tableId, this.roundId, player.user.username + " has CALLED for their remaining balance, going ALL IN");
+                    }
                 } else {
-                    this.log.logGameError(this.tableId, this.roundId, "INVALID MOVE: " + player.user.name + " attempted to call for " +callAmount);
+                    this.log.logGameError(this.tableId, this.roundId, "INVALID MOVE: " + player.user.username + " attempted to call for " +callAmount);
                     player.status = Status.FOLDED;
                 }
 
@@ -405,15 +441,16 @@ function Table(tableId) {
                 if (hasRemainingBalance) {
                     player.bets += player.user.balance;
                     player.currentRoundBet += player.user.balance;
+                    this.pot += player.user.balance;
                     player.user.balance = 0;
                     player.status = Status.ALLIN;
                     this.lastPlayer = this.currentPlayer;
                     if (player.currentRoundBet > this.maxCurrentRoundBet) {
                         this.maxCurrentRoundBet = player.currentRoundBet;
                     }
-                    this.log.logGame(this.tableId, this.roundId, player.user.name + " went ALL IN");
+                    this.log.logGame(this.tableId, this.roundId, player.user.username + " went ALL IN for " + player.user.balance);
                 } else {
-                    this.log.logGameError(this.tableId, this.roundId, player.user.name + " attempted to go ALL IN, but lacked a remaining balance");
+                    this.log.logGameError(this.tableId, this.roundId, player.user.username + " attempted to go ALL IN, but lacked a remaining balance");
                 }
             } else if (input.action === Actions.RAISE) {
                 if ((input.betAmount + this.maxCurrentRoundBet) <= player.user.balance &&
@@ -424,20 +461,25 @@ function Table(tableId) {
                     this.pot += input.betAmount;
                     this.maxCurrentRoundBet = input.betAmount;
                     this.lastPlayer = this.currentPlayer;
-                    this.log.logGame(this.tableId, this.roundId, player.user.name + " has RAISED by " + input.betAmount);
+
+                    this.log.logGame(this.tableId, this.roundId, player.user.username + " has RAISED by " + input.betAmount);
+                    if (player.user.balance <= 0) {
+                        player.status = Status.ALLIN;
+                        this.log.logGame(this.tableId, this.roundId, player.user.username + " has RAISED by their remaining balance, going ALL IN");
+                    }
+
                 } else {
                     player.status = Status.FOLDED;
-                    this.log.logGameError(this.tableId, this.roundId, player.user.name + " attempted to RAISE, but lacked sufficient funds and was forcibly folded")
+                    this.log.logGameError(this.tableId, this.roundId, player.user.username + " attempted to RAISE, but lacked sufficient funds and was forcibly folded")
                 }
 
             } else if (input.action === Actions.TIMEOUT) {
                 player.status = Status.FOLDED;
-                this.log.logGame(this.tableId, this.roundId, player.user.name + " has TIMED OUT");
+                this.log.logGame(this.tableId, this.roundId, player.user.username + " has TIMED OUT");
             } else {
-                this.log.logGameError(this.tableId, this.roundId, player.user.name + " has provided an unrecognized action: " + input.action);
+                this.log.logGameError(this.tableId, this.roundId, player.user.username + " has provided an unrecognized action: " + input.action);
             }
         }
-        this.sendGameStateToPlayers();
     };
 
     this.sendGameStateToPlayers = function() {
@@ -468,7 +510,7 @@ function Table(tableId) {
             localTurn = this.turn;
             localRiver = this.river;
         }
-        var table = new TableMessageComponent(this.maxCurrentRoundBet, this.pot, this.roundId, this.round, localFlop1, localFlop2, localFlop3,  localTurn, localRiver);
+        var table = new TableMessageComponent(this.maxCurrentRoundBet, this.pot, this.roundId, this.round, this.currentPlayer, this.userTimeoutCounter, this.winner, localFlop1, localFlop2, localFlop3,  localTurn, localRiver);
         var otherUsers = [];
         for (let i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             let player = this.players.getPlayerAt(i);
@@ -479,7 +521,7 @@ function Table(tableId) {
                     cardA = new CardComponent(player.cardA.suite, player.cardA.rank);
                     cardB = new CardComponent(player.cardB.suite, player.cardB.rank);
                 }
-                let playerComponent = new OtherPlayerMessageComponent(player.user.name, player.seat, player.user.balance,
+                let playerComponent = new OtherPlayerMessageComponent(player.user.username, player.seat, player.user.balance,
                     player.currentRoundBet, player.status, player.lastAction, cardA, cardB, this.bigBlind === i, this.smallBlind === i);
                 otherUsers.push(playerComponent);
             } else {
@@ -487,9 +529,9 @@ function Table(tableId) {
             }
         }
         var message = new GameStatusMessage(new CurrentPlayerMessageComponent(), otherUsers, table);
-        for ( let i = 0; i < this.players.length; i++) {
-            if ( this.players[i].status !== Status.EMPTY ) {
-                this.players[i].send(message);
+        for ( let i = 0; i < this.players.players.length; i++) {
+            if ( this.players.players[i].status !== Status.EMPTY ) {
+                this.players.players[i].send(message);
             }
         }
     };
@@ -500,6 +542,7 @@ function Table(tableId) {
         str += "Round ID: " + this.roundId + "\n";
         str += "Round: " + this.round + "\n\n";
         str += "Pot: " + this.pot + "\n";
+        str += "Max Current Round Bets: " + this.maxCurrentRoundBet +"\n";
         str += "Big Blind: " + this.bigBlind + "\n";
         str += "Small Blind: " + this.smallBlind + "\n\n";
         str += "Flop: " + this.flop + "\n";

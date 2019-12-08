@@ -2,6 +2,7 @@ const TestResult = require('./TestResult').TestResult;
 const Table = require('../server/table').Table;
 const defines = require('../server/definition');
 const Card = require('../server/carddeck').Card;
+const Messages = require('../server/messages');
 
 function appendToString(origString, fieldName, result) {
     return origString + ", " + fieldName + " : " + result;
@@ -40,7 +41,7 @@ function setupTableTest02 () {
 function conductIndividualBetCallTest01 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser ({name: "u0", balance: 10000});
+    player.addUser ({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "CALL", betAmount: 0};
     };
@@ -64,7 +65,7 @@ function conductIndividualBetCallTest01 () {
 function conductIndividualBetCallTest02 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser ({name: "u0", balance: 1000});
+    player.addUser ({username: "u0", balance: 1000});
     player.receive = function() {
         return {action: "CALL", betAmount: 0};
     };
@@ -87,7 +88,7 @@ function conductIndividualBetCallTest02 () {
 function conductIndividualBetCallTest03 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 0});
+    player.addUser({username: "u0", balance: 0});
     player.receive = function () {
         return {action: "CALL", betAmount: 0};
     };
@@ -98,7 +99,7 @@ function conductIndividualBetCallTest03 () {
     table.conductIndividualBet(0);
 
     var passed = true;
-    if (table.pot !== 0 || player.bets !== 0 || player.currentRoundBet !== 0 || player.status !== defines.Status.ACTIVE ||
+    if (table.pot !== 0 || player.bets !== 0 || player.currentRoundBet !== 0 || player.status !== defines.Status.ALLIN ||
     player.user.balance !== 0) {
         passed = false;
     }
@@ -110,7 +111,7 @@ function conductIndividualBetCallTest03 () {
 function conductIndividualBetRaiseTest01 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function () {
         return {action: "RAISE", betAmount: 1000};
     };
@@ -133,7 +134,7 @@ function conductIndividualBetRaiseTest01 () {
 function conductIndividualBetRaiseTest02 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function () {
         return {action: "RAISE", betAmount: 2000};
     };
@@ -156,7 +157,7 @@ function conductIndividualBetRaiseTest02 () {
 function conductIndividualBetRaiseTest03 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function () {
         return {action: "RAISE", betAmount: 12000};
     };
@@ -179,7 +180,7 @@ function conductIndividualBetRaiseTest03 () {
 function conductIndividualBetRaiseTest04 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function () {
         return {action: "RAISE", betAmount: 0};
     };
@@ -202,7 +203,7 @@ function conductIndividualBetRaiseTest04 () {
 function conductIndividualBetRaiseTest05 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function () {
         return {action: "RAISE", betAmount: 1500};
     };
@@ -225,7 +226,7 @@ function conductIndividualBetRaiseTest05 () {
 function conductIndividualBetFoldTest01 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "FOLD", betAmount: 0};
     };
@@ -248,7 +249,7 @@ function conductIndividualBetFoldTest01 () {
 function conductIndividualBetFoldTest02 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "RAISE", betAmount: 5000};
     };
@@ -273,7 +274,7 @@ function conductIndividualBetFoldTest02 () {
 function conductIndividualBetCheckTest01 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "CHECK", betAmount: 0};
     };
@@ -296,7 +297,7 @@ function conductIndividualBetCheckTest01 () {
 function conductIndividualBetCheckTest02 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "CHECK", betAmount: 500};
     };
@@ -319,7 +320,7 @@ function conductIndividualBetCheckTest02 () {
 function conductIndividualBetCheckTest03 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "CHECK", betAmount: 500};
     };
@@ -342,7 +343,7 @@ function conductIndividualBetCheckTest03 () {
 function conductIndividualBetAllinTest01 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "ALLIN", betAmount: 0};
     };
@@ -353,7 +354,7 @@ function conductIndividualBetAllinTest01 () {
     table.conductIndividualBet(0);
 
     var passed = true;
-    if (table.pot !== 0 || table.maxCurrentRoundBet !== 10000 || player.bets !== 10000 ||
+    if (table.pot !== 10000 || table.maxCurrentRoundBet !== 10000 || player.bets !== 10000 ||
         player.currentRoundBet !== 10000 || player.status !== defines.Status.ALLIN || player.user.balance !== 0) {
         passed = false;
     }
@@ -365,7 +366,7 @@ function conductIndividualBetAllinTest01 () {
 function conductIndividualBetAllinTest02 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "ALLIN", betAmount: 500};
     };
@@ -376,7 +377,7 @@ function conductIndividualBetAllinTest02 () {
     table.conductIndividualBet(0);
 
     var passed = true;
-    if (table.pot !== 0 || table.maxCurrentRoundBet !== 13000 || player.bets !== 10000 ||
+    if (table.pot !== 10000 || table.maxCurrentRoundBet !== 13000 || player.bets !== 10000 ||
         player.currentRoundBet !== 10000 || player.status !== defines.Status.ALLIN || player.user.balance !== 0) {
         passed = false;
     }
@@ -388,7 +389,7 @@ function conductIndividualBetAllinTest02 () {
 function conductIndividualBetAllinTest03 () {
     var table = new Table(1);
     var player = table.players.getPlayerAt(0);
-    player.addUser({name: "u0", balance: 10000});
+    player.addUser({username: "u0", balance: 10000});
     player.receive = function() {
         return {action: "ALLIN", betAmount: 500};
     };
@@ -401,7 +402,7 @@ function conductIndividualBetAllinTest03 () {
     table.conductIndividualBet(0);
 
     var passed = true;
-    if (table.pot !== 0 || table.maxCurrentRoundBet !== 13000 || player.bets !== 11000 ||
+    if (table.pot !== 10000 || table.maxCurrentRoundBet !== 13000 || player.bets !== 11000 ||
         player.currentRoundBet !== 10000 || player.status !== defines.Status.ALLIN || player.user.balance !== 0) {
         passed = false;
     }
@@ -414,7 +415,7 @@ function conductBetsTest01 () {
     var table = new Table(1);
 
     var player0 = table.players.getPlayerAt(0);
-    player0.addUser({name: "u0", balance: 10000});
+    player0.addUser({username: "u0", balance: 10000});
     player0.actionCounter = 0;
     player0.receive = function() {
          var actions = [
@@ -427,7 +428,7 @@ function conductBetsTest01 () {
     player0.user.socket.emit = function () {};
 
     var player1 = table.players.getPlayerAt(1);
-    player1.addUser({name: "u0", balance: 10000});
+    player1.addUser({username: "u0", balance: 10000});
     player1.actionCounter = 0;
     player1.receive = function() {
         var actions = [
@@ -441,7 +442,7 @@ function conductBetsTest01 () {
     player1.user.socket.emit = function () {};
 
     var player2 = table.players.getPlayerAt(2);
-    player2.addUser({name: "u0", balance: 10000});
+    player2.addUser({username: "u0", balance: 10000});
     player2.actionCounter = 0;
     player2.receive = function() {
         var actions = [
@@ -454,7 +455,7 @@ function conductBetsTest01 () {
     player2.user.socket.emit = function () {};
 
     var player3 = table.players.getPlayerAt(3);
-    player3.addUser({name: "u0", balance: 10000});
+    player3.addUser({username: "u0", balance: 10000});
     player3.actionCounter = 0;
     player3.receive = function() {
         var actions = [
@@ -467,7 +468,7 @@ function conductBetsTest01 () {
     player3.user.socket.emit = function () {};
 
     var player4 = table.players.getPlayerAt(4);
-    player4.addUser({name: "u0", balance: 10000});
+    player4.addUser({username: "u0", balance: 10000});
     player4.actionCounter = 0;
     player4.receive = function() {
         var actions = [
@@ -480,7 +481,7 @@ function conductBetsTest01 () {
     player4.user.socket.emit = function () {};
 
     var player5 = table.players.getPlayerAt(5);
-    player5.addUser({name: "u0", balance: 10000});
+    player5.addUser({username: "u0", balance: 10000});
     player5.actionCounter = 0;
     player5.receive = function() {
         var actions = [
@@ -512,7 +513,7 @@ function conductBetsTest01 () {
 function startingBetTest01 () {
     var table = new Table(1);
     var player0 = table.players.getPlayerAt(0);
-    player0.addUser({name: "u0", balance: 10000});
+    player0.addUser({username: "u0", balance: 10000});
     player0.currentAction = {action: defines.Actions.CALL, betAmount: 1000};
     player0.user.socket = {};
     player0.user.socket.emit = function () {};
@@ -559,7 +560,7 @@ function startingBetTest01 () {
 function startingBetTest02 () {
     var table = new Table(1);
     var player0 = table.players.getPlayerAt(3);
-    player0.addUser({name: "u0", balance: 10000});
+    player0.addUser({username: "u0", balance: 10000});
     player0.currentAction = {action: defines.Actions.CALL, betAmount: 1000};
     player0.user.socket = {};
     player0.user.socket.emit = function () {};
@@ -607,7 +608,7 @@ function startingBetTest02 () {
 function startingBetTest03 () {
     var table = new Table(1);
     var player0 = table.players.getPlayerAt(3);
-    player0.addUser({name: "u0", balance: 10000});
+    player0.addUser({username: "u0", balance: 10000});
     player0.currentAction = {action: defines.Actions.CALL, betAmount: 1000};
     player0.user.socket = {};
     player0.user.socket.emit = function () {};
@@ -658,25 +659,25 @@ function startingBetTest03 () {
 function startingBetTest04 () {
     var table = new Table(1);
     var player0 = table.players.getPlayerAt(0);
-    player0.addUser({name: "u0", balance: 10000});
+    player0.addUser({username: "u0", balance: 10000});
     player0.currentAction = {action: defines.Actions.CHECK, betAmount: 0};
     player0.user.socket = {};
     player0.user.socket.emit = function () {};
 
     var player1 = table.players.getPlayerAt(1);
-    player1.addUser({name: "u1", balance: 10000});
+    player1.addUser({username: "u1", balance: 10000});
     player1.currentAction = {action: defines.Actions.RAISE, betAmount: 1500};
     player1.user.socket = {};
     player1.user.socket.emit = function () {};
 
     var player2 = table.players.getPlayerAt(2);
-    player2.addUser({name: "u2", balance: 10000});
+    player2.addUser({username: "u2", balance: 10000});
     player2.currentAction = {action: defines.Actions.FOLD, betAmount: 0};
     player2.user.socket = {};
     player2.user.socket.emit = function () {};
 
     var player3 = table.players.getPlayerAt(3);
-    player3.addUser({name: "u3", balance: 10000});
+    player3.addUser({username: "u3", balance: 10000});
     player3.currentAction = {action: defines.Actions.CALL, betAmount: 1500};
     player3.user.socket = {};
     player3.user.socket.emit = function () {};
@@ -763,7 +764,7 @@ function startingBetTest04 () {
 }
 
 function nextTest01 () {
-    var table = new Table(1);
+    var table = new Table(3);
     table.players.waitingUsers.push({username: "u0", balance: 10000, socket: {emit: function () {}}});
     table.players.waitingUsers.push({username: "u1", balance: 10000, socket: {emit: function () {}}});
     table.players.waitingUsers.push({username: "u2", balance: 10000, socket: {emit: function () {}}});
@@ -776,6 +777,7 @@ function nextTest01 () {
 
     table.next();
 
+
     var str = "nextTest01. ";
     var a1 = table.round === defines.Rounds.SETUP;
     str = appendToString(str, "table.round === defines.Rounds.SETUP;", a1);
@@ -786,6 +788,8 @@ function nextTest01 () {
 
     table.next();
 
+
+    // At the conclusion of setup
     var b1 = table.round === defines.Rounds.BET;
     str = appendToString(str, "table.round === defines.Rounds.BET;", b1);
     var b2 = table.players.getNumberOfPlayers(defines.Status.EMPTY, true) === 0;
@@ -827,16 +831,175 @@ function nextTest01 () {
     var b20 = table.river instanceof Card;
     str = appendToString(str,"table.river instanceof Card;", b20 );
 
+    // First Bet Round
+    table.next();
+
+    // Player 0 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u5", "", defines.Actions.CALL, 200));
+    table.next();
+
+    // Player 1 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u4", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 2 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u3", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 3 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u2", "", defines.Actions.CALL, 200));
+    table.next();
+
+    // Player 4 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u1", "", defines.Actions.CALL, 200));
+    table.next();
+
+    // Player 5 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u0", "", defines.Actions.FOLD, 0));
+    table.next();
+
+
+    // Flop Round------------------------------------
+    table.next();
+
+    // Player 0 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u5", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 1 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u4", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 2 folded
+    table.next();
+
+    // Player 3 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u2", "", defines.Actions.RAISE, 500));
+    table.next();
+
+    // Player 4 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u1", "", defines.Actions.RAISE, 700));
+    table.next();
+
+    // Player 5 folded
+    table.next();
+
+    // Player 0 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u5", "", defines.Actions.CALL, 700));
+    table.next();
+
+    // Player 1 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u4", "", defines.Actions.CALL, 700));
+    table.next();
+
+    // Player 2 folded
+    table.next();
+
+    // Player 3 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u2", "", defines.Actions.CALL, 700));
+    table.next();
+
+    table.next();
+    table.next();
+    table.next();
+
+    // Player 0 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u5", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 1 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u4", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 2 folded
+    table.next();
+
+    // Player 3 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u2", "", defines.Actions.ALLIN, 0));
+    table.next();
+
+    // Player 4 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u1", "", defines.Actions.CALL, 9100));
+    table.next();
+
+    // Player 5 folded
+    table.next();
+
+    // Player 0 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u5", "", defines.Actions.ALLIN, 0));
+    table.next();
+
+    // Player 1 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u4", "", defines.Actions.CALL, 2000));
+    table.next();
+
+    table.next();
+    table.next();
+
+
+    // Player 0 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u5", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 1 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u4", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 2 folded
+    table.next();
+
+    // Player 3 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u2", "", defines.Actions.FOLD, 0));
+    table.next();
+
+    // Player 4 bets
+    table.next();
+    table.addMessage(new Messages.UserActionMessage("u1", "", defines.Actions.CHECK, 0));
+    table.next();
+
+    // Player 5 folded
+    table.next();
+
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
+    table.next();
     table.next();
 
     var c1 = table.round === defines.Rounds.FLOP;
     str = appendToString(str, "table.round === defines.Rounds.BET;", c1);
-
-    table.next();
-    setTimeout(function(){
-        table.next();
-        console.log(table.players.toString());
-    }, 45000);
 
     var passed = false;
     if (a1 && a2 && a3 && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9 && b10 && b11 && b12 && b13 && b14 && b15

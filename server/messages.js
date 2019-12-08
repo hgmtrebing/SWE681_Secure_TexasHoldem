@@ -101,7 +101,7 @@ function CardComponent (suite, rank) {
     this.rankName = rank.name;
 }
 
-function TableMessageComponent (maxBet, pot, gameNumber, round, flop1, flop2, flop3, turn, river) {
+function TableMessageComponent (maxBet, pot, gameNumber, round, activePlayer, timer, winner, flop1, flop2, flop3, turn, river) {
     var validMessage = true;
     if (typeof maxBet !== 'number' ) {
         validMessage = false;
@@ -149,6 +149,9 @@ function TableMessageComponent (maxBet, pot, gameNumber, round, flop1, flop2, fl
     this.pot = pot;
     this.gameNumber = gameNumber;
     this.round = round;
+    this.activePlayer = activePlayer;
+    this.timer = timer;
+    this.winner = winner;
     this.flop1 = flop1;
     this.flop2 = flop2;
     this.flop3 = flop3;
@@ -165,7 +168,7 @@ function TableMessageComponent (maxBet, pot, gameNumber, round, flop1, flop2, fl
  * @param timerStart
  * @constructor
  */
-function UserActionMessage (action, betAmount) {
+function UserActionMessage (username, jwt, action, betAmount) {
     this._id = 4;
 
     for (var i = 0; i < action.length; i++) {
@@ -178,6 +181,8 @@ function UserActionMessage (action, betAmount) {
         throw "The Bet Amount must be a Number";
     }
 
+    this.username = username;
+    this.jwt = jwt;
     this.action = action;
     this.betAmount = betAmount;
 }

@@ -58,6 +58,14 @@ function Player (seat, status) {
         if (this.cardB !== null) {
             retval += "Card B: " + this.cardB.toString() + "\n";
         }
+
+        if (this.lastAction !== null) {
+            retval += "Last Action: " + this.lastAction.action + "\n";
+        }
+
+        if (this.currentAction !== null) {
+            retval += "Current Action: " + this.currentAction.action + "\n";
+        }
         return retval;
     }
 }
