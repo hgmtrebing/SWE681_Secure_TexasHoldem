@@ -100,7 +100,7 @@ app.get("/login.js", function (req, res) {
     res.sendFile("web/src/loginAjax.js", { root: __dirname });
 });
 
-app.get("/table", function(req, res) {
+app.get("/table.html", function(req, res) {
     res.sendFile("web/table.html", {root: __dirname});
 });
 

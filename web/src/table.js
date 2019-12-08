@@ -17,9 +17,50 @@ $(document).ready(function() {
         $("#raise-amount").html("$" + $("#raise-range").val());
     });
 
+    $("#ok-button").on("click", function () {
+        var msg = {_id: 4, username: "", jwt: "", action: "", betAmount: 0};
+        msg.username = sessionStorage.getItem("user");
+        msg.jwt = sessionStorage.getItem("token");
+        if ($("#list-call-list").hasClass('active')) {
+            msg.action = 'CALL';
+            msg.betAmount = callAmount;
+        } else if ($("#list-allin-list").hasClass('active')) {
+            msg.action = 'ALLIN';
+            msg.betAmount = balance - bets;
+        } else if ($("#list-check-list").hasClass('active')) {
+            msg.action = 'CHECK';
+        } else if ($("#list-raise-list").hasClass('active')) {
+            msg.action = 'RAISE';
+            msg.betAmount = $("#raise-range").val();
+        }
+
+        socketConnection.emit("user-action-message", msg);
+        $("#user-action-modal").modal('hide');
+        console.log("User action message sent: " + JSON.stringify(msg));
+    });
+
+    $("#fold-button").on("click", function () {
+        var msg = {_id: 4, username: "", jwt: "", action: "FOLD", betAmount: 0};
+        msg.username = sessionStorage.getItem("user");
+        msg.jwt = sessionStorage.getItem("token");
+        socketConnection.emit("user-action-message", msg);
+        $("#user-action-modal").modal('hide');
+        console.log("User action message sent: " + JSON.stringify(msg));
+    });
+
+    $("#leave-button").on("click", function () {
+        var msg = {_id: 4, username: "", jwt: "", action: "LEAVE", betAmount: 0};
+        msg.username = sessionStorage.getItem("user");
+        msg.jwt = sessionStorage.getItem("token");
+        socketConnection.emit("user-action-message", msg);
+        $("#user-action-modal").modal('hide');
+        console.log("User action message sent: " + JSON.stringify(msg));
+    });
+
+
     function processMessage(message) {
 
-        alert ("Message Received " + JSON.stringify(message));
+        // alert ("Message Received " + JSON.stringify(message));
         // Game Status Message
         if (message._id === 5) {
             // Table Status
@@ -29,14 +70,14 @@ $(document).ready(function() {
                 $("#game-display").html("Game: " + tableStatus.gameNumber);
                 $("#round-display").html("Round: " + tableStatus.round);
 
-                if (tableStatus.flop1._id === 7) {
+                if (tableStatus.flop1 !== null && tableStatus.flop1._id === 7) {
                     $("#flop-1 .card-img").html(translateSuite(tableStatus.flop1.suiteName));
                     $("#flop-1 .card-text").html(translateRank(tableStatus.flop1.rankName));
                     $("#flop-1 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop1.suiteName));
                     $("#flop-1 .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop1.suiteName));
                 }
 
-                if (tableStatus.flop2._id === 7) {
+                if (tableStatus.flop2 !== null && tableStatus.flop2._id === 7) {
                     $("#flop-2 .card-img").html(translateSuite(tableStatus.flop2.suiteName));
                     $("#flop-2 .card-text").html(translateRank(tableStatus.flop2.rankName));
                     $("#flop-2 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop2.suiteName));
@@ -44,7 +85,7 @@ $(document).ready(function() {
 
                 }
 
-                if (tableStatus.flop3._id === 7) {
+                if (tableStatus.flop3 !== null && tableStatus.flop3._id === 7) {
                     $("#flop-3 .card-img").html(translateSuite(tableStatus.flop3.suiteName));
                     $("#flop-3 .card-text").html(translateRank(tableStatus.flop3.rankName));
                     $("#flop-3 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop3.suiteName));
@@ -52,7 +93,7 @@ $(document).ready(function() {
 
                 }
 
-                if (tableStatus.turn._id === 7) {
+                if (tableStatus.turn !== null && tableStatus.turn._id === 7) {
                     $("#turn .card-img").html(translateSuite(tableStatus.turn.suiteName));
                     $("#turn .card-text").html(translateRank(tableStatus.turn.rankName));
                     $("#turn .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.turn.suiteName));
@@ -60,7 +101,7 @@ $(document).ready(function() {
 
                 }
 
-                if (tableStatus.river._id === 7) {
+                if (tableStatus.river !== null && tableStatus.river._id === 7) {
                     $("#river .card-img").html(translateSuite(tableStatus.river.suiteName));
                     $("#river .card-text").html(translateRank(tableStatus.river.rankName));
                     $("#river .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.river.suiteName));
@@ -80,6 +121,10 @@ $(document).ready(function() {
     }
 
     function processGetUserActionMessage(message) {
+        if (!processingGetUserActionMessage) {
+            return;
+        }
+
         var validActions = message.validActions;
         var callAmount = parseInt(message.callAmount);
         var balance = parseInt(message.balance);
@@ -121,13 +166,18 @@ $(document).ready(function() {
                 timerStart--;
             } else if (timerStart >= -3) {
                 timerStart--;
+            } else if (timerStart >= -8) {
+                timerStart--;
+                $("#user-action-modal").modal('hide');
             } else {
+                processingGetUserActionMessage = true;
                 $("#user-action-modal").modal('hide');
                 clearTimeout(countdown);
             }
         }, 1000);
 
         $("#user-action-modal").modal({});
+        processingGetUserActionMessage = false;
     }
 
     function processOtherPlayer(otherPlayers) {
@@ -137,11 +187,20 @@ $(document).ready(function() {
             var balance = player.balance;
             var bet = player.bet;
             var status = player.status;
-            var action = player.action;
-            var cardASuite = player.cardA.suiteName;
-            var cardARank = player.cardA.rankName;
-            var cardBSuite = player.cardB.suiteName;
-            var cardBRank = player.cardB.rankName;
+            var action = player.action.action;
+            var cardASuite;
+            var cardARank;
+            if (player.cardA !== null) {
+                cardASuite = player.cardA.suiteName;
+                cardARank = player.cardA.rankName;
+            }
+
+            var cardBSuite = null;
+            var cardBRank = null;
+            if (player.cardB !== null) {
+                cardBSuite = player.cardB.suiteName;
+                cardBRank = player.cardB.rankName;
+            }
             var isBigBlind = player.isBigBlind;
             var isSmallBlind = player.isSmallBlind;
 
@@ -214,14 +273,14 @@ $(document).ready(function() {
             $(seat + " .player-current-bets").html("| $" + currentPlayer.bets);
              */
 
-            if (currentPlayer.cardA._id === 7) {
+            if (currentPlayer.cardA !== undefined && currentPlayer.cardA._id === 7) {
                 $(seat + " .cardA .card-img").html(translateSuite(currentPlayer.cardA.suiteName));
                 $(seat + " .cardA .card-text").html(translateRank(currentPlayer.cardA.rankName));
                 $(seat + " .cardA .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(currentPlayer.cardA.suiteName));
                 $(seat + " .cardA .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(currentPlayer.cardA.suiteName));
             }
 
-            if (currentPlayer.cardB._id === 7) {
+            if (currentPlayer.cardB !== undefined && currentPlayer.cardB._id === 7) {
                 $(seat + " .cardb .card-img").html(translateSuite(currentPlayer.cardB.suiteName));
                 $(seat + " .cardb .card-text").html(translateRank(currentPlayer.cardB.rankName));
                 $(seat + " .cardb .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(currentPlayer.cardB.suiteName));
@@ -307,36 +366,5 @@ const player3 = "#player-3";
 const player4 = "#player-4";
 const player5 = "#player-5";
 
-
-
-$("#ok-button").on("click", function () {
-    var msg = {_id: 4, action: "", betAmount: 0};
-    if ($("#list-call-list").hasClass('active')) {
-        msg.action = 'CALL';
-        msg.betAmount = callAmount;
-    } else if ($("#list-allin-list").hasClass('active')) {
-        msg.action = 'ALLIN';
-        msg.betAmount = balance - bets;
-    } else if ($("#list-check-list").hasClass('active')) {
-        msg.action = 'CHECK';
-    } else if ($("#list-raise-list").hasClass('active')) {
-        msg.action = 'RAISE';
-        msg.betAmount = $("#raise-range").val();
-    }
-    alert("before");
-    socketConnection.emit("user-action-msg", msg, function () {
-        alert("SENT");
-    });
-    alert("after");
-});
-
-$("#fold-button").on("click", function () {
-    var msg = {_id: 4, action: "FOLD", betAmount: 0};
-    socketConnection.emit("user-action-msg", msg);
-});
-
-$("#leave-button").on("click", function () {
-    var msg = {_id: 4, action: "LEAVE", betAmount: 0};
-    socketConnection.emit("user-action-msg", msg);
-});
+var processingGetUserActionMessage = true;
 

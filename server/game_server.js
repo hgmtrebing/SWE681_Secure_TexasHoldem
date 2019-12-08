@@ -22,7 +22,7 @@ function GameServer (server) {
 	 */
 	this.createTable = function () {
 		if (this.tables.length < this.tableLimit) {
-			var newTable = new Table(this.tableCounter);
+			var newTable = new Table(this.tableCounter, this);
 			this.tables.push(newTable);
 			this.log.logSystem("Table created, with ID: " + this.tableCounter);
 			this.tableCounter++;
@@ -116,7 +116,7 @@ function GameServer (server) {
 				table2.players.removeUser(username);
 			}
 			this.log.logSystem("User " + username + " removed from old location ( " + oldLocation + " ) and added to new location ( " + tableId + " )");
-			table2.players.waitingUsers.push(this.users[username]);
+			table.players.waitingUsers.push(username);
 			this.users[username].location = tableId;
 			this.log.logSystem("User " + username + "  added to table ( " + tableId + " )");
 		} else {
@@ -190,9 +190,10 @@ function GameServer (server) {
 				if (result) {
 					log.logSystem("Alerting user " + msg.username + " of success at joining table #" + msg.tableId);
 					socket.emit("join-table-success", {url: this.tableUrl});
+				} else {
+					log.logSystem("Alerting user " + msg.username + " of failure at joining table #" + msg.tableId);
+					socket.emit("join-table-failure");
 				}
-				log.logSystem("Alerting user " + msg.username + " of failure at joining table #" + msg.tableId);
-				socket.emit("join-table-failure");
 			}
 		}.bind(this));
 

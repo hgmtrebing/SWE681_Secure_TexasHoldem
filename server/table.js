@@ -15,7 +15,9 @@ const Rankings = require("./ranking").Rankings;
 const rankHand = require("./ranking").rankHand;
 const compareRankings = require("./ranking").compareRankings;
 
-function Table(tableId) {
+function Table(tableId, gameServer) {
+    this.gameServer = gameServer;
+
     this.tableId = tableId;
     this.roundId = 0;
 
@@ -28,7 +30,7 @@ function Table(tableId) {
 
     this.round = Rounds.WAITING;
 
-    this.players = new PlayerCollection();
+    this.players = new PlayerCollection(gameServer);
 
     this.pendingMessages = [];
 
@@ -70,8 +72,10 @@ function Table(tableId) {
             var message = this.pendingMessages.pop();
             var index = this.players.getPlayerIndexByUsername(message.username);
             if (index === this.currentPlayer) {
-                this.players.getPlayerAt(this.currentPlayer).currentAction = message;
+                this.players.getPlayerAt(this.currentPlayer).currentAction = { action: message.action, betAmount: parseInt(message.betAmount) };
                 this.log.logSystem("Message received for user " + this.players.getPlayerAt(this.currentPlayer).user.username);
+            } else {
+                this.log.logSystemError("Message received for non-active user: " + message.username);
             }
         }
     };
@@ -153,7 +157,7 @@ function Table(tableId) {
             }
         }
         var message = new GetUserActionMessage(actions, this.maxCurrentRoundBet - player.currentRoundBet, player.user.balance, player.bets, this.userTimeoutCounter);
-        player.socket.emit("get-user-action-message", message);
+        player.send(message);
     };
 
     this.next = function() {
@@ -303,7 +307,7 @@ function Table(tableId) {
         }
         this.canAdvanceToNextRound = true;
         this.winner = topPlayerIndex;
-        topPlayer.balance += this.pot;
+        topPlayer.user.balance += this.pot;
         this.pot = 0;
     };
 
@@ -380,15 +384,16 @@ function Table(tableId) {
             this.log.logGame(this.tableId, this.roundId, "Ending betting for round " + this.round);
         } else if (this.players.getPlayerAt(this.currentPlayer).status === Status.ACTIVE) {
             var player = this.players.getPlayerAt(this.currentPlayer);
-            this.sendGetUserAction();
             if (this.waitingForInput === false) {
                 this.waitingForInput = true;
                 this.userTimeoutFunction = setInterval(function() {
                     this.userTimeoutCounter++;
                 }.bind(this), 1000);
+                this.log.logSystem("Getting action and starting user timeout for player " + player.user.username);
             }
 
             if (this.userTimeoutCounter >= 35) {
+                this.log.logSystem("Player " + player.user.username + " has TIMED OUT");
                 player.status = Status.FOLDED;
                 player.currentAction = null;
                 player.lastAction = Actions.TIMEOUT;
@@ -396,8 +401,9 @@ function Table(tableId) {
                 this.userTimeoutFunction = null;
                 this.userTimeoutCounter = 0;
                 this.waitingForInput = false;
-                this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.Any, true, false, true);
+                this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
             } else if (player.currentAction !== null) {
+                this.log.logSystem("Action has been received for player " + player.user.username + ". (" + JSON.stringify(player.currentAction) + "). Processing user action. ");
                 this.conductIndividualBet(this.currentPlayer);
                 if (this.lastPlayer === -1) {
                     this.lastPlayer = this.currentPlayer;
@@ -408,18 +414,22 @@ function Table(tableId) {
                 this.userTimeoutCounter = 0;
                 this.waitingForInput = false;
                 this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
+                this.log.logSystem("Advancing to next user at index: " +this.currentPlayer);
             } else {
+                this.sendGetUserAction();
                 return;
             }
         } else {
             if (this.lastPlayer === -1) {
                 this.lastPlayer = this.currentPlayer;
             }
+            this.log.logSystem("User at index: " +this.currentPlayer + " is NOT ACTIVE");
             clearInterval(this.userTimeoutFunction);
             this.userTimeoutFunction = null;
             this.userTimeoutCounter = 0;
             this.waitingForInput = false;
             this.currentPlayer = this.players.getNextPlayerIndex(this.currentPlayer, Status.ALL, true, false, true);
+            this.log.logSystem("Advancing to next user at index: " +this.currentPlayer);
         }
     };
 
@@ -521,26 +531,26 @@ function Table(tableId) {
         var localTurn = null;
         var localRiver = null;
         if (this.round === Rounds.FLOP) {
-            localFlop1 = this.flop[0];
-            localFlop2 = this.flop[1];
-            localFlop3 = this.flop[2];
+            localFlop1 = new CardComponent(this.flop[0].suite, this.flop[0].rank);
+            localFlop2 = new CardComponent(this.flop[1].suite, this.flop[1].rank);
+            localFlop3 = new CardComponent(this.flop[2].suite, this.flop[2].rank);
         } else if (this.round === Rounds.TURN) {
-            localFlop1 = this.flop[0];
-            localFlop2 = this.flop[1];
-            localFlop3 = this.flop[2];
-            localTurn = this.turn;
+            localFlop1 = new CardComponent(this.flop[0].suite, this.flop[0].rank);
+            localFlop2 = new CardComponent(this.flop[1].suite, this.flop[1].rank);
+            localFlop3 = new CardComponent(this.flop[2].suite, this.flop[2].rank);
+            localTurn = new CardComponent(this.turn.suite, this.turn.rank);
         } else if (this.round === Rounds.RIVER) {
-            localFlop1 = this.flop[0];
-            localFlop2 = this.flop[1];
-            localFlop3 = this.flop[2];
-            localTurn = this.turn;
-            localRiver = this.river;
+            localFlop1 = new CardComponent(this.flop[0].suite, this.flop[0].rank);
+            localFlop2 = new CardComponent(this.flop[1].suite, this.flop[1].rank);
+            localFlop3 = new CardComponent(this.flop[2].suite, this.flop[2].rank);
+            localTurn = new CardComponent(this.turn.suite, this.turn.rank);
+            localRiver = new CardComponent(this.river.suite, this.river.rank);
         } else if (this.round === Rounds.FINAL) {
-            localFlop1 = this.flop[0];
-            localFlop2 = this.flop[1];
-            localFlop3 = this.flop[2];
-            localTurn = this.turn;
-            localRiver = this.river;
+            localFlop1 = new CardComponent(this.flop[0].suite, this.flop[0].rank);
+            localFlop2 = new CardComponent(this.flop[1].suite, this.flop[1].rank);
+            localFlop3 = new CardComponent(this.flop[2].suite, this.flop[2].rank);
+            localTurn = new CardComponent(this.turn.suite, this.turn.rank);
+            localRiver = new CardComponent(this.river.suite, this.river.rank);
         }
         var table = new TableMessageComponent(this.maxCurrentRoundBet, this.pot, this.roundId, this.round, this.currentPlayer, this.userTimeoutCounter, this.winner, localFlop1, localFlop2, localFlop3,  localTurn, localRiver);
         var otherUsers = [];

@@ -1,8 +1,10 @@
 const Status = require("./definition").Status;
 const Actions = require("./definition").Actions;
 const Log = require('./log').Log;
+const User = require('../model/User');
 
-function Player (seat, status) {
+function Player (seat, status, gameServer) {
+    this.gameServer = gameServer;
     this.user = {username: "EMPTY SEAT", balance: 0};
     this.seat = seat;
     this.status = status;
@@ -15,9 +17,21 @@ function Player (seat, status) {
     this.rank = null;
     this.log = new Log();
 
-    this.addUser = function(user) {
-        this.user = user;
-        this.status = Status.ACTIVE;
+    this.addUser = function(username) {
+
+        User.findOne({ username: username }, function (err, user) {
+            if (err) {
+                syslog.logSystemError(err.message);
+                return false;
+            }
+            if (user) {
+                this.user = user;
+                this.status = Status.ACTIVE;
+            } else {
+                //log this data of login failure -- username invalid
+                syslog.logSystem("Unable to find the username: " + username + " in the DB.");
+            }
+        }.bind(this));
     };
 
     this.removeUser = function() {
@@ -27,14 +41,25 @@ function Player (seat, status) {
     };
 
     this.send = function(message) {
-            if (message._id === 5) {
-                this.user.socket.emit("game-status-message", message);
-            }
 
-            if (message._id === 1) {
-                // Current Player Message
-                this.socket.emit("current-player-message", message);
-            }
+        var userSocket = this.gameServer.users[this.user.username].socket;
+
+        if (userSocket === null) {
+            this.log.logSystemError("Could not find socket for user " + this.user.username );
+            return;
+        }
+
+       if (message._id === 5) {
+            userSocket.emit("game-status-message", message);
+       } else if (message._id === 1) {
+           // Current Player Message
+           userSocket.emit("current-player-message", message);
+       } else if (message._id === 6) {
+           userSocket.emit("get-user-action-message", message);
+       } else {
+           this.log.logSystemError(JSON.stringify(message));
+           this.log.logSystemError("Attempted to send a message to player " + this.user.username + " with an unrecognized ID: " + message._id);
+       }
     };
 
     this.receive = function() {
@@ -71,17 +96,18 @@ function Player (seat, status) {
 }
 
 
-function PlayerCollection () {
+function PlayerCollection (gameServer) {
+    this.gameServer = gameServer;
 
     this.waitingUsers = [];
     this.log = new Log();
     this.players = [
-        new Player(0, Status.EMPTY),
-        new Player(1, Status.EMPTY),
-        new Player(2, Status.EMPTY),
-        new Player(3, Status.EMPTY),
-        new Player(4, Status.EMPTY),
-        new Player(5, Status.EMPTY)
+        new Player(0, Status.EMPTY, gameServer),
+        new Player(1, Status.EMPTY, gameServer),
+        new Player(2, Status.EMPTY, gameServer),
+        new Player(3, Status.EMPTY, gameServer),
+        new Player(4, Status.EMPTY, gameServer),
+        new Player(5, Status.EMPTY, gameServer)
     ];
 
     /**
@@ -243,6 +269,7 @@ function PlayerCollection () {
 
     this.getPlayerAt = function(index) {
         if (index >= this.players.length || index < 0) {
+            this.log.logSystemError("Attempted to get a Player with an invalid index: " + index + ". Indexes can only be between 0 and " + this.players.length);
             return null;
         } else {
             return this.players[index];
