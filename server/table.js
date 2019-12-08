@@ -125,6 +125,37 @@ function Table(tableId) {
         }
     };
 
+    this.sendGetUserAction = function() {
+        var player = this.players.getPlayerAt(this.currentPlayer);
+        var checkable =  player.currentRoundBet >= this.maxCurrentRoundBet;
+        var callable = (player.currentRoundBet + player.user.balance) >= this.maxCurrentRoundBet;
+        var raisable = (player.currentRoundBet + player.user.balance) > this.maxCurrentRoundBet;
+        var hasRemainingBalance = player.user.balance > 0;
+        var actions = [];
+
+        if (player.status === Status.ACTIVE) {
+            actions.push(Actions.FOLD);
+            actions.push(Actions.LEAVE);
+            if (raisable) {
+                actions.push(Actions.RAISE);
+            }
+
+            if (checkable) {
+                actions.push(Actions.CHECK);
+            }
+
+            if (callable) {
+                actions.push(Actions.CALL);
+            }
+
+            if (hasRemainingBalance) {
+                actions.push(Actions.ALLIN);
+            }
+        }
+        var message = new GetUserActionMessage(actions, this.maxCurrentRoundBet - player.currentRoundBet, player.user.balance, player.bets, this.userTimeoutCounter);
+        player.socket.emit("get-user-action-message", message);
+    };
+
     this.next = function() {
         this.processMessage();
         this.sendGameStateToPlayers();
@@ -349,6 +380,7 @@ function Table(tableId) {
             this.log.logGame(this.tableId, this.roundId, "Ending betting for round " + this.round);
         } else if (this.players.getPlayerAt(this.currentPlayer).status === Status.ACTIVE) {
             var player = this.players.getPlayerAt(this.currentPlayer);
+            this.sendGetUserAction();
             if (this.waitingForInput === false) {
                 this.waitingForInput = true;
                 this.userTimeoutFunction = setInterval(function() {
