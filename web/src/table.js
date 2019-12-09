@@ -82,6 +82,9 @@ $(document).ready(function() {
                     $("#flop-1 .card-text").html(translateRank(tableStatus.flop1.rankName));
                     $("#flop-1 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop1.suiteName));
                     $("#flop-1 .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop1.suiteName));
+                } else {
+                    $("#flop-1 .card-img").html(translateSuite(null));
+                    $("#flop-1 .card-text").html(translateRank(null));
                 }
 
                 if (tableStatus.flop2 !== null && tableStatus.flop2._id === 7) {
@@ -89,7 +92,9 @@ $(document).ready(function() {
                     $("#flop-2 .card-text").html(translateRank(tableStatus.flop2.rankName));
                     $("#flop-2 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop2.suiteName));
                     $("#flop-2 .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop2.suiteName));
-
+                } else {
+                    $("#flop-2 .card-img").html(translateSuite(null));
+                    $("#flop-2 .card-text").html(translateRank(null));
                 }
 
                 if (tableStatus.flop3 !== null && tableStatus.flop3._id === 7) {
@@ -97,7 +102,9 @@ $(document).ready(function() {
                     $("#flop-3 .card-text").html(translateRank(tableStatus.flop3.rankName));
                     $("#flop-3 .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop3.suiteName));
                     $("#flop-3 .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.flop3.suiteName));
-
+                } else {
+                    $("#flop-3 .card-img").html(translateSuite(null));
+                    $("#flop-3 .card-text").html(translateRank(null));
                 }
 
                 if (tableStatus.turn !== null && tableStatus.turn._id === 7) {
@@ -105,7 +112,9 @@ $(document).ready(function() {
                     $("#turn .card-text").html(translateRank(tableStatus.turn.rankName));
                     $("#turn .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.turn.suiteName));
                     $("#turn .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.turn.suiteName));
-
+                } else {
+                    $("#turn .card-img").html(translateSuite(null));
+                    $("#turn .card-text").html(translateRank(null));
                 }
 
                 if (tableStatus.river !== null && tableStatus.river._id === 7) {
@@ -113,7 +122,9 @@ $(document).ready(function() {
                     $("#river .card-text").html(translateRank(tableStatus.river.rankName));
                     $("#river .card-img").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.river.suiteName));
                     $("#river .card-text").removeClass(redClass).removeClass(blackClass).addClass(translateColor(tableStatus.river.suiteName));
-
+                } else {
+                    $("#river .card-img").html(translateSuite(null));
+                    $("#river .card-text").html(translateRank(null));
                 }
 
             }
@@ -161,7 +172,6 @@ $(document).ready(function() {
         if (message.cardA !== null) {
             cardASuite = message.cardA.suiteName;
             cardARank = message.cardA.rankName;
-
             $(playerHtml + " .cardA .card-text").html(translateRank(cardARank));
             $(playerHtml + " .cardA .card-img").html(translateSuite(cardASuite));
             $(playerHtml + " .cardA .card-img").removeClass(blackClass);
@@ -170,6 +180,10 @@ $(document).ready(function() {
             $(playerHtml + " .cardA .card-text").removeClass(blackClass);
             $(playerHtml + " .cardA .card-text").removeClass(redClass);
             $(playerHtml + " .cardA .card-text").addClass(translateColor(cardASuite));
+
+        } else {
+            $(playerHtml + " .cardA .card-text").html(translateRank(null));
+            $(playerHtml + " .cardA .card-img").html(translateSuite(null));
 
         }
 
@@ -187,6 +201,9 @@ $(document).ready(function() {
             $(playerHtml + " .cardb .card-text").removeClass(blackClass);
             $(playerHtml + " .cardb .card-text").removeClass(redClass);
             $(playerHtml + " .cardb .card-text").addClass(translateColor(cardBSuite));
+        } else {
+            $(playerHtml + " .cardb .card-text").html(translateRank(null));
+            $(playerHtml + " .cardb .card-img").html(translateSuite(null));
         }
     }
 

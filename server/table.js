@@ -107,6 +107,7 @@ function Table(tableId, gameServer) {
             this.log.logGame(this.tableId, this.roundId, "Ending Round " + this.round);
             if (this.round === Rounds.WAITING) {
                 this.round = Rounds.SETUP;
+                this.canAdvanceToNextRound = false;
             } else if (this.round === Rounds.SETUP) {
                 this.round = Rounds.BET;
             } else if (this.round === Rounds.BET) {
@@ -203,7 +204,6 @@ function Table(tableId, gameServer) {
     };
 
     this.setupTable = function () {
-        this.round = Rounds.SETUP;
         this.log.logGame(this.tableId, this.roundId, "Shuffling Deck");
         this.roundId++;
         this.deck.shuffle();
@@ -231,6 +231,8 @@ function Table(tableId, gameServer) {
             // Determine Blinds
             this.bigBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
             this.smallBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
+            console.log(this.bigBlind);
+            console.log(this.smallBlind);
 
             // Charge Blinds
             this.players.getPlayerAt(this.smallBlind).user.balance -= this.smallBlindAmount;
@@ -255,7 +257,6 @@ function Table(tableId, gameServer) {
 
     this.playFlopRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
-            this.round = Rounds.FLOP;
             this.startBetting(0);
         } else {
             this.canAdvanceToNextRound = true;
@@ -264,7 +265,6 @@ function Table(tableId, gameServer) {
 
     this.playTurnRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
-            this.round = Rounds.TURN;
             this.startBetting(0);
         } else {
             this.canAdvanceToNextRound = true;
@@ -273,7 +273,6 @@ function Table(tableId, gameServer) {
 
     this.playRiverRound = function () {
         if (this.players.getNumberOfPlayers(Status.ACTIVE, true) > 1) {
-            this.round = Rounds.RIVER;
             this.startBetting(0);
         } else {
             this.canAdvanceToNextRound = true;
@@ -281,7 +280,6 @@ function Table(tableId, gameServer) {
     };
 
     this.determineWinner = function () {
-        this.round = Rounds.FINAL;
         var topPlayer = null;
         var topPlayerIndex = -1;
         for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
@@ -308,30 +306,47 @@ function Table(tableId, gameServer) {
         this.winner = topPlayerIndex;
         topPlayer.user.balance += this.pot;
         this.pot = 0;
+        this.canAdvanceToNextRound = true;
+        /*
         setTimeout(function () {
             this.canAdvanceToNextRound = true;
-
         }.bind(this), 30000);
+
+         */
     };
 
     this.cleanupTable = function () {
         // Remove cards and place them back in the deck
+        this.log.logSystem("Return community cards");
         this.deck.deck.push(this.flop.pop());
         this.deck.deck.push(this.flop.pop());
         this.deck.deck.push(this.flop.pop());
         this.deck.deck.push(this.turn);
         this.deck.deck.push(this.river);
+        this.flop = [];
         this.turn = null;
         this.river = null;
 
         // Reset Bets and Pots
+        this.log.logSystem("Setting bets back to 0");
         this.pot = 0;
         this.maxCurrentRoundBet = 0;
 
         // Add Player Hands back
+        this.log.logSystem("Returning user's cards");
         for (var i = 0; i < this.players.getNumberOfPlayers(); i++) {
-            this.deck.deck.push(this.players.getPlayerAt(i).handA);
-            this.deck.deck.push(this.players.getPlayerAt(i).handB);
+            var player = this.players.getPlayerAt(i);
+
+            if (player.handA !== null) {
+                this.deck.deck.push(player.handA);
+                player.handA = null
+            }
+
+            if (player.handB !== null) {
+                this.deck.deck.push(player.handB);
+                player.handB = null;
+
+            }
         }
         this.canAdvanceToNextRound = true;
     };
@@ -587,18 +602,18 @@ function Table(tableId, gameServer) {
                 var player = this.players.players[i];
                 var cardA = null;
                 var cardB = null;
-                if (player.cardA !== null) {
+                if (player.cardA !== null && player.cardA !== undefined) {
                     cardA = new CardComponent(player.cardA.suite, player.cardA.rank);
                 }
 
-                if (player.cardB !== null) {
+                if (player.cardB !== null && player.cardB !== undefined) {
                     cardB = new CardComponent(player.cardB.suite, player.cardB.rank);
                 }
                 var msg = new CurrentPlayerMessageComponent(i, cardA, cardB);
                 player.send(msg);
             }
         }
-    }
+    };
 
     this.toString = function() {
         var str = "";
