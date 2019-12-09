@@ -28,7 +28,7 @@ function Log() {
             roundId: roundId,
             message:msg
            });
-           gamelog.save(function(err){
+           gameErrorlog.save(function(err){
             if(err){
                 console.log("[ Game Error: " + new Date() + "] " + msg);
             }
