@@ -302,8 +302,10 @@ function Table(tableId, gameServer) {
                 }
             }
         }
-        this.winner = topPlayerIndex;
-        topPlayer.user.balance += this.pot;
+        if (topPlayer !== null) {
+            this.winner = topPlayerIndex;
+            topPlayer.user.balance += this.pot;
+        }
         this.pot = 0;
         this.canAdvanceToNextRound = true;
         /*
