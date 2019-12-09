@@ -1,20 +1,11 @@
-Hello!
 
-Databse change(one to many relationships)
-User
-[game_ids]
 
-Game 
+gameLog
 id
-room
-[gameMove_ids]
-
-
-gameMove
-id
+userId
+tableid
+roundId
+userName
 move
 
-
-user
-array of games[2]
 
