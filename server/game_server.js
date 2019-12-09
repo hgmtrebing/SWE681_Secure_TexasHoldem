@@ -71,7 +71,7 @@ function GameServer (server) {
 	};
 
 	this.start = function() {
-		setInterval(this.mainLoop, 500, this);
+		setInterval(this.mainLoop, 1000, this);
 	};
 
 	this.createHomePageUpdateMessage = function() {

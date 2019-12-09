@@ -37,8 +37,8 @@ function Table(tableId, gameServer) {
 
     this.pot = 0;
     this.maxCurrentRoundBet = 0;
-    this.bigBlindAmount = 0;
-    this.smallBlindAmount = 0;
+    this.bigBlindAmount = 100;
+    this.smallBlindAmount = 50;
     this.bigBlind = -1;
     this.smallBlind = -1;
 
@@ -216,6 +216,7 @@ function Table(tableId, gameServer) {
         // Deal Cards
         this.log.logGame(this.tableId, this.roundId, "Dealing cards");
         this.flop = this.deck.deck.splice(0, 3);
+        console.log(JSON.stringify(this.flop));
         this.turn = this.deck.deck.pop();
         this.river = this.deck.deck.pop();
         for (var i = 0; i < this.players.getNumberOfPlayers(Status.ACTIVE, true); i++) {
@@ -231,8 +232,6 @@ function Table(tableId, gameServer) {
             // Determine Blinds
             this.bigBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
             this.smallBlind = this.players.getNextPlayerIndex(this.bigBlind, Status.ACTIVE, true, false, true);
-            console.log(this.bigBlind);
-            console.log(this.smallBlind);
 
             // Charge Blinds
             this.players.getPlayerAt(this.smallBlind).user.balance -= this.smallBlindAmount;
@@ -334,17 +333,23 @@ function Table(tableId, gameServer) {
 
         // Add Player Hands back
         this.log.logSystem("Returning user's cards");
-        for (var i = 0; i < this.players.getNumberOfPlayers(); i++) {
+        for (var i = 0; i < this.players.getNumberOfPlayers(Status.ALL, true); i++) {
             var player = this.players.getPlayerAt(i);
 
-            if (player.handA !== null) {
-                this.deck.deck.push(player.handA);
-                player.handA = null
+            player.bets = 0;
+            player.rank = null;
+            player.currentRoundBet = 0;
+            player.lastAction = {action: Actions.UNDEFINED, betAmount: 0};
+            player.currentAction = null;
+
+            if (player.cardA !== null && player.cardA !== undefined) {
+                this.deck.deck.push(player.cardA);
+                player.cardA = null
             }
 
-            if (player.handB !== null) {
-                this.deck.deck.push(player.handB);
-                player.handB = null;
+            if (player.cardB !== null && player.cardB !== undefined) {
+                this.deck.deck.push(player.cardB);
+                player.cardB = null;
 
             }
         }
