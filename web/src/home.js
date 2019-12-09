@@ -111,7 +111,7 @@ $(document).ready(function () {
     });
     //listening to enter-table
     socketConnection.on("join-table-success", function (msg) {
-        window.open(msg.url);
+        window.open(msg.url,"_self");
     });
 
     socketConnection.on('home-page-update-message', function(data){
