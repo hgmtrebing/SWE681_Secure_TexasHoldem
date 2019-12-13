@@ -95,7 +95,7 @@ router.post("/login", function (req, res) {
                         });
                     }
                     if (match) { //password match
-                        const token = jwt.sign({ "username": user.username, "password": user.password }, config.secretKey, { expiresIn: '12h' })
+                        const token = jwt.sign({ "username": user.username, "password": user.password }, config.privateKey, { expiresIn: '12h' });
                         syslog.logSystem(user.username + "Successfully logged in.");
                         res.send({
                             success: true,

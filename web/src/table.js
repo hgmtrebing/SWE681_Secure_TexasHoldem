@@ -10,7 +10,7 @@ $(document).ready(function() {
     });
 
     socketConnection.on("get-user-info", function (msg) {
-        socketConnection.emit("user-info", {username: sessionStorage.user, token: sessionStorage.token});
+        socketConnection.emit("user-info", {username: sessionStorage.user, jwt: sessionStorage.token});
     });
 
     socketConnection.on("current-player-message", function(msg){

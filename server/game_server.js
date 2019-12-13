@@ -1,9 +1,8 @@
-var https = require('https');
-const fs = require ('fs');
-
 const Log = require("./log").Log;
 const Table = require('./table').Table;
 const Status = require('./definition').Status;
+const jwt = require('jsonwebtoken');
+const config = require('../config');
 
 function GameServer (server) {
 	this.log = new Log();
@@ -64,10 +63,63 @@ function GameServer (server) {
 	 * Validates Inbound Messages
 	 */
 	this.validateMessage = function (msg) {
-		// Validate user and token
-		// Validate against input whitelist
-		// return true or false
-		return true;
+	    try {
+			var decrypted = jwt.verify(msg.jwt, config.publicKey);
+			var a = decrypted.username === msg.username;
+			var b = this.whitelistMessage(msg);
+			// check password against DB?
+			// Validate against input whitelist
+			// return true or false
+
+
+			if (!a) {
+				this.log.logSystem("Message received with invalid token (decrypted username does not match transmitted username");
+			}
+
+			if (!b) {
+				this.log.logSystem("Message received that failed whitelist input validation: " + JSON.stringify(msg));
+			}
+
+			return a && b;
+		} catch (e) {
+			this.log.logSystemError("Error (" + JSON.stringify(e) + ") encountered while trying to validate inbound message: " + JSON.stringify(msg));
+			return false;
+		}
+	};
+
+	this.whitelistMessage = function(msg) {
+		try {
+			var whitelist = /^[a-zA-Z0-9]*$/;
+			for (var key of Object.keys(msg)) {
+				if (key !== "_id" && whitelist.test(key) !== true) {
+				    // console.log("Key failed " +key);
+					return false;
+				}
+
+				if (key === "username" || key === "jwt" || key === "userId" || key === "_id") {
+					// just ignore username and jwt fields
+				} else if (typeof msg[key] === 'object') {
+					var passed = this.whitelistMessage(msg[key]);
+					if (passed === false) {
+						return false;
+					}
+				} else if (typeof msg[key] === 'string') {
+					if (whitelist.test(msg[key]) !== true) {
+					    // console.log("Failed " + key + ":" + msg[key]);
+						return false;
+					}
+
+				} else{
+					if (whitelist.test(JSON.stringify(msg[key])) !== true) {
+						// console.log("Failed " + key + ":" + msg[key]);
+						return false;
+					}
+				}
+			}
+			return true;
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	this.start = function() {

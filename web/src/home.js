@@ -11,7 +11,7 @@ $(document).ready(function () {
     }
     let user = {
         username: username,
-        token: token,
+        jwt: token,
         userId: _id
     }
     //ajax call to get the data
@@ -97,7 +97,7 @@ $(document).ready(function () {
         alert("New Table button clicked");
         socketConnection.emit("create-table", {
             username: username,
-            token: token,
+            jwt: token,
             userId: _id
         });
     })
@@ -126,7 +126,7 @@ $(document).ready(function () {
         console.log(id);
         socketConnection.emit("join-table", {
             username: username,
-            token: token,
+            jwt: token,
             userId: _id,
             tableId: id
         });
