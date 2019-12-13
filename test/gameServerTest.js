@@ -1,3 +1,9 @@
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
+
 const GameServer = require('../server/game_server').GameServer;
 const TestResult = require('./TestResult').TestResult;
 

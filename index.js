@@ -1,3 +1,9 @@
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
+
 const https = require("https");
 const fs = require("fs");
 const express = require("express");

@@ -1,3 +1,9 @@
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
+
 const jwt = require("jsonwebtoken");
 const config = require('./config.js');
 /*

@@ -1,3 +1,9 @@
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
+
 $(document).ready(function() {
 
     socketConnection.connect("https://localhost:8081");
@@ -10,7 +16,7 @@ $(document).ready(function() {
     });
 
     socketConnection.on("get-user-info", function (msg) {
-        socketConnection.emit("user-info", {username: sessionStorage.user, token: sessionStorage.token});
+        socketConnection.emit("user-info", {username: sessionStorage.user, jwt: sessionStorage.token});
     });
 
     socketConnection.on("current-player-message", function(msg){

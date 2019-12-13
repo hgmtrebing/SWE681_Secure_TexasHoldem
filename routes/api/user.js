@@ -1,3 +1,9 @@
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
+
 const express = require("express");
 const router = express.Router();
 const jwt = require('jsonwebtoken');
@@ -96,7 +102,7 @@ router.post("/login", function (req, res) {
                         });
                     }
                     if (match) { //password match
-                        const token = jwt.sign({ "username": user.username, "password": user.password }, config.secretKey, { expiresIn: '12h' })
+                        const token = jwt.sign({ "username": user.username, "password": user.password }, config.privateKey, { expiresIn: '12h' });
                         syslog.logSystem(user.username + "Successfully logged in.");
                         res.send({
                             success: true,

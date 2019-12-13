@@ -1,3 +1,9 @@
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
+
 var carddeckTest = require('./carddeckTest');
 var rankingTest = require('./rankingTest');
 var tableTest = require('./tableTest');

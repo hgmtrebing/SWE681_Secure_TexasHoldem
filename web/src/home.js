@@ -1,3 +1,10 @@
+
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
+
 $(document).ready(function () {
     socketConnection.connect("https://localhost:8081");
     let username = sessionStorage.getItem('user');
@@ -11,7 +18,7 @@ $(document).ready(function () {
     }
     let user = {
         username: username,
-        token: token,
+        jwt: token,
         userId: _id
     }
     //ajax call to get the data
@@ -97,7 +104,7 @@ $(document).ready(function () {
         alert("New Table button clicked");
         socketConnection.emit("create-table", {
             username: username,
-            token: token,
+            jwt: token,
             userId: _id
         });
     })
@@ -126,7 +133,7 @@ $(document).ready(function () {
         console.log(id);
         socketConnection.emit("join-table", {
             username: username,
-            token: token,
+            jwt: token,
             userId: _id,
             tableId: id
         });
