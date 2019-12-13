@@ -1,3 +1,8 @@
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
 
 //NOTE: not being used right now
 let mongoose = require('mongoose');

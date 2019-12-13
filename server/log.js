@@ -1,3 +1,9 @@
+/**
+ * SWE 681 - Fall 2019
+ * Final Project - Secure Texas Hold'Em
+ * Harry Trebing and Pravin Gurung
+ */
+
 const SystemLog =require('../model/SystemLog');
 const GameLog = require('../model/GameLog');
 const GameErrorLog = require('../model/GameErrorLog');
