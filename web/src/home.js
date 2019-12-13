@@ -53,6 +53,31 @@ $(document).ready(function () {
         }
     });
 
+    $.ajax({
+        url: "/api/gamelog/" + _id + "/getGameLogData",
+        type: "GET",
+        dataType: "text",
+        beforeSend: function (xhr) {   //Include the bearer token in header
+            xhr.setRequestHeader("Authorization", 'Bearer ' + token);
+        },
+        success: function (data) {
+            result = JSON.parse(data);
+            if (result.success) {
+                store = result.data;
+
+                if (store.length > 0) {
+                    store.forEach(appendDataToGameMoveTable);
+                }
+
+            } else {
+
+            }
+        },
+        error: function () {
+
+        }
+    });
+
 
     $("#log_out").click(function () {
         //call logout to server to deletet the token and so on... 
@@ -73,10 +98,10 @@ $(document).ready(function () {
     // });
 
     let store = [];
- 
+
 
     function appendDataToGameTable(item, index) {
-        console.log(item);
+        //console.log(item);
         let number = index + 1;
         let tableName = item.tableName;
         let players = item.players;
@@ -84,12 +109,27 @@ $(document).ready(function () {
         if (item.joinAllowed) {
             join = '<button id="joinBtn" value=' + item.tableId + ' class="btn btn-primary">Join Table</button>'
         }
-        $("#table_of_items tbody").remove(); 
+        $("#table_of_items tbody").remove();
         $('#game_table_data').append(`<tr>
         <th scope="row">`+ number + `</th>
         <td>`+ tableName + `</td>
         <td>`+ players + `</td>
         <td>`+ join + `</td>
+      </tr>`);
+    }
+
+
+    function appendDataToGameMoveTable(item, index) {
+        let number = index + 1;
+        let tableName = "Table#" + item.tableId;
+        let roundName = "Round#" + item.roundId;
+        let move = item.move;
+        $("#game_move_data tbody").remove();
+        $('#game_move_data').append(`<tr>
+        <th scope="row">`+ number + `</th>
+        <td>`+ tableName + `</td>
+        <td>`+ roundName + `</td>
+        <td>`+ move + `</td>
       </tr>`);
     }
 
@@ -118,12 +158,12 @@ $(document).ready(function () {
     });
     //listening to enter-table
     socketConnection.on("join-table-success", function (msg) {
-        window.open(msg.url,"_self");
+        window.open(msg.url, "_self");
     });
 
-    socketConnection.on('home-page-update-message', function(data){
-        store =data;
-        if(store.length >0){
+    socketConnection.on('home-page-update-message', function (data) {
+        store = data;
+        if (store.length > 0) {
             store.forEach(appendDataToGameTable);
         }
     })

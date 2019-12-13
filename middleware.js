@@ -14,8 +14,9 @@ let verifyToken = (req, res, next) => {
     if(token){
         if(token.startsWith('Bearer ')){
             token = token.slice(7, token.length); //remove bearer from token
+            //console.log("token: "+token);
         }
-        jwt.verify(token, config.secretKey, (err, decoded) => {
+        jwt.verify(token, config.privateKey, (err, decoded) => {
             if(err){
                 return res.json({
                     success:false,

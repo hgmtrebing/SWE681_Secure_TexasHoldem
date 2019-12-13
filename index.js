@@ -15,6 +15,7 @@ const childProcess = require('child_process');
 const GameServer = require('./server/game_server').GameServer;
 const middleware = require('./middleware');
 const userRoute = require('./routes/api/user');
+const gameLogRoute = require('./routes/api/gamelog');
 const Log = require('./server/log.js').Log;
 const config = require("./config");
 
@@ -132,6 +133,7 @@ app.get("/socket.js", function (req, res) {
 
 // Route for user login and register
 app.use("/api/user", userRoute);
+app.use("/api/gamelog", gameLogRoute);
 
 
 

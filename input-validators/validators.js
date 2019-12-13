@@ -19,6 +19,14 @@ function inputValidators() {
         let validPassword = /^([a-zA-Z0-9@_$*#!.]{8,20})$/; //need to change this later
         return validPassword.test(passwrd);
     }
+    this.isANumber = function(value){
+        let validNumber = /^[0-9]*$/;
+        return (validNumber.test(value) && Number(value) !== NaN)
+    }
+    this.isAlphaNumeric = function(value){
+        let valid = /^[a-zA-Z0-9]$/;
+        return valid.test(value);
+    }
 }
 
 module.exports ={
