@@ -6,6 +6,7 @@ const config = require('../../config');
 const Log = require('../../server/log.js').Log;
 const Validator = require('./../../input-validators/validators').inputValidators;
 let middleware = require('./../../middleware');
+const middleware = require('./../../middleware');
 
 // @route POST api/users/register
 router.post("/new-user", function (req, res) {
