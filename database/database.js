@@ -4,7 +4,7 @@ let mongoose = require('mongoose');
 const config = require('../config');
 const Log = require('../server/log.js').Log;
 
-mongoose.connect(config.DBURL, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(config.DBURL, { useCreateIndex: true, useFindAndModify: false, useNewUrlParser: true, useUnifiedTopology: true });
 
 let log = new Log();
 

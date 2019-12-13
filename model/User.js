@@ -24,7 +24,7 @@ let UserSchema = new schema({
         //add password complexity validator (Follow Rules)
         validate: {
             validator: function(v) {
-              return /^([a-zA-Z0-9@_$*#!.]{8,20})$/.test(v);
+              return /^([a-zA-Z0-9@_*#!]{8,20})$/.test(v);
             },
             message: props => `${props.value} is not a valid password. See the password rules!`
           },

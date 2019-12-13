@@ -93,6 +93,6 @@ function validateUsername(username){
 
 //Validate Username for min-char:8, max-char:20, alphanumeric inlcuding chars like @_$*#!. 
 function validatePassword(passwrd){
-    let validPassword = /^([a-zA-Z0-9@_$*#!.]{8,20})$/; //need to change this later
+    let validPassword = /^([a-zA-Z0-9@_*#!]{8,20})$/; //need to change this later
     return validPassword.test(passwrd);
 }

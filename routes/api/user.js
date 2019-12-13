@@ -149,5 +149,94 @@ router.get("/profile/:userId",middleware.verifyToken, function(req,res){
     })
 });
 
+router.put("/:userId/updateAmount",middleware.verifyToken, function(req,res){
+    let newAmt = req.body.balance;
+    User.findOneAndUpdate({_id: req.params.userId}, {balance: newAmt}, {new: true}, function(err, user_) {
+        if (err) {
+            syslog.logSystemError(err.message);
+            res.send({
+                success: false,
+                message: "Something went wrong. Please try again later."
+            });
+        }
+        if(user_){
+            res.send({
+                success:true,
+                username: user_.username,
+                balance: user_.balance
+            });
+        }
+    });
+});
+
+router.put("/:userId/updateWin",middleware.verifyToken, function(req,res){
+    User.findOneAndUpdate({_id: req.params.userId}, { $inc: {win: 1, GamePlayed:1 } }, {new: true}, function(err, user_) {
+        if (err) {
+            syslog.logSystemError(err.message);
+            res.send({
+                success: false,
+                message: "Something went wrong. Please try again later."
+            });
+        }
+        if(user_){
+            res.send({
+                success:true,
+                username: user_.username,
+                GamePlayed:user_.GamePlayed,
+                win:user_.win,
+                loss:user_.loss,
+                tie:user_.tie,
+                balance: user_.balance
+            });
+        }
+    });
+});
+
+router.put("/:userId/updateLoss",middleware.verifyToken, function(req,res){
+    User.findOneAndUpdate({_id: req.params.userId}, { $inc: {loss: 1, GamePlayed:1 } }, {new: true}, function(err, user_) {
+        if (err) {
+            syslog.logSystemError(err.message);
+            res.send({
+                success: false,
+                message: "Something went wrong. Please try again later."
+            });
+        }
+        if(user_){
+            res.send({
+                success:true,
+                username: user_.username,
+                GamePlayed:user_.GamePlayed,
+                win:user_.win,
+                loss:user_.loss,
+                tie:user_.tie,
+                balance: user_.balance
+            });
+        }
+    });
+});
+
+router.put("/:userId/updateTie",middleware.verifyToken, function(req,res){
+    User.findOneAndUpdate({_id: req.params.userId}, { $inc: {tie: 1, GamePlayed:1 } }, {new: true}, function(err, user_) {
+        if (err) {
+            syslog.logSystemError(err.message);
+            res.send({
+                success: false,
+                message: "Something went wrong. Please try again later."
+            });
+        }
+        if(user_){
+            res.send({
+                success:true,
+                username: user_.username,
+                GamePlayed:user_.GamePlayed,
+                win:user_.win,
+                loss:user_.loss,
+                tie:user_.tie,
+                balance: user_.balance
+            });
+        }
+    });
+});
+
 module.exports = router;
 

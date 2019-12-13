@@ -61,6 +61,11 @@ $(document).ready(function() {
         console.log("User action message sent: " + JSON.stringify(msg));
     });
 
+    $("#back_to_home").on("click", function(){
+        //back to home page
+        // what happens to the game.
+    })
+
 
     function processMessage(message) {
         console.log("Current: " + currentPlayerSeat);
