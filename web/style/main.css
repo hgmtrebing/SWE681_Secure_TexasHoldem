@@ -121,10 +121,16 @@ body {
 
 .player-stats {
     display: block;
+    clear:both;
 }
 
 .player-card-holder {
     display: inline;
+}
+
+.player-name, .player-balance, .player-status,.player-most-recent-action, .player-current-bets, #game-display, #round-display, #pot-display{
+    color:white;
+    font-size:16px;
 }
 
 .red {

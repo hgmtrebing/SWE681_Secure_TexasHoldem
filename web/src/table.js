@@ -304,8 +304,8 @@ $(document).ready(function() {
             }
 
             $(playerHtml + " .player-name").html(name);
-            $(playerHtml + " .player-balance").html("$" + balance);
-            $(playerHtml + " .player-current-bets").html("$" + bet);
+            $(playerHtml + " .player-balance").html("[$" + balance+"]");
+            $(playerHtml + " .player-current-bets").html("[$" + bet + "]");
             $(playerHtml + " .player-status").html(status);
             $(playerHtml + " .player-most-recent-action").html(action);
 
