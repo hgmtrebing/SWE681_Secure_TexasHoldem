@@ -20,6 +20,7 @@ const CardComponent = require('./messages').CardComponent;
 const Rankings = require("./ranking").Rankings;
 const rankHand = require("./ranking").rankHand;
 const compareRankings = require("./ranking").compareRankings;
+const User = require('../model/User');
 
 function Table(tableId, gameServer) {
     this.gameServer = gameServer;
@@ -91,7 +92,7 @@ function Table(tableId, gameServer) {
      * appear.
      */
     this.waitForPlayers = function () {
-        this.log.logGame(this.tableId, this.roundId, "Waiting for players");
+        this.log.logSystem(this.tableId, this.roundId, "Waiting for players");
         this.players.addWaitingPlayers();
         while (this.players.getNumberOfPlayers() < 2) {
             this.this.players.addWaitingPlayers();
@@ -110,7 +111,8 @@ function Table(tableId, gameServer) {
 
     this.advanceToNextRound = function() {
         if (this.canAdvanceToNextRound) {
-            this.log.logGame(this.tableId, this.roundId, "Ending Round " + this.round);
+            // this.log.logGame(this.tableId, this.roundId, "Ending Round " + this.round);
+            this.logGame( "Ending Round " + this.round);
             if (this.round === Rounds.WAITING) {
                 this.round = Rounds.SETUP;
                 this.canAdvanceToNextRound = false;
@@ -311,8 +313,10 @@ function Table(tableId, gameServer) {
         if (topPlayer !== null) {
             this.winner = topPlayerIndex;
             topPlayer.user.balance += this.pot;
+            this.logGame("User " + topPlayer.user.username + " has WON for " + this.pot);
         }
         this.pot = 0;
+        this.updateDatabase();
         this.canAdvanceToNextRound = true;
         /*
         setTimeout(function () {
@@ -392,7 +396,8 @@ function Table(tableId, gameServer) {
         this.maxCurrentRoundBet = startingBet;
         this.currentPlayer = this.players.getNextPlayerIndex(0, Status.ALL, true, true, true);
         this.lastPlayer = -1; // special value used in conductNextBet
-        this.log.logGame(this.tableId, this.roundId, "Betting starting for " + this.round + " round");
+        // this.log.logGame(this.tableId, this.roundId, "Betting starting for " + this.round + " round");
+        this.logGame("Betting starting for " + this.round + " round");
     };
 
     this.conductNextBet = function() {
@@ -412,7 +417,8 @@ function Table(tableId, gameServer) {
                 player.currentRoundBet = 0;
             }
 
-            this.log.logGame(this.tableId, this.roundId, "Ending betting for round " + this.round);
+            // this.log.logGame(this.tableId, this.roundId, "Ending betting for round " + this.round);
+            this.logGame("Ending betting for round " + this.round);
         } else if (this.players.getPlayerAt(this.currentPlayer).status === Status.ACTIVE) {
             var player = this.players.getPlayerAt(this.currentPlayer);
             if (this.waitingForInput === false) {
@@ -474,7 +480,8 @@ function Table(tableId, gameServer) {
 
             if (input.action === Actions.CHECK) {
                 if (checkable) {
-                    this.log.logGame(this.tableId, this.roundId, player.user.username + " has CHECKED");
+                    // this.log.logGame(this.tableId, this.roundId, player.user.username + " has CHECKED");
+                    this.logGame(player.user.username + " has CHECKED");
                 } else {
                     this.log.logGameError(this.tableId, this.roundId, player.user.username + " has CHECKED, despite not meeting the bet amount");
                     player.status = Status.FOLDED;
@@ -482,10 +489,12 @@ function Table(tableId, gameServer) {
 
             } else if (input.action === Actions.FOLD) {
                 player.status = Status.FOLDED;
-                this.log.logGame(this.tableId, this.roundId, player.user.username + " has FOLDED");
+                // this.log.logGame(this.tableId, this.roundId, player.user.username + " has FOLDED");
+                this.logGame(player.user.username + " has FOLDED");
 
             } else if (input.action === Actions.LEAVE) {
-                this.log.logGame(this.tableId, this.roundId, player.user.username + " has LEFT the game");
+                // this.log.logGame(this.tableId, this.roundId, player.user.username + " has LEFT the game");
+                this.logGame( player.user.username + " has LEFT the game");
                 this.deck.deck.push (player.cardA);
                 this.deck.deck.push (player.cardB);
                 player.cardA = null;
@@ -499,11 +508,13 @@ function Table(tableId, gameServer) {
                     player.bets += callAmount;
                     player.currentRoundBet += callAmount;
                     this.pot += callAmount;
-                    this.log.logGame(this.tableId, this.roundId, player.user.username + " has CALLED for " + callAmount);
+                    // this.log.logGame(this.tableId, this.roundId, player.user.username + " has CALLED for " + callAmount);
+                    this.logGame(player.user.username + " has CALLED for " + callAmount);
 
                     if (player.user.balance <= 0) {
                         player.status = Status.ALLIN;
-                        this.log.logGame(this.tableId, this.roundId, player.user.username + " has CALLED for their remaining balance, going ALL IN");
+                        // this.log.logGame(this.tableId, this.roundId, player.user.username + " has CALLED for their remaining balance, going ALL IN");
+                        this.logGame(player.user.username + " has CALLED for their remaining balance, going ALL IN");
                     }
                 } else {
                     this.log.logGameError(this.tableId, this.roundId, "INVALID MOVE: " + player.user.username + " attempted to call for " +callAmount);
@@ -521,7 +532,8 @@ function Table(tableId, gameServer) {
                     if (player.currentRoundBet > this.maxCurrentRoundBet) {
                         this.maxCurrentRoundBet = player.currentRoundBet;
                     }
-                    this.log.logGame(this.tableId, this.roundId, player.user.username + " went ALL IN for " + player.user.balance);
+                    // this.log.logGame(this.tableId, this.roundId, player.user.username + " went ALL IN for " + player.user.balance);
+                    this.logGame(player.user.username + " went ALL IN for " + player.user.balance);
                 } else {
                     this.log.logGameError(this.tableId, this.roundId, player.user.username + " attempted to go ALL IN, but lacked a remaining balance");
                 }
@@ -535,10 +547,12 @@ function Table(tableId, gameServer) {
                     this.maxCurrentRoundBet = input.betAmount;
                     this.lastPlayer = this.currentPlayer;
 
-                    this.log.logGame(this.tableId, this.roundId, player.user.username + " has RAISED by " + input.betAmount);
+                    // this.log.logGame(this.tableId, this.roundId, player.user.username + " has RAISED by " + input.betAmount);
+                    this.logGame(player.user.username + " has RAISED by " + input.betAmount);
                     if (player.user.balance <= 0) {
                         player.status = Status.ALLIN;
-                        this.log.logGame(this.tableId, this.roundId, player.user.username + " has RAISED by their remaining balance, going ALL IN");
+                        // this.log.logGame(this.tableId, this.roundId, player.user.username + " has RAISED by their remaining balance, going ALL IN");
+                        this.logGame(player.user.username + " has RAISED by their remaining balance, going ALL IN");
                     }
 
                 } else {
@@ -548,7 +562,8 @@ function Table(tableId, gameServer) {
 
             } else if (input.action === Actions.TIMEOUT) {
                 player.status = Status.FOLDED;
-                this.log.logGame(this.tableId, this.roundId, player.user.username + " has TIMED OUT");
+                // this.log.logGame(this.tableId, this.roundId, player.user.username + " has TIMED OUT");
+                this.logGame(player.user.username + " has TIMED OUT");
             } else {
                 this.log.logGameError(this.tableId, this.roundId, player.user.username + " has provided an unrecognized action: " + input.action);
             }
@@ -624,6 +639,42 @@ function Table(tableId, gameServer) {
                 }
                 var msg = new CurrentPlayerMessageComponent(i, cardA, cardB);
                 player.send(msg);
+            }
+        }
+    };
+
+    this.updateDatabase = function() {
+        for (var i = 0; i < this.players.players.length; i++) {
+            var player = this.players.players[i];
+            if (player.status !== Status.EMPTY) {
+                var won = (i === this.winner);
+                if (won) {
+                    User.findOneAndUpdate({_id: player.user._id}, {
+                        balance: player.user.balance,
+                        $inc: {win: 1, GamePlayed: 1}
+                    }, function (err, user_) {
+                        if (err) {
+                            this.log.logSystemError(err.message);
+                        }
+                    }.bind(this));
+                } else {
+                    User.findOneAndUpdate({_id: player.user._id}, {
+                        balance: player.user.balance,
+                        $inc: {loss: 1, GamePlayed: 1}
+                    }, function (err, user_) {
+                        if (err) {
+                            this.log.logSystemError(err.message);
+                        }
+                    }.bind(this));
+                }
+            }
+        }
+    };
+
+    this.logGame = function(msg) {
+        for (var i = 0; i < this.players.players.length; i++) {
+            if (this.players.players[i].status !== Status.EMPTY) {
+                this.log.logGame(this.players.players[i].user._id, this.players.players[i].user.username, this.tableId, this.roundId, msg);
             }
         }
     };

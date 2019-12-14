@@ -27,7 +27,7 @@ function Player (seat, status, gameServer) {
 
         User.findOne({ username: username }, function (err, user) {
             if (err) {
-                syslog.logSystemError(err.message);
+                this.log.logSystemError(err.message);
                 return false;
             }
             if (user) {
