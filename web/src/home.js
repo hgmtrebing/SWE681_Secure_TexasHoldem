@@ -42,8 +42,8 @@ $(document).ready(function () {
                 $("#user_amount").text("$" + user.amount);
                 $("#game_won").text(user.win);
                 $("#game_num").text(user.games);
-                $("#game_loss").text(user.tie);
-                $("#game_tied").text(user.loss);
+                $("#game_loss").text(user.loss);
+                $("#game_tied").text(user.tie);
             } else {
                 window.location.replace("/login");
             }
