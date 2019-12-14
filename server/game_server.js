@@ -15,7 +15,9 @@ function GameServer (server) {
 	this.tables = [];
 	this.users = {};
 	this.server = server;
-	this.tableCounter = 1;//table starts with 1
+
+
+	this.tableCounter = 0;//table starts with 1
 	this.tableLimit = 10;
 	this.mainLoopRunning = false;
 	this.tableUrl = "table.html";
