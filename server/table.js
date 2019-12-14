@@ -78,7 +78,19 @@ function Table(tableId, gameServer) {
         while (this.pendingMessages.length > 0) {
             var message = this.pendingMessages.pop();
             var index = this.players.getPlayerIndexByUsername(message.username);
-            if (index === this.currentPlayer) {
+            var player = this.players.getPlayerAt(index);
+
+            if (message._id === 11 && index !== -1) {
+                // TODO
+
+                this.logGame( player.user.username + " has LEFT the game");
+                this.deck.deck.push (player.cardA);
+                this.deck.deck.push (player.cardB);
+                player.cardA = null;
+                player.cardB = null;
+                player.removeUser();
+
+            } else if (index === this.currentPlayer) {
                 this.players.getPlayerAt(this.currentPlayer).currentAction = { action: message.action, betAmount: parseInt(message.betAmount) };
                 this.log.logSystem("Message received for user " + this.players.getPlayerAt(this.currentPlayer).user.username);
             } else {

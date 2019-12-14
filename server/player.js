@@ -33,9 +33,10 @@ function Player (seat, status, gameServer) {
             if (user) {
                 this.user = user;
                 this.status = Status.ACTIVE;
+                this.log.logSystem("Found " + username + " in the DB.");
             } else {
                 //log this data of login failure -- username invalid
-                syslog.logSystem("Unable to find the username: " + username + " in the DB.");
+                this.log.logSystem("Unable to find the username: " + username + " in the DB.");
             }
         }.bind(this));
     };
@@ -165,7 +166,7 @@ function PlayerCollection (gameServer) {
 
         // Now check players
         for (var i = 0; i < this.players.length; i++) {
-            if (this.players[i].user.username === username) {
+            if (this.players[i].user !== null && this.players[i].user.username === username) {
                 this.players[i].removeUser();
                 this.log.logSystem("Player removed from seat #" + i);
             }

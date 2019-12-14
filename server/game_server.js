@@ -263,6 +263,14 @@ function GameServer (server) {
 			}
 		}.bind(this));
 
+		socket.on('back-to-home', function(msg){
+			log.logSystem('Back-to-Home message received from ' + msg.username);
+			var validated = this.validateMessage(msg);
+			if (validated) {
+				this.sendMessageToTable(msg);
+			}
+		}.bind(this));
+
 		socket.on('disconnect', function() {
 
 		});

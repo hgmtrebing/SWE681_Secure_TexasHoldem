@@ -68,9 +68,14 @@ $(document).ready(function() {
     });
 
     $("#back_to_home").on("click", function(){
-        //back to home page
-        // what happens to the game.
-    })
+        var msg = {
+            _id: 11,
+            username: sessionStorage.getItem("user"),
+            jwt: sessionStorage.getItem("token")
+        };
+        socketConnection.emit("back-to-home", msg);
+        window.location="/home"
+    });
 
 
     function processMessage(message) {
